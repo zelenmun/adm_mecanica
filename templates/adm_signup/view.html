@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Sign Up{% endblock %}
+{% block extrahead %}
+    <script>
+        $(function () {
+
+        });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #F6F6F6;
+        }
+
+        .container {
+            height: 100%;
+            max-width: 70%;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="card mb-4" style="width: 40%; margin:auto; justify-content: center;">
+            <div class="card-body rounded-3">
+                <div class="card-body rounded-3">
+                    <h2>Registro de Usuario</h2>
+                </div>
+                <form method="POST">
+                    <div class="card-body rounded-3">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            {% if field.field.widget.attrs.separator %}
+                                {% if field.field.widget.attrs.blanklinebefore %}
+                                {% endif %}
+                                <div style="width: 100%; height: max-content">
+                                    <h6 style="width:100%; text-align:center; line-height:0.1em; margin:10px 0 30px;">
+                                        <span style="padding:0 10px; background: #fff;">
+                                            {% if field.field.widget.attrs.separatortitle %}
+                                                {{ field.field.widget.attrs.separatortitle }}
+                                            {% endif %}
+                                         </span>
+                                    </h6>
+                                </div>
+                            {% endif %}
+                            <div id="fieldset_{{ field.name }}" class="col-lg-{{ field.field.widget.attrs.col }}"
+                                 style="float: left; padding-right: 10px;">
+                                {#                                <label class="control-label pr-2"#}
+                                {#                                       for="id_{{ field.name }}">{{ field.label }}&nbsp;:#}
+                                {#                                </label>#}
+                                {{ field }}
+                                <p class="help-text">{{ field.help_text }} </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="card-body rounded-3">
+                        <button class="btn btn-success" style="width: 100%; margin-bottom: 10px">Registrarse</button>
+                        <button class="btn btn-outline-dark" style="width: 100%">Log In</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
