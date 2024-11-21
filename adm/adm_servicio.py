@@ -1,5 +1,9 @@
-from django.shortcuts import render
 from django.http import HttpResponse
+from django.shortcuts import render
+
+# IMPORTACIONES DE FORMULARIOS
+from core.forms import PersonaForm
+
 def view(request):
     data = {}
     if request.method == 'POST':
@@ -9,8 +13,7 @@ def view(request):
             action = request.GET['action']
         else:
             try:
-                data['buscador'] = True
-                data['title'] = u'Dashboard Mecánica'
-                return render(request, 'adm_main/view.html', data)
+                data['title'] = u'Servicios de Mecánica'
+                return render(request, 'adm_servicios/view.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")
