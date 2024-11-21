@@ -16,8 +16,9 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/interpretes/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/interpretes/venv_" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.8 (mecanica) (3)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.8 (adm_mecanica)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TemplatesService">
