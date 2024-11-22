@@ -1,5 +1,7 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.template.loader import get_template
+from .forms import AddTrabajoForm
 
 # IMPORTACIONES DE FORMULARIOS
 from core.forms import PersonaForm
@@ -11,6 +13,15 @@ def view(request):
     else:
         if 'action' in request.GET:
             action = request.GET['action']
+            if action == 'add':
+                try:
+                    form = AddTrabajoForm()
+                    data['form'] = form
+                    data['action'] = action
+                    template = get_template("adm_servicios/modal/form.html")
+                    return JsonResponse({"result": True, 'data': template.render(data)})
+                except Exception as ex:
+                    pass
         else:
             try:
                 data['title'] = u'Servicios de Mecánica'

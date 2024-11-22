@@ -21,9 +21,46 @@
     <!-- Custom styles for this page -->
     <link href="/static/dashboard/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
+
 </head>
 
 <body id="page-top">
+<!-- Modal -->
+<div class="modal fade" id="itemspanel" tabindex="-1" role="dialog" aria-labelledby="itemspanelTitle"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <!-- CABECERA DEL MODAL -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="itemspanelTitle">FORMULARIO MODAL</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-window-close"></i>
+                </button>
+            </div>
+
+            <!-- CUERPO DEL MODAL -->
+            <div class="modal-body" style="padding: 1.5%;">
+                <form class="form-horizontal form-modal" autocomplete="off" method="post"
+                      enctype="multipart/form-data" action="{{ request.path }}">
+                    {% csrf_token %}
+                    <div class="row panelbody">
+                        <!-- Aquí se agregarán los campos del formulario dinámicamente -->
+                    </div>
+                </form>
+            </div>
+
+            <!-- PIE DEL MODAL -->
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal"><i class="fa fa-times"></i>
+                    Cerrar
+                </button>
+                <button class="btn btn-primary" type="submit" form="form-modal"><i class="fa fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- Page Wrapper -->
 <div id="wrapper">
@@ -218,26 +255,6 @@
     <i class="fas fa-angle-up"></i>
 </a>
 
-<!-- Logout Modal-->
-<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-primary" href="">Logout</a>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Bootstrap core JavaScript -->
 <script src="/static/dashboard/vendor/jquery/jquery.min.js"></script>
 <script src="/static/dashboard/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -258,7 +275,31 @@
 <script src="/static/dashboard/js/demo/chart-pie-demo.js"></script>
 <script src="/static/dashboard/js/demo/datatables-demo.js"></script>
 
+{% block extrahead %}{% endblock %}
+<script>
+    function formModal(id, text, action, footer = true, ext) {
+        $('#itemspanel .modal-footer').toggle(footer); // Muestra u oculta el footer dinámicamente.
 
+        $.ajax({
+            type: "GET",
+            url: `{{ request.path }}`,
+            data: {
+                'action': action,
+                'id': id,
+                'ext': ext,
+            },
+            success: function (data) {
+
+                if (data.result === true) {
+                    $('#itemspanel .panelbody').html(data.data);
+                    $('#itemspanelTitle').html(text.toUpperCase());
+                    $("#itemspanel").modal({backdrop: 'static', keyboard: false}).modal('show');
+                }
+            },
+            dataType: "json"
+        });
+    }
+</script>
 </body>
 
 </html>
