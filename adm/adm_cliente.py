@@ -13,8 +13,8 @@ def view(request):
             data['action'] = action = request.GET['action']
         else:
             try:
-                data['title'] = u''
-                data['subtitle'] = u''
-                return render(request, '', data)
+                data['title'] = u'Administración de Clientes'
+                data['subtitle'] = u'Administre sus clientes'
+                return render(request, 'administracion/adm_clientes.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")

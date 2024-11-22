@@ -7,14 +7,14 @@ from core.forms import PersonaForm
 def view(request):
     data = {}
     if request.method == 'POST':
-        data['action'] = action = request.POST['action']
+        action = request.POST['action']
     else:
         if 'action' in request.GET:
-            data['action'] = action = request.GET['action']
+            action = request.GET['action']
         else:
             try:
-                data['title'] = u''
-                data['subtitle'] = u''
-                return render(request, '', data)
+                data['title'] = u'Administración de Trabajadores'
+                data['subtitle'] = u'Administre sus trabajadores'
+                return render(request, 'administracion/adm_trabajadores.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")
