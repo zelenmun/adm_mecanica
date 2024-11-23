@@ -17,7 +17,7 @@ def view(request):
                     pass
                 return JsonResponse({"result": True, 'mensaje': u'Se ha guardado excitosamente'})
             except Exception as ex:
-                return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar'})
+                return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar', 'detalle': str(ex)})
         return HttpResponse("Método no soportado")
     else:
         if 'action' in request.GET:
@@ -27,10 +27,10 @@ def view(request):
                     form = AddTrabajoForm()
                     data['form'] = form
                     data['action'] = action
-                    template = get_template("servicios/modal/form.html")
+                    template = get_template("modals/form.html")
                     return JsonResponse({"result": True, 'data': template.render(data)})
                 except Exception as ex:
-                    pass
+                    return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
             return HttpResponse("Método no soportado")
         else:
             try:

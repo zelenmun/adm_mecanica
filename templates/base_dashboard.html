@@ -20,7 +20,31 @@
     <link href="/static/dashboard/css/sb-admin-2.min.css" rel="stylesheet">
     <!-- Custom styles for this page -->
     <link href="/static/dashboard/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <style>
+        .spinner {
+            border: 6px solid #e74a3b;
+            border-top-color: transparent;
+            border-bottom-color: transparent;
+            border-radius: 50%;
 
+            width: 60px;
+            height: 60px;
+
+            animation: spin 1s infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(180deg) scale(1.2);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 
 </head>
 
@@ -40,7 +64,7 @@
 
             <!-- CUERPO DEL MODAL -->
             <div class="modal-body" style="padding: 1.5%;">
-                <form class="form-horizontal form-modal" autocomplete="off" method="post"
+                <form id="form-modal" class="form-horizontal form-modal" autocomplete="off" method="post"
                       enctype="multipart/form-data" action="{{ request.path }}">
                     {% csrf_token %}
                     <div class="row panelbody">
@@ -54,7 +78,8 @@
                 <button class="btn btn-secondary" type="button" data-dismiss="modal"><i class="fa fa-times"></i>
                     Cerrar
                 </button>
-                <button class="btn btn-primary" type="submit" form="form-modal"><i class="fa fa-save"></i> Guardar
+                <button class="btn btn-primary" type="submit" form="form-modal"><i class="fa fa-save"></i>
+                    Guardar
                 </button>
             </div>
         </div>
@@ -69,7 +94,7 @@
     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
         <!-- Sidebar - Brand -->
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
+        <a class="sidebar-brand d-flex align-items-center justify-content-center">
             <div class="sidebar-brand-icon rotate-n-15">
                 <i class="fa fa-toolbox"></i>
             </div>
@@ -206,6 +231,13 @@
                             </div>
                         </div>
                     </form>
+                {% else %}
+                    <!-- Page Heading -->
+                    <div class="col">
+                        <h1 class="h3 mb-2 text-gray-800">{{ title }}</h1>
+                        <span class="visually-hidden">{{ subtitle }}</span>
+                    </div>
+
                 {% endif %}
 
 
@@ -299,11 +331,27 @@
 <script src="/static/dashboard/js/demo/chart-pie-demo.js"></script>
 <script src="/static/dashboard/js/demo/datatables-demo.js"></script>
 
+<!-- JSQUERY -->
+<script src="/static/jsquery/jquery.blockUI.js"></script>
+<script src="/static/jsquery/jquery.validationEngine.js"></script>
+
+<!-- SWEETALERT2 -->
+<script src="/static/sweetalert2/dist/sweetalert2.all.js"></script>
+
+<!-- JAVASCRIPT -->
+<script src="/static/js/smoke.js"></script>
+
 {% block extrahead %}{% endblock %}
 <script>
-    function formModal(id, text, action, footer = true, ext) {
-        $('#itemspanel .modal-footer').toggle(footer); // Muestra u oculta el footer dinámicamente.
+    $.ajaxSetup({
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    });
 
+    function formModal(id, text, action, footer = true, ext) {
+        bloqueointerface();
+        $('#itemspanel .modal-footer').toggle(footer); // Muestra u oculta el footer dinámicamente.
         $.ajax({
             type: "GET",
             url: `{{ request.path }}`,
@@ -313,17 +361,264 @@
                 'ext': ext,
             },
             success: function (data) {
-
+                $.unblockUI();
                 if (data.result === true) {
-                    $('#itemspanel .panelbody').html(data.data);
-                    $('#itemspanelTitle').html(text.toUpperCase());
-                    $("#itemspanel").modal({backdrop: 'static', keyboard: false}).modal('show');
+                    $('#itemspanel .panelbody').html(data.data);  // Coloca el formulario dentro del modal
+                    $('#itemspanelTitle').html(text.toUpperCase());  // Actualiza el título del modal
+                    $("#itemspanel").modal({backdrop: 'static', keyboard: false}).modal('show');  // Muestra el modal
+
+                    // Agregar manejador para el formulario (cuando se envíe)
+                    $('form.form-modal').on('submit', function (e) {
+                        e.preventDefault();  // Evitar el comportamiento por defecto del formulario
+                        bloqueointerface();
+                        var formData = new FormData(this);
+                        formData.append('action', action)
+                        formData.append('id', id)
+
+                        $.ajax({
+                            type: "POST",
+                            url: `{{ request.path }}`,
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function (response) {
+                                $.unblockUI();
+                                if (response.result === true) {
+                                    Swal.fire({
+                                        position: "center",
+                                        icon: "success",
+                                        type: "success",
+                                        title: "Has completado el registro excitosamente!",
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    }).then(() => {
+                                        $("#itemspanel").modal('hide');
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: "error",
+                                        type: "error",
+                                        title: "Oops...!",
+                                        html: `<p><b>${response.mensaje}</b></p><hr>${response.detalle}`
+                                    });
+                                }
+                            },
+                            dataType: "json"
+                        });
+                    });
+
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        type: "error",
+                        title: "Oops...!",
+                        html: `<p><b>${data.mensaje}</b></p><hr>${data.detalle}`
+                    });
                 }
             },
             dataType: "json"
         });
     }
+
+    function bloqueointerface() {
+        $.blockUI({
+            message: '<div class="spinner"></div>',
+            css: {
+                border: 'none',
+                backgroundColor: 'transparent',
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 'auto',
+                height: 'auto'
+            },
+            overlayCSS: {
+                backgroundColor: 'rgba(0,0,0,0.75)',
+                opacity: 1
+            }
+        });
+
+    }
+
+
+    function eliminarajax(pk, nombre, action, titulo = '¡Cuidado! Estás por eliminar:') {
+        Swal.fire({
+            html: `${titulo} <b>${nombre}</b>`,
+            text: "Esta acción es irreversible",
+            type: 'warning',
+            icon: 'warning',
+            showCancelButton: true,
+            allowOutsideClick: false,
+            confirmButtonText: 'Eliminar!',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+                bloqueointerface();
+                $.ajax({
+                    url: "{{ request.path }}",
+                    type: "POST",
+                    data: {
+                        action: action,
+                        id: pk
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        $.unblockUI();
+                        if (data.result === true) {
+                            Swal.fire({
+                                position: "top-end",
+                                icon: "success",
+                                title: "Has eliminado el registro exitosamente!",
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                type: "error",
+                                title: "Oops...!",
+                                html: `<p><b>${data.mensaje}</b></p><hr>${data.detalle}`
+                            });
+                        }
+                    },
+                    error: function () {
+                        $.unblockUI();
+                        mensajeWarning("Error en la comunicación con el servidor.");
+                    }
+                });
+
+            } else {
+            }
+        })
+    }
+
+    function mensajeFlotante(tipo, mensaje) {
+        Swal.fire({
+            toast: false,
+            position: 'center',
+            icon: "info",
+            type: 'info',
+            title: mensaje,
+            html: tipo,
+            showConfirmButton: false
+        });
+    }
+
+    function alertaSuccess(mensaje, time = 2000) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            type: 'success',
+            title: mensaje,
+            showConfirmButton: false,
+            timer: time
+        })
+    }
+
+    function alertaWarning(mensaje, time = 2000) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            type: 'warning',
+            title: mensaje,
+            showConfirmButton: false,
+            timer: time
+        })
+    }
+
+    function alertaDanger(mensaje, time = 2000) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            type: 'error',
+            title: mensaje,
+            showConfirmButton: false,
+            timer: time
+        })
+    }
+
+    function alertaInfo(mensaje, time = 2000) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            type: 'info',
+            title: mensaje,
+            showConfirmButton: false,
+            timer: time
+        })
+    }
+
+    function mensajeSuccess(mensaje, titulo = '') {
+        Swal.fire(titulo, mensaje, 'success')
+    }
+
+    function mensajeWarning(mensaje, titulo = '') {
+        Swal.fire(titulo, mensaje, 'warning')
+    }
+
+    function mensajeDanger(mensaje, titulo = '') {
+        Swal.fire(titulo, mensaje, 'error')
+    }
+
+    function mensajeInfo(mensaje, titulo = '') {
+        Swal.fire(titulo, mensaje, 'info')
+    }
+
+    function mensajeWarningSwal(titulo, mensaje) {
+        Swal.fire({
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false,
+            type: 'warning',
+            customClass: {
+                confirmButton: 'btn btn-info'
+            },
+            title: titulo,
+            text: mensaje,
+            confirmButtonText: 'Aceptar',
+        })
+    }
+
+    function mensajeErrorSwal(titulo, mensaje) {
+        Swal.fire({
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false,
+            type: 'error',
+            customClass: {
+                confirmButton: 'btn btn-info'
+            },
+            title: titulo,
+            text: mensaje,
+            confirmButtonText: 'Aceptar',
+        })
+    }
+
+    function mensajeSuccessSwal(titulo, mensaje, url) {
+        Swal.fire({
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false,
+            type: 'success',
+            customClass: {
+                confirmButton: 'btn btn-info'
+            },
+            title: titulo,
+            text: mensaje,
+            confirmButtonText: 'Aceptar',
+        }).then((result) => {
+            if (result.value) {
+                bloqueointerface();
+                location.href = url;
+            }
+        })
+    }
 </script>
+
 </body>
 
 </html>

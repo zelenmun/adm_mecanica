@@ -10,9 +10,22 @@ class Vehiculo(ModeloBase):
     modelo = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'Modelo del vehículo')
     marca = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'Marca del vehículo')
 
+    def __str__(self):
+        return f'{self.modelo} - {self.placa}'
+
 class Cliente(ModeloBase):
     persona = models.ForeignKey(Persona, on_delete=models.CASCADE, verbose_name=u'Persona', related_name='clientes')
-    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE, verbose_name=u'Vehículo', related_name='clientes_asociados')
+    deuda_pendiente = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=u'Deuda del cliente')
+
+    def __str__(self):
+        return f'{self.persona} debe: {self.deuda_pendiente}'
+
+class Vehiculo_Cliente(ModeloBase):
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name=u'Cliente', related_name='cliente_vehiculo')
+    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE, verbose_name=u'Vehículo', related_name='vehiculo_cliente')
+
+    def __str__(self):
+        return f'{self.vehiculo} - {self.cliente}'
 
 class Trabajador(ModeloBase):
     nombre = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'Nombre del Trabajador')
@@ -23,9 +36,15 @@ class Proveedor(ModeloBase):
 class Categoria(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre de la Categoría')
 
+    def __str__(self):
+        return self.nombre
+
 class Subcategoria(ModeloBase):
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, blank=True, null=True, related_name='subcategoria', verbose_name=u'Nombre de la Categoría')
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='subcategoria', verbose_name=u'Nombre de la Categoría')
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre de la Subcategoria')
+
+    def __str__(self):
+        return f'{self.categoria} - {self.nombre}'
 
 class Estanteria(ModeloBase):
     codigo = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Código de la Estanteria')
