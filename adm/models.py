@@ -6,7 +6,7 @@ from core.models import ModeloBase, Persona
 # Create your models here.
 class Vehiculo(ModeloBase):
     descripcion = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Descripción del vehículo')
-    placa = models.CharField(max_length=10, blank=True, null=True, verbose_name=u'Placa del vehículo')
+    placa = models.CharField(max_length=10, blank=True, null=True, verbose_name=u'Placa del vehículo', unique=True)
     modelo = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'Modelo del vehículo')
     marca = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'Marca del vehículo')
 
