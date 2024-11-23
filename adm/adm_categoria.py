@@ -168,3 +168,4 @@ def view(request):
                 return render(request, 'administracion/adm_categorias.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")
+            #wjikdhasdff
