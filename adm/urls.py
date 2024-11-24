@@ -10,6 +10,7 @@ urlpatterns = [
     re_path(r'^administracion/proveedores$', adm_proveedor.view, name='proveedores'),
     re_path(r'^administracion/trabajadores$', adm_trabajador.view, name='trabajadores'),
     re_path(r'^administracion/productos$', adm_producto.view, name='productos'),
+    re_path(r'^administracion/productos/kardex$', adm_producto.view, name='productos'),
     re_path(r'^administracion/categorias$', adm_categoria.view, name='categorias'),
     re_path(r'^administracion/trabajos$', adm_trabajo.view, name='trabajos'),
     re_path(r'^administracion/vitrinas', adm_vitrina.view, name='vitrinas'),

@@ -9,16 +9,12 @@
 {% block dashboard %}
 
     <div class="container-fluid">
-        <!-- Page Heading -->
-        <h1 class="h3 mb-2 text-gray-800">{{ title }}</h1>
-        <span class="visually-hidden">{{ subtitle }}</span>
-
         <div class="card mb-4 py-1 border-left-primary">
             <div class="card-body">
-                <a href="javascript:void(0);" onclick="formModal('', 'Agregar', 'add', true, '')"
+                <a href="javascript:void(0);" onclick="formModal('', 'Agregar Producto', 'add', true, '')"
                    class="btn btn-primary btn-icon-split">
                     <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
-                    <span class="text">Agregar Trabajo</span>
+                    <span class="text">Agregar Producto</span>
                 </a>
 
             </div>
@@ -31,23 +27,46 @@
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Position</th>
-                            <th>Office</th>
-                            <th>Age</th>
-                            <th>Start date</th>
-                            <th>Salary</th>
+                            <th style="width: 1%">ID</th>
+                            <th style="width: 5%">Nombre</th>
+                            <th style="width: 5%">Descripción</th>
+                            <th style="width: 1%">Precio</th>
+                            <th style="width: 1%">Cantidad</th>
+                            <th style="width: 1%">Vitrina</th>
+                            <th style="width: 1%"></th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for l in list %}
                             <tr>
-                                <td>Tiger Nixon</td>
-                                <td>System Architect</td>
-                                <td>Edinburgh</td>
-                                <td>61</td>
-                                <td>2011/04/25</td>
-                                <td>$320,800</td>
+                                <td>{{ l.id }}</td>
+                                <td>{{ l.nombre }}</td>
+                                <td>{{ l.descripcion }}</td>
+                                <td>${{ l.precio }}</td>
+                                <td>{{ l.get_cantidad_actual }}</td>
+                                <td>{{ l.vitrina|default:"" }}</td>
+                                <td style="text-align: center">
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button"
+                                           id="dropdownMenuLink"
+                                           data-toggle="dropdown" aria-haspopup="true"
+                                           aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                             aria-labelledby="dropdownMenuLink">
+                                            <div class="dropdown-header">Acciones:</div>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="javascript:void(0);"
+                                               onclick="formModal('{{ l.id }}', 'Editar {{ l }}', 'edit', true, '')">Editar</a>
+                                            <a class="dropdown-item" href="javascript:void(0);"
+                                               onclick="eliminarajax('{{ l.id }}', '{{ l }}', 'del')">Eliminar</a>
+                                            <a class="dropdown-item" href="{{ request.path }}?action=kardex&id={{ l.id }}">Kardex</a>
+                                            <a class="dropdown-item" href="javascript:void(0);"
+                                               onclick="formModal('{{ l.id }}', 'Adicionar: {{ l }}', 'adicionar', true, '')">Adicionar</a>
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>

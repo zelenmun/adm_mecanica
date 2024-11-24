@@ -5,6 +5,8 @@ from django.template.loader import get_template
 # IMPORTACIONES DE FORMULARIOS
 from adm.forms import TextoForm
 from adm.models import Vitrina
+from core.funciones import normalizarTexto
+
 
 def view(request):
     data = {}
@@ -14,7 +16,7 @@ def view(request):
             try:
                 form = TextoForm(request.POST)
                 if form.is_valid():
-                    codigo = form.cleaned_data['texto']
+                    codigo = normalizarTexto(form.cleaned_data['texto'])
                     if Vitrina.objects.filter(codigo=codigo, status=True).exists():
                         return JsonResponse({'result': False, 'mensaje': u'Ya existe un registro con este código.', 'detalle':''})
                     vitrina = Vitrina(codigo=codigo)
@@ -29,7 +31,7 @@ def view(request):
                 form = TextoForm(request.POST)
                 if form.is_valid():
                     vitrina = Vitrina.objects.get(pk=request.POST['id'])
-                    codigo = form.cleaned_data['texto']
+                    codigo = normalizarTexto(form.cleaned_data['texto'])
                     if Vitrina.objects.filter(codigo=codigo, status=True).exclude(pk=vitrina.id).exists():
                         return JsonResponse({'result': False, 'mensaje': u'Ya existe un registro con este código.', 'detalle': ''})
                     vitrina.codigo = codigo
