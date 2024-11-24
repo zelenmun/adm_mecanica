@@ -1,2 +1,5 @@
-/core/migrations/
-/adm/migrations/
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
+**/migrations
+/db.sqlite3

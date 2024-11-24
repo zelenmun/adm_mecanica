@@ -11,6 +11,8 @@ def view(request):
             try:
                 data['buscador'] = True
                 data['title'] = u'Dashboard Mecánica'
+                data['dias'] = u'7'
+                data['cantidad'] = u'200.00'
                 return render(request, 'dashboard/view.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")

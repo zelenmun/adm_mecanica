@@ -46,12 +46,12 @@ class Subcategoria(ModeloBase):
     def __str__(self):
         return f'{self.categoria} - {self.nombre}'
 
-class Estanteria(ModeloBase):
-    codigo = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Código de la Estanteria')
+class Vitrina(ModeloBase):
+    codigo = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Código de la Vitrina')
 
 class Producto(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre del Producto')
-    estanteria = models.ForeignKey(Estanteria, on_delete=models.CASCADE, blank=True, null=True, related_name='producto', verbose_name=u'Nombre del Producto')
+    estanteria = models.ForeignKey(Vitrina, on_delete=models.CASCADE, blank=True, null=True, related_name='producto', verbose_name=u'Nombre del Producto')
     precio = models.DecimalField(default=0, max_digits=30, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del Producto')
 
 class Venta(ModeloBase):

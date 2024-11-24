@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -181,6 +180,7 @@
                     <h6 class="collapse-header">Inventario:</h6>
                     <a href="{% url 'productos' %}" class="collapse-item">Productos</a>
                     <a href="{% url 'categorias' %}" class="collapse-item">Categoría</a>
+                    <a href="{% url 'vitrinas' %}" class="collapse-item">Vitrina</a>
                     <h6 class="collapse-header">Servicios:</h6>
                     <a href="{% url 'trabajos' %}" class="collapse-item">Trabajos</a>
                 </div>
@@ -369,8 +369,7 @@
 
                     // Agregar manejador para el formulario (cuando se envíe)
                     $('form.form-modal').on('submit', function (e) {
-                        e.preventDefault();  // Evitar el comportamiento por defecto del formulario
-                        bloqueointerface();
+                        e.preventDefault();
                         var formData = new FormData(this);
                         formData.append('action', action)
                         formData.append('id', id)
@@ -382,7 +381,6 @@
                             processData: false,
                             contentType: false,
                             success: function (response) {
-                                $.unblockUI();
                                 if (response.result === true) {
                                     Swal.fire({
                                         position: "center",
