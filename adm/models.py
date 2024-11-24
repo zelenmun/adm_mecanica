@@ -49,10 +49,19 @@ class Subcategoria(ModeloBase):
 class Vitrina(ModeloBase):
     codigo = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Código de la Vitrina')
 
+    def __str__(self):
+        return f'{self.codigo}'
+
 class Producto(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre del Producto')
-    estanteria = models.ForeignKey(Vitrina, on_delete=models.CASCADE, blank=True, null=True, related_name='producto', verbose_name=u'Nombre del Producto')
+    vitrina = models.ForeignKey(Vitrina, on_delete=models.CASCADE, blank=True, null=True, related_name='vitrina_producto', verbose_name=u'Vitrina')
     precio = models.DecimalField(default=0, max_digits=30, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del Producto')
+    descripcion = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Descripción del producto')
+    cantidadi = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad Inicial')
+    cantidada = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad Inicial')
+
+    def __str__(self):
+        return f'{self.nombre} - {self.precio}'
 
 class Venta(ModeloBase):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True, related_name='venta', verbose_name=u'Nombre del Cliente')
