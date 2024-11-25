@@ -7,51 +7,89 @@
     </script>
 {% endblock %}
 {% block dashboard %}
-
     <div class="container-fluid">
-        <!-- Page Heading -->
-        <h1 class="h3 mb-2 text-gray-800">{{ title }}</h1>
-        <span class="visually-hidden">{{ subtitle }}</span>
+        <div class="row">
+            <div class="col-xl-4 col-lg-5">
+                <div class="card shadow mb-4">
+                    <!-- Card Header - Dropdown -->
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Adicione un Trabajo</h6>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <div class="chart-pie pt-4 pb-2">
+                            <input type="hidden" name="id" value="{{ id }}"/>
+                            <input type="hidden" name="action" value="{{ action }}"/>
 
-        <div class="card mb-4 py-1 border-left-primary">
-            <div class="card-body">
-                <a href="javascript:void(0);" onclick="formModal('', 'Agregar Trabajo', 'add', true, '')"
-                   class="btn btn-primary btn-icon-split">
-                    <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
-                    <span class="text">Agregar Trabajo</span>
-                </a>
+                            {% for field in form %}
+                                {% if field.field.widget.attrs.separator %}
+                                    {% if field.field.widget.attrs.blanklinebefore %}
+                                    {% endif %}
+                                    <div style="width: 100%; height: max-content">
+                                        <h6 style="width:100%; text-align:center; line-height:0.1em; margin:20px 0 10px; border-bottom: 1px solid #b3b3b3; color: #b3b3b3">
+                                            <span style="padding:0 10px; background: #fff;">
+                                                {% if field.field.widget.attrs.separatortitle %}
+                                                    {{ field.field.widget.attrs.separatortitle }}
+                                                {% endif %}
+                                            </span>
+                                        </h6>
+                                    </div>
+                                {% endif %}
+                                <div id="fieldset_{{ field.name }}" class="col-lg-{{ field.field.widget.attrs.col }}"
+                                     style="float: left; padding-right: 10px;">
+                                    {% if field.field.label %}
+                                        <label class="control-label pr-2"
+                                               for="id_{{ field.name }}"><b>{{ field.label }}</b>&nbsp;:
+                                        </label>
+                                    {% endif %}
+                                    {{ field }}
+                                    <p class="help-text">{{ field.help_text }} </p>
+                                </div>
+                            {% endfor %}
 
+                            {{ form.media|safe }}
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- DataTales Example -->
-        <div class="card shadow mb-4">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Position</th>
-                            <th>Office</th>
-                            <th>Age</th>
-                            <th>Start date</th>
-                            <th>Salary</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for l in list %}
-                            <tr>
-                                <td>Tiger Nixon</td>
-                                <td>System Architect</td>
-                                <td>Edinburgh</td>
-                                <td>61</td>
-                                <td>2011/04/25</td>
-                                <td>$320,800</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="col-xl-8 col-lg-7">
+                <div class="card shadow mb-4">
+                    <!-- Card Header - Dropdown -->
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Resumen de ganancias</h6>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Position</th>
+                                        <th>Office</th>
+                                        <th>Age</th>
+                                        <th>Start date</th>
+                                        <th>Salary</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for l in list %}
+                                        <tr>
+                                            <td>Tiger Nixon</td>
+                                            <td>System Architect</td>
+                                            <td>Edinburgh</td>
+                                            <td>61</td>
+                                            <td>2011/04/25</td>
+                                            <td>$320,800</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
