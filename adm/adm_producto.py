@@ -57,6 +57,39 @@ def view(request):
                 transaction.set_rollback(True)
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
 
+        if action == 'edit':
+            try:
+                form = ProductoForm(request.POST)
+                if form.is_valid():
+                    nombre = normalizarTexto(form.cleaned_data['nombre'])
+                    vitrina = form.cleaned_data['vitrina']
+                    subcategoria = form.cleaned_data['subcategoria']
+                    descripcion = normalizarTexto(form.cleaned_data['descripcion'])
+
+                    producto = Producto.objects.get(id=request.POST['id'])
+
+                    if Producto.objects.filter(nombre=nombre, status=True).exclude(pk=producto.id).exists():
+                        return JsonResponse({"result": False, 'mensaje': u'Este producto ya consta en el inventario.', 'detalle': ''})
+
+                    producto.nombre = nombre
+                    producto.vitrina = vitrina
+                    producto.subcategoria = subcategoria
+                    producto.descripcion = descripcion
+                    producto.save()
+                    return JsonResponse({'result': True, 'mensaje': 'Se ha editado la categoría excitosamente'})
+                return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle': ''})
+            except Exception as ex:
+                return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
+
+        if action == 'del':
+            try:
+                producto = Producto.objects.get(id=request.POST['id'])
+                producto.status = False
+                producto.save()
+                return JsonResponse({'result': True, 'mensaje': 'Se ha eliminado el producto excitosamente'})
+            except Exception as ex:
+                return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al eliminar el producto.', 'detalle': str(ex)})
+
         if action == 'adicionar':
             try:
                 form = AumentarProductoForm(request.POST)
@@ -91,6 +124,23 @@ def view(request):
             if action == 'add':
                 try:
                     form = ProductoForm()
+                    template = get_template('modals/form.html')
+                    return JsonResponse({'result': True, 'data': template.render({'form': form})})
+                except Exception as ex:
+                    return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
+
+            if action == 'edit':
+                try:
+                    producto = Producto.objects.get(pk=request.GET['id'])
+                    form = ProductoForm(initial={
+                        'nombre':producto.nombre,
+                        'precio':producto.precio,
+                        'cantidad':producto.get_cantidad_actual(),
+                        'vitrina':producto.vitrina,
+                        'subcategoria':producto.subcategoria,
+                        'descripcion':producto.descripcion})
+                    form.fields['cantidad'].widget.attrs['readonly'] = True
+                    form.fields['precio'].widget.attrs['readonly'] = True
                     template = get_template('modals/form.html')
                     return JsonResponse({'result': True, 'data': template.render({'form': form})})
                 except Exception as ex:

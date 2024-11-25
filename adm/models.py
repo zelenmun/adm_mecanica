@@ -46,8 +46,7 @@ class Categoria(ModeloBase):
 
 
 class Subcategoria(ModeloBase):
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='subcategoria',
-                                  verbose_name=u'Nombre de la Categoría')
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='subcategoria', verbose_name=u'Nombre de la Categoría')
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre de la Subcategoria')
 
     def __str__(self):
@@ -63,16 +62,13 @@ class Vitrina(ModeloBase):
 
 class Producto(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre del Producto')
-    subcategoria = models.ForeignKey(Subcategoria, on_delete=models.CASCADE, related_name='productos', blank=True,
-                                     null=True)
-    vitrina = models.ForeignKey(Vitrina, on_delete=models.CASCADE, blank=True, null=True,
-                                related_name='producto_vitrina', verbose_name=u'Vitrina')
-    precio = models.DecimalField(default=0, max_digits=30, decimal_places=2, blank=True, null=True,
-                                 verbose_name=u'Precio del Producto')
+    subcategoria = models.ForeignKey(Subcategoria, on_delete=models.CASCADE, related_name='productos', blank=True, null=True)
+    vitrina = models.ForeignKey(Vitrina, on_delete=models.CASCADE, blank=True, null=True, related_name='producto_vitrina', verbose_name=u'Vitrina')
+    precio = models.DecimalField(default=0, max_digits=30, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del Producto')
     descripcion = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Descripción del producto')
 
     def __str__(self):
-        return f'{self.nombre} - {self.precio}'
+        return f'{self.nombre} - ${self.precio}'
 
     def get_cantidad_actual(self):
         """Calcula la cantidad actual desde los movimientos del kardex"""

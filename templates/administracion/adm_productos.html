@@ -29,6 +29,7 @@
                             <th style="width: 1%">ID</th>
                             <th style="width: 5%">Nombre</th>
                             <th style="width: 5%">Descripción</th>
+                            <th style="width: 2%">Subcategoria</th>
                             <th style="width: 1%">Precio</th>
                             <th style="width: 1%">Cantidad</th>
                             <th style="width: 1%">Vitrina</th>
@@ -41,6 +42,7 @@
                                 <td>{{ l.id }}</td>
                                 <td>{{ l.nombre }}</td>
                                 <td>{{ l.descripcion }}</td>
+                                <td>{{ l.subcategoria.nombre }}</td>
                                 <td>${{ l.precio }}</td>
                                 <td>{{ l.get_cantidad_actual }}</td>
                                 <td>{{ l.vitrina|default:"" }}</td>
@@ -57,12 +59,37 @@
                                             <div class="dropdown-header">Acciones:</div>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" href="javascript:void(0);"
-                                               onclick="formModal('{{ l.id }}', 'Editar {{ l }}', 'edit', true, '')">Editar</a>
+                                               onclick="formModal('{{ l.id }}', 'Editar {{ l }}', 'edit', true, '')" style="display: flex; align-items: center;">
+                                                <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fas fa-edit"></i>
+                                                </span>
+                                                <span class="text" style="flex-grow: 1;">Editar</span>
+                                            </a>
+
                                             <a class="dropdown-item" href="javascript:void(0);"
-                                               onclick="eliminarajax('{{ l.id }}', '{{ l }}', 'del')">Eliminar</a>
-                                            <a class="dropdown-item" href="{{ request.path }}?action=kardex&id={{ l.id }}">Kardex</a>
+                                               onclick="eliminarajax('{{ l.id }}', '{{ l }}', 'del')" style="display: flex; align-items: center;">
+                                                <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fas fa-trash"></i>
+                                                </span>
+                                                <span class="text" style="flex-grow: 1;">Eliminar</span>
+                                            </a>
+
+                                            <a class="dropdown-item" href="{{ request.path }}?action=kardex&id={{ l.id }}"
+                                               style="display: flex; align-items: center;">
+                                                <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fas fa-book"></i>
+                                                </span>
+                                                <span class="text" style="flex-grow: 1;">Kardex</span>
+                                            </a>
+
                                             <a class="dropdown-item" href="javascript:void(0);"
-                                               onclick="formModal('{{ l.id }}', 'Adicionar: {{ l }}', 'adicionar', true, '')">Adicionar</a>
+                                               onclick="formModal('{{ l.id }}', 'Adicionar: {{ l }}', 'adicionar', true, '')" style="display: flex; align-items: center;">
+                                                <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fas fa-plus"></i>
+                                                </span>
+                                                <span class="text" style="flex-grow: 1;">Adicionar</span>
+                                            </a>
+
                                         </div>
                                     </div>
                                 </td>
