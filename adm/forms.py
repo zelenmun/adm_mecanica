@@ -1,13 +1,14 @@
 from django import forms
+from django.contrib.admin.widgets import AutocompleteSelect
 from core.models import Persona
 from core.modeloform import FormModeloBase
-from .models import Trabajo, Trabajador, Cliente, Categoria, Vitrina, Subcategoria
+from .models import Trabajo, Trabajador, Cliente, Categoria, Vitrina, Subcategoria, Producto
 
 class AddTrabajoForm(FormModeloBase):
-    trabajo = forms.ModelChoiceField(label=u'Trabajo', queryset=Trabajo.objects.filter(status=True), required=False, widget=forms.Select(attrs={'col': '6', 'class': 'form-control select2'}))
-    trabajador = forms.ModelChoiceField(label=u'Trabajador', queryset=Trabajador.objects.filter(status=True), required=False, widget=forms.Select(attrs={'col': '6', 'class': 'form-control'}))
-    cliente = forms.ModelChoiceField(label=u'Cliente', queryset=Cliente.objects.filter(status=True), required=False, widget=forms.Select(attrs={'col': '6', 'class': 'form-control'}))
-    precio = forms.DecimalField(label=u'Precio', max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col':'6'}))
+    trabajo = forms.ModelChoiceField(label=u'Trabajo', queryset=Producto.objects.filter(status=True), required=False, widget=forms.Select(attrs={'col': '12', 'class': 'form-control'}))
+    trabajador = forms.ModelChoiceField(label=u'Trabajador', queryset=Trabajador.objects.filter(status=True), required=False, widget=forms.Select(attrs={'col': '12', 'class': 'form-control'}))
+    cliente = forms.ModelChoiceField(label=u'Cliente', queryset=Cliente.objects.filter(status=True), required=False, widget=forms.Select(attrs={'col': '12', 'class': 'form-control'}))
+    precio = forms.DecimalField(label=u'Precio', max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col':'12'}))
 
 class TextoForm(FormModeloBase):
     texto = forms.CharField(max_length=500, required=True, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control'}))

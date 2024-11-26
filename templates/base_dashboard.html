@@ -19,6 +19,10 @@
     <link href="/static/dashboard/css/sb-admin-2.min.css" rel="stylesheet">
     <!-- Custom styles for this page -->
     <link href="/static/dashboard/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+    <!-- Agregar CSS de Select2 -->
+    <link href="/static/select2/dist/css/select2.min.css" rel="stylesheet" />
+
     <style>
         .spinner {
             border: 6px solid #e74a3b;
@@ -374,6 +378,12 @@
 <!-- JAVASCRIPT -->
 <script src="/static/js/smoke.js"></script>
 
+<!-- SELECT2 -->
+
+<!-- Agregar JS de Select2 -->
+<script src="/static/select2/dist/js/select2.min.js"></script>
+
+
 {% block extrahead %}{% endblock %}
 <script>
     $.ajaxSetup({
@@ -657,7 +667,7 @@
         $('a').on('click', function (e) {
             e.preventDefault();  // Evita la acción predeterminada de navegación
             var targetUrl = $(this).attr('href');
-            if (targetUrl !== undefined && targetUrl !== '#') {
+            if (targetUrl !== undefined && targetUrl !== '#' && targetUrl !== 'javascript:void(0);') {
                 // Bloquear la UI con un mensaje de carga
                 bloqueointerface()
 

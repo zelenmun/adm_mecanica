@@ -34,6 +34,8 @@ def view(request):
             return HttpResponse("Método no soportado")
         else:
             try:
+                form = AddTrabajoForm()
+                data['form'] = form
                 data['title'] = u'Servicios de Mecánica'
                 data['subtitle'] = u'Registra los servicios de mecánica realizados'
                 return render(request, 'servicios/view.html', data)

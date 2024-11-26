@@ -72,12 +72,8 @@ class Producto(ModeloBase):
 
     def get_cantidad_actual(self):
         """Calcula la cantidad actual desde los movimientos del kardex"""
-        entrada = \
-        KardexProducto.objects.filter(producto=self, tipo_movimiento=1).aggregate(total=models.Sum('cantidad'))[
-            'total'] or 0
-        salida = \
-        KardexProducto.objects.filter(producto=self, tipo_movimiento=2).aggregate(total=models.Sum('cantidad'))[
-            'total'] or 0
+        entrada = KardexProducto.objects.filter(producto=self, tipo_movimiento=1).aggregate(total=models.Sum('cantidad'))['total'] or 0
+        salida = KardexProducto.objects.filter(producto=self, tipo_movimiento=2).aggregate(total=models.Sum('cantidad'))['total'] or 0
         return entrada - salida
 
 
