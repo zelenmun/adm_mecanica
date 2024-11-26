@@ -55,7 +55,7 @@
                                 html: `<p><b>${response.mensaje}</b></p><hr>${response.detalle}`
                             });
                             location.reload();
-                        }else{
+                        } else {
                             Swal.fire({
                                 icon: "error",
                                 type: "error",
@@ -69,6 +69,20 @@
             })
         })
     </script>
+    <script>
+        document.getElementById("toggleSeparator").addEventListener("click", function () {
+    const accordionContent = document.getElementById("accordionContent");
+    if (accordionContent.style.display === "none") {
+        accordionContent.style.display = "block";
+        this.style.color = "#000"; // Cambia color para indicar que está activo
+    } else {
+        accordionContent.style.display = "none";
+        this.style.color = "#b3b3b3"; // Vuelve al color inicial
+    }
+});
+
+
+    </script>
 {% endblock %}
 {% block dashboard %}
     <div class="container-fluid">
@@ -81,39 +95,72 @@
                     </div>
                     <!-- Card Body -->
                     <div class="card-body">
-                        <div class="chart-pie pt-4 pb-2">
-                            <input type="hidden" name="id" value="{{ id }}"/>
-                            <input type="hidden" name="action" value="{{ action }}"/>
+    <div class="chart-pie pt-4 pb-2">
+        <input type="hidden" name="id" value="{{ id }}"/>
+        <input type="hidden" name="action" value="{{ action }}"/>
 
-                            {% for field in form %}
-                                {% if field.field.widget.attrs.separator %}
-                                    {% if field.field.widget.attrs.blanklinebefore %}
-                                    {% endif %}
-                                    <div style="width: 100%; height: max-content">
-                                        <h6 style="width:100%; text-align:center; line-height:0.1em; margin:20px 0 10px; border-bottom: 1px solid #b3b3b3; color: #b3b3b3">
-                                            <span style="padding:0 10px; background: #fff;">
-                                                {% if field.field.widget.attrs.separatortitle %}
-                                                    {{ field.field.widget.attrs.separatortitle }}
-                                                {% endif %}
-                                            </span>
-                                        </h6>
-                                    </div>
-                                {% endif %}
-                                <div id="fieldset_{{ field.name }}" class="col-lg-{{ field.field.widget.attrs.col }}"
-                                     style="float: left; padding-right: 10px;">
-                                    {% if field.field.label %}
-                                        <label class="control-label pr-2"
-                                               for="id_{{ field.name }}"><b>{{ field.label }}</b>&nbsp;:
-                                        </label>
-                                    {% endif %}
-                                    {{ field }}
-                                    <p class="help-text">{{ field.help_text }} </p>
-                                </div>
-                            {% endfor %}
+        <!-- Campo Trabajo -->
+        <div id="fieldset_trabajo" class="col-lg-12" style="float: left; padding-right: 10px;">
+            <label class="control-label pr-2" for="id_trabajo"><b>Trabajo</b>:</label>
+            {{ form.trabajo }}
+            <p class="help-text">{{ form.trabajo.help_text }}</p>
+        </div>
 
-                            {{ form.media|safe }}
-                        </div>
-                    </div>
+        <!-- Campo Precio -->
+        <div id="fieldset_precio" class="col-lg-12" style="float: left; padding-right: 10px;">
+            <label class="control-label pr-2" for="id_precio"><b>Precio</b>:</label>
+            {{ form.precio }}
+            <p class="help-text">{{ form.precio.help_text }}</p>
+        </div>
+
+        <!-- Separador como botón -->
+        <div style="width: 100%; height: max-content; text-align: center; margin: 20px 0;">
+            <h6 style="line-height: 0.1em; margin: 0; cursor: pointer; border-bottom: 1px solid #b3b3b3; color: #b3b3b3;"
+                id="toggleSeparator">
+                <span style="padding: 0 10px; background: #fff;">
+                    {{ form.nprecio.field.widget.attrs.separatortitle }}
+                </span>
+            </h6>
+        </div>
+
+        <!-- Contenido oculto por defecto -->
+        <div id="accordionContent" style="display: none;">
+
+            <!-- Campo nPrecio -->
+            <div id="fieldset_nprecio" class="col-lg-12" style="float: left; padding-right: 10px;">
+                <label class="control-label pr-2" for="id_nprecio"><b>Precio Alterno</b>:</label>
+                {{ form.nprecio }}
+                <p class="help-text">{{ form.nprecio.help_text }}</p>
+            </div>
+
+            <!-- Campo Trabajador -->
+            <div id="fieldset_trabajador" class="col-lg-12" style="float: left; padding-right: 10px;">
+                <label class="control-label pr-2" for="id_trabajador"><b>Trabajador</b>:</label>
+                {{ form.trabajador }}
+                <p class="help-text">{{ form.trabajador.help_text }}</p>
+            </div>
+
+            <!-- Campo Cliente -->
+            <div id="fieldset_cliente" class="col-lg-12" style="float: left; padding-right: 10px;">
+                <label class="control-label pr-2" for="id_cliente"><b>Cliente</b>:</label>
+                {{ form.cliente }}
+                <p class="help-text">{{ form.cliente.help_text }}</p>
+            </div>
+
+            <!-- Campo Detalle -->
+            <div id="fieldset_detalle" class="col-lg-12" style="float: left; padding-right: 10px;">
+                <label class="control-label pr-2" for="id_detalle"><b>Detalle</b>:</label>
+                {{ form.detalle }}
+                <p class="help-text">{{ form.detalle.help_text }}</p>
+            </div>
+        </div>
+
+        {{ form.media|safe }}
+    </div>
+</div>
+
+
+
                     <div class="container-fluid">
                         <div class="row" style="display: flex; justify-content: center;">
                             <a href="" class="btn btn-danger btn-icon-split btn-animate"
@@ -141,8 +188,8 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>Trabajo</th>
-                                        <th>Trabajador</th>
                                         <th>Precio</th>
+                                        <th>Trabajador</th>
                                         <th>Cliente</th>
                                         <th>Detalle</th>
                                         <th></th>
@@ -153,8 +200,8 @@
                                         <tr>
                                             <td>{{ l.id }}</td>
                                             <td>{{ l.trabajo }}</td>
-                                            <td>{{ l.trabajador|default_if_none:"" }}</td>
                                             <td>{{ l.precio|floatformat:2 }}</td>
+                                            <td>{{ l.trabajador|default_if_none:"" }}</td>
                                             <td>{{ l.cliente|default_if_none:"" }}</td>
                                             <td>{{ l.detalle }}</td>
                                             <td>
@@ -173,7 +220,8 @@
                                                         <a class="dropdown-item" href="javascript:void(0);"
                                                            onclick="formModal('{{ l.id }}', 'Editar {{ l }}', 'editcategoria', true, '')"
                                                            style="display: flex; align-items: center;">
-                                                            <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                            <span class="icon text-gray-600"
+                                                                  style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
                                                                 <i class="fas fa-edit"></i>
                                                             </span>
                                                             <span class="text" style="flex-grow: 1;">Editar</span>
@@ -182,7 +230,8 @@
                                                         <a class="dropdown-item" href="javascript:void(0);"
                                                            onclick="eliminarajax('{{ l.id }}', '{{ l }}', 'delcategoria')"
                                                            style="display: flex; align-items: center;">
-                                                            <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                            <span class="icon text-gray-600"
+                                                                  style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
                                                                 <i class="fas fa-trash"></i>
                                                             </span>
                                                             <span class="text" style="flex-grow: 1;">Eliminar</span>
