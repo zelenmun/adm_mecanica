@@ -21,9 +21,13 @@
     <link href="/static/dashboard/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
     <!-- Agregar CSS de Select2 -->
-    <link href="/static/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="/static/select2/dist/css/select2.min.css" rel="stylesheet"/>
 
     <style>
+        body {
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
         .spinner {
             border: 6px solid #e74a3b;
             border-top-color: transparent;
@@ -68,6 +72,10 @@
         .form-control:focus,
         .select2-container--default.select2-container--focus .select2-selection--single {
             box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+        .select2-container .select2-search__field:focus {
+            outline: none; /* Elimina el contorno predeterminado */
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25); /* Añadir sombra si es necesario */
         }
     </style>
 </head>

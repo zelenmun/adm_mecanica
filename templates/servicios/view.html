@@ -6,11 +6,25 @@
             $('#id_trabajo').select2();
             $('#id_cliente').select2();
             $('#id_trabajador').select2();
+
+            $('#id_trabajo').change(function () {
+                var valor = $(this).val()
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ request.path }}',
+                    data: {'action': 'obtenerprecio', 'id': valor},
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.result === true) {
+                            $('#id_precio').val(response.precio)
+                        }
+                    },
+                    dataType: "json"
+                })
+            })
         })
     </script>
-    <style>
-
-    </style>
 {% endblock %}
 {% block dashboard %}
     <div class="container-fluid">

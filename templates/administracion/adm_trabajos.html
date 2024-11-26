@@ -3,6 +3,7 @@
 {% block extrahead %}
     <script>
         $(function () {
+
         })
     </script>
 {% endblock %}
@@ -27,23 +28,56 @@
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Position</th>
-                            <th>Office</th>
-                            <th>Age</th>
-                            <th>Start date</th>
-                            <th>Salary</th>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Detalle</th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for l in list %}
-                            <tr>
-                                <td>Tiger Nixon</td>
-                                <td>System Architect</td>
-                                <td>Edinburgh</td>
-                                <td>61</td>
-                                <td>2011/04/25</td>
-                                <td>$320,800</td>
+                            <tr style="text-align: center">
+                                <td>{{ l.id }}</td>
+                                <td>{{ l.nombre }}</td>
+                                <td>${{ l.precio|floatformat:2 }}</td>
+                                <td>{{ l.detalle }}</td>
+                                <td>
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button"
+                                           id="dropdownMenuLink"
+                                           data-toggle="dropdown" aria-haspopup="true"
+                                           aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                             aria-labelledby="dropdownMenuLink">
+                                            <div class="dropdown-header">Acciones:</div>
+                                            <div class="dropdown-divider"></div>
+
+                                            <a class="dropdown-item" href="javascript:void(0);"
+                                               onclick="formModal('{{ l.id }}', 'Editar {{ l }}', 'edit', true, '')"
+                                               style="display: flex; align-items: center;">
+                                                <span class="icon text-gray-600"
+                                                      style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fas fa-edit"></i>
+                                                </span>
+                                                <span class="text" style="flex-grow: 1;">Editar</span>
+                                            </a>
+
+                                            <a class="dropdown-item" href="javascript:void(0);"
+                                               onclick="eliminarajax('{{ l.id }}', '{{ l }}', 'del')"
+                                               style="display: flex; align-items: center;">
+                                                            <span class="icon text-gray-600"
+                                                                  style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                                <i class="fas fa-trash"></i>
+                                                            </span>
+                                                <span class="text" style="flex-grow: 1;">Eliminar</span>
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>

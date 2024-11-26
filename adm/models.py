@@ -128,8 +128,12 @@ class Venta(ModeloBase):
 
 
 class Trabajo(ModeloBase):
+    nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre de Trabajo')
     precio = models.DecimalField(default=0, max_digits=30, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del Trabajo')
+    detalle = models.CharField(max_length=5000, blank=True, null=True, verbose_name=u'Detalle del Trabajo')
 
+    def __str__(self):
+        return f'{self.nombre}'
 
 class Diario(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre del Producto')

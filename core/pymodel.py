@@ -1,7 +1,11 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.template.loader import get_template
+
+from core.funciones import normalizarTexto
 
 # IMPORTACIONES DE FORMULARIOS
+from adm.forms import ProductoForm
 from core.forms import PersonaForm
 
 def view(request):

@@ -5,6 +5,7 @@ from .forms import AddTrabajoForm
 
 # IMPORTACIONES DE FORMULARIOS
 from core.forms import PersonaForm
+from adm.models import Trabajo
 
 def view(request):
     data = {}
@@ -31,6 +32,13 @@ def view(request):
                     return JsonResponse({"result": True, 'data': template.render(data)})
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
+
+            if action == 'obtenerprecio':
+                try:
+                    trabajo = Trabajo.objects.get(pk=request.GET['id'])
+                    return JsonResponse({"result": True, 'precio': trabajo.precio})
+                except Exception as ex:
+                    return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el valor.', 'detalle': str(ex)})
             return HttpResponse("Método no soportado")
         else:
             try:
