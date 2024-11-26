@@ -1,5 +1,4 @@
 {% extends 'base_dashboard.html' %}
-
 {% block extrahead %}
     <script>
         $(function () {
@@ -13,11 +12,56 @@
                     type: 'GET',
                     url: '{{ request.path }}',
                     data: {'action': 'obtenerprecio', 'id': valor},
-                    processData: false,
-                    contentType: false,
                     success: function (response) {
                         if (response.result === true) {
-                            $('#id_precio').val(response.precio)
+                            $('#id_precio').val('$' + response.precio)
+                        }
+                    },
+                    dataType: "json"
+                })
+            })
+
+            $('#btn_addtrabajo').click(function () {
+                bloqueointerface();
+                var trabajo = $('#id_trabajo').val()
+                var precio = $('#id_precio').val()
+                var nprecio = $('#id_nprecio').val()
+                var trabajador = $('#id_trabajador').val()
+                var cliente = $('#id_cliente').val()
+                var detalle = $('#id_detalle').val()
+
+                var formdata = new FormData()
+                formdata.append('trabajo', trabajo)
+                formdata.append('precio', precio)
+                formdata.append('nprecio', nprecio)
+                formdata.append('trabajador', trabajador)
+                formdata.append('detalle', detalle)
+                formdata.append('cliente', cliente)
+                formdata.append('action', 'add')
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ request.path }}',
+                    data: formdata,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        $.unblockUI();
+                        if (data.result === true) {
+                            Swal.fire({
+                                icon: "success",
+                                type: "success",
+                                title: "Has completado el registro exitosamente!",
+                                html: `<p><b>${response.mensaje}</b></p><hr>${response.detalle}`
+                            });
+                            location.reload();
+                        }else{
+                            Swal.fire({
+                                icon: "error",
+                                type: "error",
+                                title: "Parece que ha ocurrido un problema!",
+                                html: `<p><b>${response.mensaje}</b></p><hr>${response.detalle}`
+                            });
                         }
                     },
                     dataType: "json"
@@ -73,8 +117,8 @@
                     <div class="container-fluid">
                         <div class="row" style="display: flex; justify-content: center;">
                             <a href="" class="btn btn-danger btn-icon-split btn-animate"
-                               style="border: 1px solid #c5c5c5; margin: 0 50px 10px 0">
-                                <span class="text">Agregar</span>
+                               style="border: 1px solid #c5c5c5; margin: 20px 0;">
+                                <span class="text" id="btn_addtrabajo">Agregar</span>
                                 <span class="icon text-gray-100"><i class="fas fa-arrow-right"></i></span>
                             </a>
                         </div>
@@ -95,23 +139,58 @@
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Position</th>
-                                        <th>Office</th>
-                                        <th>Age</th>
-                                        <th>Start date</th>
-                                        <th>Salary</th>
+                                        <th>ID</th>
+                                        <th>Trabajo</th>
+                                        <th>Trabajador</th>
+                                        <th>Precio</th>
+                                        <th>Cliente</th>
+                                        <th>Detalle</th>
+                                        <th></th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% for l in list %}
                                         <tr>
-                                            <td>Tiger Nixon</td>
-                                            <td>System Architect</td>
-                                            <td>Edinburgh</td>
-                                            <td>61</td>
-                                            <td>2011/04/25</td>
-                                            <td>$320,800</td>
+                                            <td>{{ l.id }}</td>
+                                            <td>{{ l.trabajo }}</td>
+                                            <td>{{ l.trabajador|default_if_none:"" }}</td>
+                                            <td>{{ l.precio|floatformat:2 }}</td>
+                                            <td>{{ l.cliente|default_if_none:"" }}</td>
+                                            <td>{{ l.detalle }}</td>
+                                            <td>
+                                                <div class="dropdown no-arrow">
+                                                    <a class="dropdown-toggle" href="#" role="button"
+                                                       id="dropdownMenuLink"
+                                                       data-toggle="dropdown" aria-haspopup="true"
+                                                       aria-expanded="false">
+                                                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                                    </a>
+                                                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                                         aria-labelledby="dropdownMenuLink">
+                                                        <div class="dropdown-header">Acciones:</div>
+                                                        <div class="dropdown-divider"></div>
+
+                                                        <a class="dropdown-item" href="javascript:void(0);"
+                                                           onclick="formModal('{{ l.id }}', 'Editar {{ l }}', 'editcategoria', true, '')"
+                                                           style="display: flex; align-items: center;">
+                                                            <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                                <i class="fas fa-edit"></i>
+                                                            </span>
+                                                            <span class="text" style="flex-grow: 1;">Editar</span>
+                                                        </a>
+
+                                                        <a class="dropdown-item" href="javascript:void(0);"
+                                                           onclick="eliminarajax('{{ l.id }}', '{{ l }}', 'delcategoria')"
+                                                           style="display: flex; align-items: center;">
+                                                            <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                                <i class="fas fa-trash"></i>
+                                                            </span>
+                                                            <span class="text" style="flex-grow: 1;">Eliminar</span>
+                                                        </a>
+                                                    </div>
+
+                                                </div>
+                                            </td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>

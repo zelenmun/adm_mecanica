@@ -64,7 +64,7 @@ class Producto(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre del Producto')
     subcategoria = models.ForeignKey(Subcategoria, on_delete=models.CASCADE, related_name='productos', blank=True, null=True)
     vitrina = models.ForeignKey(Vitrina, on_delete=models.CASCADE, blank=True, null=True, related_name='producto_vitrina', verbose_name=u'Vitrina')
-    precio = models.DecimalField(default=0, max_digits=30, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del Producto')
+    precio = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del Producto')
     descripcion = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Descripción del producto')
 
     def __str__(self):
@@ -84,8 +84,7 @@ TIPO_MOVIMIENTO = (
 
 
 class KardexProducto(ModeloBase):
-    producto = models.ForeignKey(Producto, verbose_name=u'Producto', related_name='kardex_producto',
-                                 on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, verbose_name=u'Producto', related_name='kardex_producto', on_delete=models.CASCADE)
     fecha_movimiento = models.DateField(verbose_name=u'Fecha del Movimiento', auto_now_add=True)
     tipo_movimiento = models.IntegerField(default=1, choices=TIPO_MOVIMIENTO, verbose_name=u'Tipo de Movimiento')
     cantidad = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=u'Cantidad')
@@ -129,12 +128,15 @@ class Venta(ModeloBase):
 
 class Trabajo(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre de Trabajo')
-    precio = models.DecimalField(default=0, max_digits=30, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del Trabajo')
+    precio = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del Trabajo')
     detalle = models.CharField(max_length=5000, blank=True, null=True, verbose_name=u'Detalle del Trabajo')
 
     def __str__(self):
         return f'{self.nombre}'
 
-class Diario(ModeloBase):
-    nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre del Producto')
-    trabajo = models.ForeignKey(Trabajo, on_delete=models.CASCADE, blank=True, null=True, related_name='trabajo', verbose_name=u'Nombre del Producto')
+class TrabajoDia(ModeloBase):
+    trabajo = models.ForeignKey(Trabajo, on_delete=models.CASCADE, verbose_name=u'Trabajo', related_name='trabajo_dia')
+    precio = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del Trabajo')
+    trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Trabajador', related_name='trabajos_dia')
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Cliente', related_name='mantenimientos')
+    detalle = models.CharField(max_length=5000, blank=True, null=True, verbose_name=u'Detalle del Trabajo')

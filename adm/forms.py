@@ -6,10 +6,11 @@ from .models import Trabajo, Trabajador, Cliente, Categoria, Vitrina, Subcategor
 
 class AddTrabajoForm(FormModeloBase):
     trabajo = forms.ModelChoiceField(label=u'Trabajo', queryset=Trabajo.objects.filter(status=True), required=True, widget=forms.Select(attrs={'col': '12', 'class': 'form-control'}))
-    precio = forms.DecimalField(label=u'Precio', max_digits=10, decimal_places=2, required=True, widget=forms.NumberInput(attrs={'decimal': '2', 'col':'12'}))
+    precio = forms.CharField(label=u'Precio', max_length=500, required=False, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control'}))
     nprecio = forms.DecimalField(label=u'Precio Alterno', max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col':'12', 'separator': 'true',"separatortitle":'Opcional'}))
     trabajador = forms.ModelChoiceField(label=u'Trabajador', queryset=Trabajador.objects.filter(status=True), required=False, widget=forms.Select(attrs={'col': '12', 'class': 'form-control'}))
     cliente = forms.ModelChoiceField(label=u'Cliente', queryset=Cliente.objects.filter(status=True), required=False, widget=forms.Select(attrs={'col': '12', 'class': 'form-control'}))
+    detalle = forms.CharField(label=u'Detalle', required=False, widget=forms.Textarea(attrs={'rows': '3', 'placeholder': 'Detalle del Trabajo', 'class': 'form-control'}))
 
 class TextoForm(FormModeloBase):
     texto = forms.CharField(max_length=500, required=True, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control'}))

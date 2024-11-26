@@ -168,7 +168,7 @@ def view(request):
             try:
                 data['title'] = u'Administración de Productos'
                 data['subtitle'] = u'Administre sus productos'
-                data['list'] = Producto.objects.filter(status=True)
+                data['list'] = Producto.objects.filter(status=True).order_by('-id')
                 return render(request, 'administracion/adm_productos.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")

@@ -5,7 +5,7 @@ from .forms import AddTrabajoForm
 
 # IMPORTACIONES DE FORMULARIOS
 from core.forms import PersonaForm
-from adm.models import Trabajo
+from adm.models import Trabajo, TrabajoDia, Trabajador, Cliente
 
 def view(request):
     data = {}
@@ -13,10 +13,37 @@ def view(request):
         action = request.POST['action']
         if action == 'add':
             try:
-                form = AddTrabajoForm(request.POST)
-                if form.is_valid():
-                    pass
-                return JsonResponse({"result": True, 'mensaje': u'Se ha guardado excitosamente'})
+                if request.POST['trabajo']:
+                    trabajo = Trabajo.objects.get(pk=request.POST['trabajo'])
+                    precio = float(request.POST['precio'][1:])
+                    nprecio = request.POST['nprecio']
+
+                    trabajador = None
+                    if request.POST['trabajador']:
+                        if Trabajador.objects.get(pk=request.POST['trabajador']).exists():
+                            trabajador = Trabajador.objects.get(pk=request.POST['trabajador'])
+
+                    cliente = None
+                    if request.POST['cliente']:
+                        if Cliente.objects.get(pk=request.POST['cliente']).exists():
+                            cliente = Cliente.objects.get(pk=request.POST['cliente'])
+
+                    detalle = request.POST['detalle']
+
+                    if nprecio:
+                        precio = float(request.POST['nprecio'])
+
+                    workday = TrabajoDia(
+                        precio=precio,
+                        trabajo=trabajo,
+                        trabajador=trabajador,
+                        cliente=cliente,
+                        detalle=detalle
+                    )
+                    workday.save()
+                    return JsonResponse({"result": True, 'mensaje': u'Se ha agregado excitosamente', 'detalle': ''})
+                else:
+                    return JsonResponse({"result": False, 'mensaje': u'El formulario no se ha llenado correctamente', 'detalle': ''})
             except Exception as ex:
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar', 'detalle': str(ex)})
         return HttpResponse("Método no soportado")
@@ -42,10 +69,12 @@ def view(request):
             return HttpResponse("Método no soportado")
         else:
             try:
-                form = AddTrabajoForm()
-                data['form'] = form
+                data['form'] = form = AddTrabajoForm()
+                form.fields['precio'].widget.attrs['readonly'] = True
+
                 data['title'] = u'Servicios de Mecánica'
                 data['subtitle'] = u'Registra los servicios de mecánica realizados'
+                data['list'] = TrabajoDia.objects.filter(status=True)
                 return render(request, 'servicios/view.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")

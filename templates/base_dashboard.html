@@ -397,6 +397,9 @@
 <script src="/static/select2/dist/js/select2.min.js"></script>
 
 
+<!-- JAVASCRIPT -->
+<script src="../static/select2-develop/dist/js/select2.min.js"></script>
+
 {% block extrahead %}{% endblock %}
 <script>
     $.ajaxSetup({
@@ -424,11 +427,13 @@
                     $("#itemspanel").modal({backdrop: 'static', keyboard: false}).modal('show');  // Muestra el modal
 
                     // Agregar manejador para el formulario (cuando se envíe)
-                    $('form.form-modal').on('submit', function (e) {
+                    $('form.form-modal').off('submit').on('submit', function (e) {
+                        bloqueointerface();
                         e.preventDefault();
+
                         var formData = new FormData(this);
-                        formData.append('action', action)
-                        formData.append('id', id)
+                        formData.append('action', action);
+                        formData.append('id', id);
 
                         $.ajax({
                             type: "POST",
@@ -437,12 +442,12 @@
                             processData: false,
                             contentType: false,
                             success: function (response) {
+                                $.unblockUI();
                                 if (response.result === true) {
                                     Swal.fire({
                                         position: "center",
                                         icon: "success",
-                                        type: "success",
-                                        title: "Has completado el registro excitosamente!",
+                                        title: "Has completado el registro exitosamente!",
                                         showConfirmButton: false,
                                         timer: 1500
                                     }).then(() => {
@@ -452,7 +457,6 @@
                                 } else {
                                     Swal.fire({
                                         icon: "error",
-                                        type: "error",
                                         title: "Oops...!",
                                         html: `<p><b>${response.mensaje}</b></p><hr>${response.detalle}`
                                     });
@@ -496,7 +500,6 @@
             }
         });
     }
-
 
     function eliminarajax(pk, nombre, action, titulo = '¡Cuidado! Estás por eliminar:') {
         Swal.fire({
