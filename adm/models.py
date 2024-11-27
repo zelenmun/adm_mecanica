@@ -68,7 +68,7 @@ class Producto(ModeloBase):
     descripcion = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Descripción del producto')
 
     def __str__(self):
-        return f'{self.nombre} - ${self.precio}'
+        return f'{self.nombre}'
 
     def get_cantidad_actual(self):
         """Calcula la cantidad actual desde los movimientos del kardex"""
