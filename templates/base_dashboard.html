@@ -28,6 +28,7 @@
             overflow-x: hidden;
             overflow-y: auto;
         }
+
         .spinner {
             border: 6px solid #e74a3b;
             border-top-color: transparent;
@@ -73,9 +74,15 @@
         .select2-container--default.select2-container--focus .select2-selection--single {
             box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
         }
+
         .select2-container .select2-search__field:focus {
             outline: none; /* Elimina el contorno predeterminado */
             box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25); /* Añadir sombra si es necesario */
+        }
+
+
+        .select2-container--default .select2-selection--single:focus {
+            outline: none;
         }
     </style>
 </head>
@@ -395,11 +402,6 @@
 
 <!-- Agregar JS de Select2 -->
 <script src="/static/select2/dist/js/select2.min.js"></script>
-
-
-<!-- JAVASCRIPT -->
-<script src="../static/select2-develop/dist/js/select2.min.js"></script>
-
 {% block extrahead %}{% endblock %}
 <script>
     $.ajaxSetup({
@@ -679,19 +681,15 @@
 
 <script>
     $(document).ready(function () {
-        // Cuando se haga clic en el enlace
         $('a').on('click', function (e) {
-            e.preventDefault();  // Evita la acción predeterminada de navegación
+            e.preventDefault();
             var targetUrl = $(this).attr('href');
-            if (targetUrl !== undefined && targetUrl !== '#' && targetUrl !== 'javascript:void(0);') {
-                // Bloquear la UI con un mensaje de carga
+            if (targetUrl !== undefined && targetUrl !== '#' && targetUrl !== 'javascript:void(0);' && targetUrl !== '') {
                 bloqueointerface()
-
-                // Después de 1 segundo (para ver el overlay), redirigir
                 setTimeout(function () {
-                    $.unblockUI();  // Ocultar el overlay
-                    window.location.href = targetUrl;  // Redirigir a la nueva página
-                }, 500);  // Ajusta el tiempo de espera según lo que necesites
+                    $.unblockUI();
+                    window.location.href = targetUrl;
+                }, 500);
             }
         });
     });

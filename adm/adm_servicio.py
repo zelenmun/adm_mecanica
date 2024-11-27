@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import get_template
@@ -41,7 +43,8 @@ def view(request):
                         detalle=detalle
                     )
                     workday.save()
-                    return JsonResponse({"result": True, 'mensaje': u'Se ha agregado excitosamente', 'detalle': ''})
+                    hoy = datetime.now()
+                    return JsonResponse({"result": True, 'mensaje': u'Has agregado un nuevo trabajo el dia de hoy', 'detalle': f'{hoy.strftime("%d/%m/%Y %H:%M")}'})
                 else:
                     return JsonResponse({"result": False, 'mensaje': u'El formulario no se ha llenado correctamente', 'detalle': ''})
             except Exception as ex:
