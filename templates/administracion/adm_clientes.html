@@ -12,7 +12,7 @@
     <div class="container-fluid">
         <div class="card mb-4 py-1 border-left-primary">
             <div class="card-body">
-                <a href="javascript:void(0);" onclick="formModal('', 'Agregar', 'add', true, '')"
+                <a href="javascript:void(0);" onclick="formModal('', 'Agregar Cliente', 'add', true, '')"
                    class="btn btn-primary btn-icon-split">
                     <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
                     <span class="text">Agregar Cliente</span>
@@ -28,23 +28,30 @@
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Position</th>
-                            <th>Office</th>
-                            <th>Age</th>
-                            <th>Start date</th>
-                            <th>Salary</th>
+                            <th>Cédula</th>
+                            <th>Nombre</th>
+                            <th>Primer Apellido</th>
+                            <th>Segundo Apellido</th>
+                            <th>Dirección</th>
+                            <th>Número de Teléfono</th>
+                            <th>Fecha de Nacimiento</th>
+                            <th>Email</th>
+                            <th>Deuda Pendiente</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for l in list %}
                             <tr>
-                                <td>Tiger Nixon</td>
-                                <td>System Architect</td>
-                                <td>Edinburgh</td>
-                                <td>61</td>
-                                <td>2011/04/25</td>
-                                <td>$320,800</td>
+                                <td>{{ l.persona.cedula }}</td>
+                                <td>{{ l.persona.nombre }}</td>
+                                <td>{{ l.persona.apellido1 }}</td>
+                                <td>{{ l.persona.apellido2 }}</td>
+                                <td>{{ l.persona.direccion }}</td>
+                                <td>{{ l.persona.celular }}</td>
+                                <td>{{ l.persona.fecha_nacimiento }}</td>
+                                <td>{{ l.persona.correo }}</td>
+                                <td>{{ l.deuda_pendiente }}</td>
+
                             </tr>
                         {% endfor %}
                         </tbody>
