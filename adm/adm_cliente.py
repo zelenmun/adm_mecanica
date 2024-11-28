@@ -25,9 +25,7 @@ def view(request):
                     apellido2 = form.cleaned_data.get('apellido2')
                     direccion = form.cleaned_data.get('direccion')
                     celular = form.cleaned_data.get('celular')
-                    fecha_nacimiento = form.cleaned_data.get('fecha_nacimiento')
                     correo = form.cleaned_data.get('correo')
-                    deuda_pendiente = form.cleaned_data.get('deuda_pendiente')
                     if Persona.objects.filter(cedula=cedula, status=True).exists():
                         return JsonResponse({'result': False, 'mensaje': u'Ya se encuentra registrado este cliente.', 'detalle':''})
                     persona = Persona.objects.create(
@@ -37,10 +35,10 @@ def view(request):
                         apellido2=apellido2,
                         direccion=direccion,
                         celular=celular,
-                        fecha_nacimiento=fecha_nacimiento,
                         correo=correo,
                     )
-                    cliente = Cliente(persona=persona, deuda_pendiente=deuda_pendiente)
+                    persona.save()
+                    cliente = Cliente(persona=persona)
                     cliente.save()
                     return JsonResponse({'result': True, 'mensaje':u'Se ha registrado correctamente.'})
                 return JsonResponse( {'result': False, 'mensaje': u'No se ha llenado correctamente el formulario.','detalle': ''})

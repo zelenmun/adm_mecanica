@@ -46,16 +46,13 @@ class TrabajoForm(FormModeloBase):
     detalle = forms.CharField(label=u'Detalle', required=False, widget=forms.Textarea(attrs={'rows': '3', 'placeholder': 'Detalle del Trabajo', 'class': 'form-control'}))
 
 class ClienteForm(FormModeloBase):
-    cedula= forms.CharField(label=u'Cédula', max_length=10, required= True, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Cédula de Identidad'}))
-    nombre= forms.CharField(label=u'Nombre', max_length=50, required= True, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Nombres'}))
-    apellido1= forms.CharField(label=u'Primer Apellido', max_length=50, required= True, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Apellido Paterno'}))
-    apellido2= forms.CharField(label=u'Segundo Apellido', max_length=50, required= True, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Apellido Materno'}))
-    direccion= forms.CharField(label=u'Dirección', max_length=500, required= True, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Dirección de domicilio'}))
-    celular= forms.CharField(label=u'Teléfono ', max_length=500, required= True, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Número de Teléfono'}))
-    fecha_nacimiento= forms.DateField(label=u'Fecha de Nacimiento', required= True, widget=forms.DateInput(attrs={'col': '12', 'class': 'form-control','placeholder': 'yyyy-mm-dd','type': 'date'}))
-    correo= forms.CharField(label=u'Correo Electrónico', max_length=200, required= True, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Email'}))
-    deuda_pendiente = forms.DecimalField(label=u'Deuda Pendiente', max_digits=10, decimal_places=2, required=True, widget=forms.NumberInput(attrs={'decimal': '2', 'col':'12', 'placeholder': 'Deuda'}))
-
+    cedula = forms.CharField(label=u'Cédula', max_length=10, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Cédula de Identidad'}))
+    nombre = forms.CharField(label=u'Nombres', max_length=200, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Nombres'}))
+    apellido1 = forms.CharField(label=u'Primer Apellido', max_length=200, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Apellido Paterno'}))
+    apellido2 = forms.CharField(label=u'Segundo Apellido', max_length=200, required=False, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Apellido Materno'}))
+    direccion = forms.CharField(label=u'Dirección', max_length=200, required=False, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Dirección de domicilio'}))
+    celular = forms.CharField(label=u'Teléfono ', max_length=10, required=False, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Número de Teléfono'}))
+    correo = forms.CharField(label=u'Correo Electrónico', max_length=200, required=False, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Email'}))
 
 class AddVentaForm(FormModeloBase):
     producto = forms.ModelChoiceField(label=u'Producto', queryset=Producto.objects.filter(status=True), required=True, widget=forms.Select(attrs={'col': '12', 'class': 'form-control'}))
@@ -73,3 +70,4 @@ class MultipleServiceForm(FormModeloBase):
     cantidad = forms.IntegerField(label=u'Cantidad', required=True, widget=forms.NumberInput(attrs={'col': '3', 'class': 'form-control', 'placeholder': 'Cantidad'}))
     precios = forms.CharField(label=u'Total ($)', max_length=500, required=False, widget=forms.TextInput(attrs={'col': '3', 'class': 'form-control', 'placeholder': 'Total'}))
     preciot = forms.CharField(label=u'Total Venta (Aplica descuento)', max_length=500, required=False, widget=forms.TextInput(attrs={'col': '3', 'class': 'form-control', 'placeholder': 'Precio Total Venta'}))
+    detalle = forms.CharField(label=u'Detalle', required=False, widget=forms.Textarea(attrs={'rows': '2', 'placeholder': 'Información Adicional...', 'class': 'form-control'}))

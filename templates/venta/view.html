@@ -2,292 +2,465 @@
 {% block extrahead %}
     <script>
         $(function () {
-            var table = $('#dataTable').DataTable();
-            table.order([0, 'desc']).draw();
+            var existcliente = false
+            var cedulacliente = ''
 
-            $('#id_producto').select2();
-            $('#id_cliente').select2();
-            $('#id_trabajador').select2();
+            let typingTimer;
+            const typingDelay = 300;
+            var table = $('#dataTable').DataTable()
 
-            $('#id_producto, #id_cantidad').change(function () {
-                var valor = $('#id_producto').val(); // Obtener el valor del producto
-                obtenerPrecioYActualizar(valor);
+            $('#id_producto').select2()
+
+            $('#btn_cliente').click(function () {
+                $('#itemspanelTitle2').html('ASIGNAR CLIENTE');  // Actualiza el título del modal
+                $("#itemspanel2").modal({backdrop: 'static', keyboard: false}).modal('show');
+
             })
 
-            $('#btn_report').click(function () {
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ request.path }}',
-                    data: {'action': 'factura'},
-                    success: function (data) {
-                        $.unblockUI();
-                        if (data.result === true) {
-
+            $('#id_cedula').keyup(function () {
+                var cedula = $(this).val()
+                if (cedula.length === 10) {
+                    $.ajax({
+                        type: 'GET',
+                        data: {'action': 'obtenercliente', 'cedula': cedula},
+                        success: function (data) {
+                            if (data.result === true) {
+                                $('#id_nombre').val(data.data.nombre).attr('readonly', true)
+                                $('#id_apellido1').val(data.data.apellido1).attr('readonly', true)
+                                $('#id_apellido2').val(data.data.apellido2).attr('readonly', true)
+                                $('#id_direccion').val(data.data.direccion).attr('readonly', true)
+                                $('#id_celular').val(data.data.celular).attr('readonly', true)
+                                $('#id_correo').val(data.data.correo).attr('readonly', true)
+                                existcliente = true;
+                                cedulacliente = cedula
+                            }
                         }
-                    },
-                    dataType: "json"
-                });
+                    })
+                } else {
+                    $('#id_nombre').val('').removeAttr('readonly', true)
+                    $('#id_apellido1').val('').removeAttr('readonly', true)
+                    $('#id_apellido2').val('').removeAttr('readonly', true)
+                    $('#id_direccion').val('').removeAttr('readonly', true)
+                    $('#id_celular').val('').removeAttr('readonly', true)
+                    $('#id_correo').val('').removeAttr('readonly', true)
+                    existcliente = false;
+                    cedulacliente = ''
+                }
             })
 
-            function obtenerPrecioYActualizar(valor) {
+            $('#btn_guardarcliente').click(function () {
+                var cedula = $('#id_cedula').val()
+                var nombre = $('#id_nombre').val()
+                var apellido1 = $('#id_apellido1').val()
+                var apellido2 = $('#id_apellido2').val()
+                var celular = $('#id_celular').val()
+                var correo = $('#id_correo').val()
+                var direccion = $('#id_direccion').val()
+                if (cedula !== '' && nombre !== '' && apellido1 !== '') {
+                    if (existcliente) {
+                        $('#nombrecliente').text('Cliente: ' + nombre + ' ' + apellido1 + ' ' + apellido2);
+                        $('#cedulacliente').text('Cédula: ' + cedula);
+                        $("#itemspanel2").modal('hide')
+                    } else {
+                        var formdata = new FormData()
+                        formdata.append('cedula', cedula)
+                        formdata.append('nombre', nombre)
+                        formdata.append('apellido1', apellido1)
+                        formdata.append('apellido2', apellido2)
+                        formdata.append('celular', celular)
+                        formdata.append('correo', correo)
+                        formdata.append('direccion', direccion)
+                        formdata.append('action', 'add')
+                        $.ajax({
+                            type: 'POST',
+                            url: '{% url 'clientes' %}',
+                            data: formdata,
+                            processData: false,
+                            contentType: false,
+                            success: function (data) {
+                                if (data.result === true) {
+                                    Swal.fire({
+                                        position: "center",
+                                        icon: "success",
+                                        title: "Cliente asignado",
+                                        showConfirmButton: false,
+                                        timer: 1000
+                                    })
+                                    $('#nombrecliente').text('Cliente: ' + nombre + ' ' + apellido1 + ' ' + apellido2);
+                                    $('#cedulacliente').text('Cédula: ' + cedula);
+
+                                    $('#id_nombre').attr('readonly', true)
+                                    $('#id_apellido1').attr('readonly', true)
+                                    $('#id_apellido2').attr('readonly', true)
+                                    $('#id_direccion').attr('readonly', true)
+                                    $('#id_celular').attr('readonly', true)
+                                    $('#id_correo').attr('readonly', true)
+                                } else {
+                                    Swal.fire({
+                                        position: "center",
+                                        icon: "error",
+                                        title: "No se pudo registrar el cliente!",
+                                        showConfirmButton: false,
+                                        timer: 1000
+                                    })
+                                }
+                                $("#itemspanel2").modal('hide')
+                            }
+                        })
+                        $("#itemspanel2").modal('hide')
+                    }
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "¡Momento!",
+                        html: `<p>Los campos <b>Cédula, Nombre y Apellido</b> son obligatorios</p>`,
+                        confirmButtonText: "Ok"
+                    })
+                }
+            })
+
+            $('#id_producto').change(function () {
+                if ($(this).val() !== '') {
+                    $('#id_cantidad').val(1)
+                    obtenerPrecioProducto()
+                } else {
+                    $('#id_cantidad').val('')
+                    $('#id_addproducto').addClass('disabled')
+                }
+            })
+
+            $('#id_cantidad').on('keyup', function () {
+                if ($(this).val() !== '' && $(this).val() > 0) {
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(function () {
+                        calcularTotal();
+                    }, typingDelay);
+                } else {
+                    $(this).val(1)
+                }
+            });
+
+            $('#id_descuento').on('keyup', function () {
+                if ($(this).val() !== '') {
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(function () {
+                        $('#id_preciot').val('$' + calcularTotalVenta())
+                    }, typingDelay);
+                } else {
+                    $(this).val('')
+                    $('#id_preciot').val('$' + calcularTotalVenta())
+                }
+            });
+
+            $('#id_addproducto').click(function () {
+                const id = $('#id_producto').val();
+                const producto = $('#id_producto option:selected').text();
+                const preciou = $('#id_preciou').val();
+                const cantidad = $('#id_cantidad').val();
+                const precios = $('#id_precios').val();
+
+                const actions = `
+                    <div class="dropdown no-arrow" style="display: flex; justify-content: center">
+                        <a class="dropdown-toggle" href="#" role="button"
+                           id="dropdownMenuLink"
+                           data-toggle="dropdown" aria-haspopup="true"
+                           aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                             aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Acciones:</div>
+                            <div class="dropdown-divider"></div>
+
+                            <a class="dropdown-item btn_eliminarfila" href="javascript:void(0);"
+                                style="display: flex; align-items: center;">
+                                <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-trash"></i>
+                                </span>
+                                <span class="text" style="flex-grow: 1;">Eliminar</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                const tablaDetalle = $('#dataTable').DataTable();
+
+                tablaDetalle.row.add([
+                    id,
+                    producto,
+                    preciou,
+                    cantidad,
+                    precios,
+                    actions
+                ]).draw();
+                $('#id_addproducto').addClass('disabled')
+                $('#id_preciot').val('$' + calcularTotalVenta())
+            });
+
+            $('#dataTable').on('click', '.btn_eliminarfila', function () {
+                Swal.fire({
+                    icon: "info",
+                    title: "¿Realmente deseas eliminar este detalle?",
+                    showCancelButton: true,
+                    confirmButtonText: "Eliminar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Obtener la fila con DataTables API
+                        const table = $('#dataTable').DataTable();
+                        const fila = $(this).closest('tr');
+                        const row = table.row(fila);  // Usar .row() para obtener la fila con DataTables
+
+                        // Eliminar la fila
+                        row.remove().draw(); // Eliminar la fila y redibujar la tabla
+                        Swal.fire({
+                            position: "center",
+                            icon: "success",
+                            title: "Eliminado!",
+                            showConfirmButton: false,
+                            timer: 1000
+                        })
+                    }
+                });
+            });
+
+            function obtenerPrecioProducto() {
+                var valor = $('#id_producto').val(); // Obtener el ID del producto seleccionado
                 if (valor !== '') {
-                    bloqueointerface();
                     $.ajax({
                         type: 'GET',
                         url: '{{ request.path }}',
-                        data: {'action': 'obtenerprecio', 'id': valor},
+                        data: {'action': 'obtenerprecio', 'id': valor}, // Enviar el ID del producto al servidor
                         success: function (data) {
-                            $.unblockUI();
                             if (data.result === true) {
-                                var cantidad = $('#id_cantidad').val();
-                                var total = parseInt(cantidad, 10) * parseInt(data.precio, 10);
-                                $('#id_precio').val('$' + total);
+                                $('#id_preciou').val('$' + data.precio); // Mostrar el precio unitario
+                                calcularTotal(); // Llamar a la función para calcular el total después de obtener el precio
                             }
                         },
                         dataType: "json"
                     });
                 } else {
                     $('#id_precio').val('');
-                    $('#id_cantidad').val('');
                 }
             }
 
-
-            $('#btn_addtrabajo').click(function (e) {
-                e.preventDefault();
-                bloqueointerface();
-                var trabajo = $('#id_trabajo').val()
-                var precio = $('#id_precio').val()
-                var nprecio = $('#id_nprecio').val()
-                var trabajador = $('#id_trabajador').val()
-                var cliente = $('#id_cliente').val()
-                var detalle = $('#id_detalle').val()
-
-                var formdata = new FormData()
-                formdata.append('trabajo', trabajo)
-                formdata.append('precio', precio)
-                formdata.append('nprecio', nprecio)
-                formdata.append('trabajador', trabajador)
-                formdata.append('detalle', detalle)
-                formdata.append('cliente', cliente)
-                formdata.append('action', 'add')
-
-                $.ajax({
-                    type: 'POST',
-                    url: '{{ request.path }}',
-                    data: formdata,
-                    processData: false,
-                    contentType: false,
-                    success: function (data) {
-                        $.unblockUI();
-                        console.log(data)
-                        if (data.result === true) {
-                            Swal.fire({
-                                icon: "success",
-                                type: "success",
-                                title: "Has completado el registro exitosamente!",
-                                html: `<p><b>${data.mensaje}</b></p><hr>${data.detalle}`
-                            }).then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: "error",
-                                type: "error",
-                                title: "Parece que ha ocurrido un problema!",
-                                html: `<p><b>${data.mensaje}</b></p><hr>${data.detalle}`
-                            });
-                        }
-                    },
-                    dataType: "json"
-                })
-            });
-        })
-    </script>
-    <script>
-        document.getElementById("toggleSeparator").addEventListener("click", function () {
-            const accordionContent = document.getElementById("accordionContent");
-            if (accordionContent.style.display === "none") {
-                accordionContent.style.display = "block";
-                this.style.color = "#000"; // Cambia color para indicar que está activo
-            } else {
-                accordionContent.style.display = "none";
-                this.style.color = "#b3b3b3"; // Vuelve al color inicial
+            function calcularTotal() {
+                var cantidad = parseFloat($('#id_cantidad').val()); // Obtener la cantidad
+                var precioUnitario = parseFloat($('#id_preciou').val().replace('$', '')); // Obtener el precio unitario, sin el signo de dólar
+                if (!isNaN(cantidad) && !isNaN(precioUnitario)) {
+                    var total = precioUnitario * cantidad; // Calcular el total
+                    $('#id_precios').val('$' + total.toFixed(2)); // Mostrar el total con dos decimales
+                    $('#id_preciot').val('$' + calcularTotalVenta()); // Actualizar el total general de la venta
+                    $('#id_addproducto').removeClass('disabled'); // Habilitar el botón de agregar producto
+                }
             }
-        });
+
+            function calcularTotalVenta() {
+                var total = 0;
+                var descuento = $('#id_descuento').val()
+                $('#dataTable').DataTable().rows().every(function () {
+                    var precio = parseFloat(this.data()[4].split('$')[1]);
+                    if (!isNaN(precio)) {
+                        total += precio;
+                    }
+                });
+
+                if (total >= descuento) {
+                    return total - descuento;
+                }
+                return 0
+            }
+
+            $('#btn_guardar').click(function () {
+                Swal.fire({
+                    icon: "warning",
+                    title: "¡Confirma la venta!",
+                    html: `<p>Las ventas no se pueden modificar, verifica los detalles antes de proceder</p><hr><span style="font-size: 12px">Tendrán que llamar a Zelen si la cagan.</span>`,
+                    showCancelButton: true,
+                    confirmButtonText: "Confirmar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        bloqueointerface();
+                        var dataToSend = [];
+                        table.rows().every(function () {
+                            var rowData = this.data();
+                            dataToSend.push({
+                                id: rowData[0],
+                                producto: rowData[1],
+                                preciou: rowData[2],
+                                cantidad: rowData[3],
+                                total: rowData[4]
+                            });
+                        });
+                        var formData = new FormData()
+                        formData.append('tabla', JSON.stringify(dataToSend))
+                        formData.append('descuento', $('#id_descuento').val())
+                        formData.append('preciov', $('#id_preciot').val())
+                        formData.append('detalle', $('#id_detalle').val())
+                        formData.append('action', 'add')
+                        formData.append('cedula', cedulacliente)
+                        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+                        console.log(formData)
+                        $.ajax({
+                            type: 'POST',
+                            url: '{{ request.path }}',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function (response) {
+                                $.unblockUI();
+                                if (response.result === true) {
+                                    $.unblockUI();
+                                    Swal.fire({
+                                        position: "center",
+                                        icon: "success",
+                                        title: "¡Listo!",
+                                        html: `<p><b>${response.mensaje}</b></p><hr>${response.detalle}`,
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    }).then(() => {
+                                        window.location.href = '/';
+                                    });
+
+                                } else {
+                                    Swal.fire({
+                                        icon: "error",
+                                        type: "error",
+                                        title: "Parece que ha ocurrido un problema!",
+                                        html: `<p><b>${response.mensaje}</b></p><hr>${response.detalle}`
+                                    });
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                $.unblockUI();
+                                console.error('Error al enviar los datos:', error);
+                            }
+                        });
+                    }
+                });
+            })
+        })
     </script>
 {% endblock %}
 {% block dashboard %}
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-xl-3 col-lg-5">
-                <div class="card shadow mb-4">
-                    <!-- Card Header - Dropdown -->
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Adicione un Trabajo</h6>
-                    </div>
-                    <!-- Card Body -->
-                    <div class="card-body">
-                        <div class="chart-pie pt-4 pb-2">
-                            <input type="hidden" name="id" value="{{ id }}"/>
-                            <input type="hidden" name="action" value="{{ action }}"/>
+    <!-- Modal -->
+    <div class="modal fade" id="itemspanel2" tabindex="-1" role="dialog" aria-labelledby="itemspanelTitle"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <!-- CABECERA DEL MODAL -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itemspanelTitle2">FORMULARIO MODAL</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
 
-                            <!-- Campo Producto -->
-                            <div id="fieldset_producto" class="col-lg-12" style="float: left; padding-right: 10px;">
-                                <label class="control-label pr-2" for="id_producto"><b>Producto</b>:</label>
-                                {{ form.producto }}
-                                <p class="help-text">{{ form.producto.help_text }}</p>
-                            </div>
-
-                            <!-- Campo Cantidad -->
-                            <div id="fieldset_cantidad" class="col-lg-12" style="float: left; padding-right: 10px;">
-                                <label class="control-label pr-2" for="id_cantidad"><b>Cantidad</b>:</label>
-                                {{ form.cantidad }}
-                                <p class="help-text">{{ form.cantidad.help_text }}</p>
-                            </div>
-
-                            <!-- Campo Precio -->
-                            <div id="fieldset_precio" class="col-lg-12" style="float: left; padding-right: 10px;">
-                                <label class="control-label pr-2" for="id_precio"><b>Precio Total</b>:</label>
-                                {{ form.precio }}
-                                <p class="help-text">{{ form.precio.help_text }}</p>
-                            </div>
-
-                            <!-- Separador como botón -->
-                            <!-- Separador como enlace -->
-                            <div style="width: 100%; text-align: center; margin: 20px 0;">
-                                <a href="javascript:void(0);" id="toggleSeparator"
-                                   style="color: #b3b3b3; text-decoration: none; font-size: 16px; font-weight: bold; cursor: pointer;">
-                                    {{ form.nprecio.field.widget.attrs.separatortitle }}
-                                </a>
-                            </div>
-
-
-                            <!-- Contenido oculto por defecto -->
-                            <div id="accordionContent" style="display: none;">
-
-                                <!-- Campo nPrecio -->
-                                <div id="fieldset_nprecio" class="col-lg-12" style="float: left; padding-right: 10px;">
-                                    <label class="control-label pr-2" for="id_nprecio"><b>Precio
-                                        Personalizado</b>:</label>
-                                    {{ form.nprecio }}
-                                    <p class="help-text">{{ form.nprecio.help_text }}</p>
-                                </div>
-
-                                <!-- Campo Trabajador -->
-                                <div id="fieldset_trabajador" class="col-lg-12"
-                                     style="float: left; padding-right: 10px;">
-                                    <label class="control-label pr-2" for="id_trabajador"><b>Trabajador</b>:</label>
-                                    {{ form.trabajador }}
-                                    <p class="help-text">{{ form.trabajador.help_text }}</p>
-                                </div>
-
-                                <!-- Campo Cliente -->
-                                <div id="fieldset_cliente" class="col-lg-12" style="float: left; padding-right: 10px;">
-                                    <label class="control-label pr-2" for="id_cliente"><b>Cliente</b>:</label>
-                                    {{ form.cliente }}
-                                    <p class="help-text">{{ form.cliente.help_text }}</p>
-                                </div>
-
-                                <!-- Campo Detalle -->
-                                <div id="fieldset_detalle" class="col-lg-12" style="float: left; padding-right: 10px;">
-                                    <label class="control-label pr-2" for="id_detalle"><b>Detalle</b>:</label>
-                                    {{ form.detalle }}
-                                    <p class="help-text">{{ form.detalle.help_text }}</p>
-                                </div>
-                            </div>
-
-                            {{ form.media|safe }}
+                <!-- CUERPO DEL MODAL -->
+                <div class="modal-body" style="padding: 1.5%;">
+                    <form id="form-modal2" class="form-horizontal form-modal" autocomplete="off" method="post"
+                          enctype="multipart/form-data" action="{{ request.path }}">
+                        {% csrf_token %}
+                        <div class="row panelbody">
+                            {% include 'modals/form2.html' %}
                         </div>
-                    </div>
+                    </form>
+                </div>
 
-
-                    <div class="container-fluid">
-                        <div class="row" style="display: flex; justify-content: center;">
-                            <a href="javascript:void(0);" id="btn_addtrabajo"
-                               class="btn btn-danger btn-icon-split btn-animate"
-                               style="border: 1px solid #c5c5c5; margin: 20px 0;">
-                                <span class="text">Agregar</span>
-                                <span class="icon text-gray-100"><i class="fas fa-arrow-right"></i></span>
-                            </a>
-                        </div>
-                    </div>
+                <!-- PIE DEL MODAL -->
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal"><i class="fa fa-times"></i>
+                        Cerrar
+                    </button>
+                    <a class="btn btn-primary" id="btn_guardarcliente"><i class="fa fa-save"></i>
+                        Guardar
+                    </a>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="col-xl-9 col-lg-5">
-                <div class="card shadow mb-4">
-                    <!-- Card Header - Dropdown -->
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Tabla de Trabajos</h6>
+    <div class="container-fluid">
+        <div class="card mb-4 py-1 border-left-info">
+            <div class="card-body">
+                <div class="row">
+                    {% for field in form %}
+                        {% if field.field.widget.attrs.separator %}
+                            {% if field.field.widget.attrs.blanklinebefore %}
+                            {% endif %}
+                            <div style="width: 100%; height: max-content">
+                                <h6 style="width:100%; text-align:center; line-height:0.1em; margin:20px 0 10px; border-bottom: 1px solid #b3b3b3; color: #b3b3b3">
+                <span style="padding:0 10px; background: #fff;">
+                    {% if field.field.widget.attrs.separatortitle %}
+                        {{ field.field.widget.attrs.separatortitle }}
+                    {% endif %}
+                </span>
+                                </h6>
+                            </div>
+                        {% endif %}
+                        <div id="fieldset_{{ field.name }}" class="col-lg-{{ field.field.widget.attrs.col }}"
+                             style="float: left; padding-right: 10px;">
+                            {% if field.field.label %}
+                                <label class="control-label pr-2"
+                                       for="id_{{ field.name }}"><b>{{ field.label }}</b>&nbsp;:
+                                </label>
+                            {% endif %}
+                            {{ field }}
+                            <p class="help-text">{{ field.help_text }} </p>
+                        </div>
+                    {% endfor %}
+
+                    {{ form.media|safe }}
+                </div>
+                <div class="row"
+                     style="display: flex; align-items: center; justify-content: flex-start; padding: 0 10px 0 12px; margin-top: 20px;">
+                    <!-- Primera Área -->
+                    <div class="row" style="display: flex; align-items: center; margin-right: 20px;">
+                        <a href="javascript:void(0);" style="margin-left: 10px" id="id_addproducto"
+                           class="btn btn-info btn-icon-split disabled">
+                            <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
+                            <span class="text">Agregar Producto</span>
+                        </a>
+                        <a href="javascript:void(0);" id="btn_cliente" class="btn btn-primary btn-icon-split"
+                           style="margin-left: 20px;">
+                            <span class="icon text-white-50"><i class="fas fa-user"></i></span>
+                        </a>
                     </div>
-                    <!-- Card Body -->
-                    <div class="card-body">
-                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                            <thead>
-                            <tr>
-                                <th style="width: 1%">ID</th>
-                                <th style="width: 5%">Trabajo</th>
-                                <th style="width: 1%">Precio</th>
-                                <th style="width: 5%">Trabajador</th>
-                                <th style="width: 5%">Cliente</th>
-                                <th style="width: 5%">Detalle</th>
-                                <th style="width: 1%">Factura</th>
-                                <th style="width: 1%"></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for l in list %}
-                                <tr>
-                                    <td style="text-align: center;">{{ l.id }}</td>
-                                    <td style="font-size: 12px">{{ l.trabajo }}</td>
-                                    <td style="text-align: center;">${{ l.precio|floatformat:2 }}</td>
-                                    <td style="font-size: 12px">{{ l.trabajador|default_if_none:"" }}</td>
-                                    <td style="font-size: 12px">{{ l.cliente|default_if_none:"" }}</td>
-                                    <td style="font-size: 12px">{{ l.detalle }}</td>
-                                    <td>
 
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <div class="dropdown no-arrow">
-                                            <a class="dropdown-toggle" href="#" role="button"
-                                               id="dropdownMenuLink"
-                                               data-toggle="dropdown" aria-haspopup="true"
-                                               aria-expanded="false">
-                                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                                 aria-labelledby="dropdownMenuLink">
-                                                <div class="dropdown-header">Acciones:</div>
-                                                <div class="dropdown-divider"></div>
-
-                                                <a class="dropdown-item" href="javascript:void(0);"
-                                                   onclick="formModal('{{ l.id }}', 'Editar {{ l }}', 'edit', true, '')"
-                                                   style="display: flex; align-items: center;">
-                                                            <span class="icon text-gray-600"
-                                                                  style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
-                                                                <i class="fas fa-edit"></i>
-                                                            </span>
-                                                    <span class="text" style="flex-grow: 1;">Editar</span>
-                                                </a>
-
-                                                <a class="dropdown-item" href="javascript:void(0);"
-                                                   onclick="eliminarajax('{{ l.id }}', '{{ l }}', 'del')"
-                                                   style="display: flex; align-items: center;">
-                                                            <span class="icon text-gray-600"
-                                                                  style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
-                                                                <i class="fas fa-trash"></i>
-                                                            </span>
-                                                    <span class="text" style="flex-grow: 1;">Eliminar</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
+                    <!-- Segunda Área -->
+                    <div class="row"
+                         style="display: flex; flex-direction: column; align-items: flex-start; margin-right: auto; padding-left: 20px">
+                        <span id="nombrecliente"></span>
+                        <span id="cedulacliente"></span>
                     </div>
+
+                    <!-- Tercera Área -->
+                    <a href="javascript:void(0);" id="btn_guardar" class="btn btn-primary btn-icon-split">
+                        <span class="icon text-white-50"><i class="fas fa-save"></i></span>
+                        <span class="text">Guardar</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- DataTales Example -->
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th style="width: 1%">ID</th>
+                            <th style="width: 5%">Producto</th>
+                            <th style="width: 1%">Precio Unitario</th>
+                            <th style="width: 1%">Cantiada</th>
+                            <th style="width: 1%">Total</th>
+                            <th style="width: 1%"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

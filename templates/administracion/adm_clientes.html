@@ -28,30 +28,23 @@
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                         <tr>
-                            <th>Cédula</th>
-                            <th>Nombre</th>
-                            <th>Primer Apellido</th>
-                            <th>Segundo Apellido</th>
-                            <th>Dirección</th>
-                            <th>Número de Teléfono</th>
-                            <th>Fecha de Nacimiento</th>
-                            <th>Email</th>
-                            <th>Deuda Pendiente</th>
+                            <th style="width: 5%">Cédula</th>
+                            <th style="width: 10%">Nombre</th>
+                            <th style="width: 10%">Dirección</th>
+                            <th style="width: 1%">Número de Teléfono</th>
+                            <th style="width: 10%">Email</th>
+                            <th style="width: 1%">Deuda Pendiente</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for l in list %}
                             <tr>
                                 <td>{{ l.persona.cedula }}</td>
-                                <td>{{ l.persona.nombre }}</td>
-                                <td>{{ l.persona.apellido1 }}</td>
-                                <td>{{ l.persona.apellido2 }}</td>
+                                <td>{{ l.persona }}</td>
                                 <td>{{ l.persona.direccion }}</td>
                                 <td>{{ l.persona.celular }}</td>
-                                <td>{{ l.persona.fecha_nacimiento }}</td>
                                 <td>{{ l.persona.correo }}</td>
-                                <td>{{ l.deuda_pendiente }}</td>
-
+                                <td>${{ l.deuda_pendiente }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
