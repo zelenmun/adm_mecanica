@@ -24,6 +24,9 @@ class TrabajoDiaForm(FormModeloBase):
 class TextoForm(FormModeloBase):
     texto = forms.CharField(max_length=500, required=True, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control'}))
 
+class DecimalForm(FormModeloBase):
+    decimal = forms.DecimalField(max_digits=10, decimal_places=2, required=True, widget=forms.NumberInput(attrs={'decimal': '2', 'col':'12'}))
+
 class SubcategoriaForm(FormModeloBase):
     categoria = forms.ModelChoiceField(queryset=Categoria.objects.filter(status=True), required=True, widget=forms.Select(attrs={'col': '12', 'class': 'form-control'}))
     subcategoria = forms.CharField(max_length=500, required=True, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control'}))

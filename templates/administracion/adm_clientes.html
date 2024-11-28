@@ -61,7 +61,8 @@
                                             <a class="dropdown-item" href="javascript:void(0);"
                                                onclick="formModal('{{ l.id }}', 'Editar {{ l }}', 'edit', true, '')"
                                                style="display: flex; align-items: center;">
-                                                <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                <span class="icon text-gray-600"
+                                                      style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
                                                     <i class="fas fa-edit"></i>
                                                 </span>
                                                 <span class="text" style="flex-grow: 1;">Editar</span>
@@ -70,19 +71,30 @@
                                             <a class="dropdown-item" href="javascript:void(0);"
                                                onclick="eliminarajax('{{ l.id }}', '{{ l }}', 'del')"
                                                style="display: flex; align-items: center;">
-                                                <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                <span class="icon text-gray-600"
+                                                      style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
                                                     <i class="fas fa-trash"></i>
                                                 </span>
                                                 <span class="text" style="flex-grow: 1;">Eliminar</span>
                                             </a>
 
                                             <a class="dropdown-item" href="javascript:void(0);"
-                                               onclick="eliminarajax('{{ l.id }}', '{{ l }}', 'del')"
+                                               onclick="formModal('{{ l.id }}', 'Registrar deuda para: {{ l.persona.nombre }} {{ l.persona.apellido1 }} - {{ l.persona.cedula }}', 'adddeuda', true, '')"
                                                style="display: flex; align-items: center;">
-                                                <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                <span class="icon text-gray-600"
+                                                      style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
                                                     <i class="fas fa-dollar-sign"></i>
                                                 </span>
                                                 <span class="text" style="flex-grow: 1;">Registrar Deuda</span>
+                                            </a>
+
+                                            <a class="dropdown-item" href="javascript:void(0);" style="display: flex; align-items: center;"
+                                            onclick="saldarDeuda('{{ l.persona.nombre }} {{ l.persona.apellido1 }}', {{ l.deuda_pendiente }}, 'saldardeuda', '{{ l.id }}')">
+                                                <span class="icon text-gray-600"
+                                                      style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fas fa-handshake"></i>
+                                                </span>
+                                                <span class="text" style="flex-grow: 1;">Saldar Deuda</span>
                                             </a>
                                         </div>
 
@@ -97,3 +109,57 @@
         </div>
     </div>
 {% endblock %}
+<script>
+    function saldarDeuda(nombre, cantidad, action, id) {
+                Swal.fire({
+                    html: `Estás por saldar la deuda de <b>${nombre}</b>, la que consta de ${cantidad}`,
+                    text: "Esta acción es irreversible",
+                    type: 'warning',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    allowOutsideClick: false,
+                    confirmButtonText: 'Saldar!',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+                        bloqueointerface();
+                        $.ajax({
+                            url: "{{ request.path }}",
+                            type: "POST",
+                            data: {
+                                action: action,
+                                id: id
+                            },
+                            dataType: "json",
+                            success: function (data) {
+                                $.unblockUI();
+                                if (data.result === true) {
+                                    Swal.fire({
+                                        position: "top-end",
+                                        icon: "success",
+                                        title: "Has cancelado la deuda exitosamente!",
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: "error",
+                                        type: "error",
+                                        title: "Oops...!",
+                                        html: `<p><b>${data.mensaje}</b></p><hr>${data.detalle}`
+                                    });
+                                }
+                            },
+                            error: function () {
+                                $.unblockUI();
+                                mensajeWarning("Error en la comunicación con el servidor.");
+                            }
+                        });
+
+                    } else {
+                    }
+                })
+            }
+</script>
