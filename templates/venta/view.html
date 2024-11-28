@@ -5,12 +5,31 @@
             var table = $('#dataTable').DataTable();
             table.order([0, 'desc']).draw();
 
-            $('#id_trabajo').select2();
+            $('#id_producto').select2();
             $('#id_cliente').select2();
             $('#id_trabajador').select2();
 
-            $('#id_trabajo').change(function () {
-                var valor = $(this).val()
+            $('#id_producto, #id_cantidad').change(function () {
+                var valor = $('#id_producto').val(); // Obtener el valor del producto
+                obtenerPrecioYActualizar(valor);
+            })
+
+            $('#btn_report').click(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ request.path }}',
+                    data: {'action': 'factura'},
+                    success: function (data) {
+                        $.unblockUI();
+                        if (data.result === true) {
+
+                        }
+                    },
+                    dataType: "json"
+                });
+            })
+
+            function obtenerPrecioYActualizar(valor) {
                 if (valor !== '') {
                     bloqueointerface();
                     $.ajax({
@@ -18,18 +37,21 @@
                         url: '{{ request.path }}',
                         data: {'action': 'obtenerprecio', 'id': valor},
                         success: function (data) {
-                            $.unblockUI()
+                            $.unblockUI();
                             if (data.result === true) {
-                                $('#id_precio').val('$' + data.precio)
+                                var cantidad = $('#id_cantidad').val();
+                                var total = parseInt(cantidad, 10) * parseInt(data.precio, 10);
+                                $('#id_precio').val('$' + total);
                             }
                         },
                         dataType: "json"
-                    })
+                    });
                 } else {
-                    $('#id_precio').val('')
+                    $('#id_precio').val('');
+                    $('#id_cantidad').val('');
                 }
+            }
 
-            })
 
             $('#btn_addtrabajo').click(function (e) {
                 e.preventDefault();
@@ -110,16 +132,23 @@
                             <input type="hidden" name="id" value="{{ id }}"/>
                             <input type="hidden" name="action" value="{{ action }}"/>
 
-                            <!-- Campo Trabajo -->
-                            <div id="fieldset_trabajo" class="col-lg-12" style="float: left; padding-right: 10px;">
-                                <label class="control-label pr-2" for="id_trabajo"><b>Trabajo</b>:</label>
-                                {{ form.trabajo }}
-                                <p class="help-text">{{ form.trabajo.help_text }}</p>
+                            <!-- Campo Producto -->
+                            <div id="fieldset_producto" class="col-lg-12" style="float: left; padding-right: 10px;">
+                                <label class="control-label pr-2" for="id_producto"><b>Producto</b>:</label>
+                                {{ form.producto }}
+                                <p class="help-text">{{ form.producto.help_text }}</p>
+                            </div>
+
+                            <!-- Campo Cantidad -->
+                            <div id="fieldset_cantidad" class="col-lg-12" style="float: left; padding-right: 10px;">
+                                <label class="control-label pr-2" for="id_cantidad"><b>Cantidad</b>:</label>
+                                {{ form.cantidad }}
+                                <p class="help-text">{{ form.cantidad.help_text }}</p>
                             </div>
 
                             <!-- Campo Precio -->
                             <div id="fieldset_precio" class="col-lg-12" style="float: left; padding-right: 10px;">
-                                <label class="control-label pr-2" for="id_precio"><b>Precio Registrado</b>:</label>
+                                <label class="control-label pr-2" for="id_precio"><b>Precio Total</b>:</label>
                                 {{ form.precio }}
                                 <p class="help-text">{{ form.precio.help_text }}</p>
                             </div>
@@ -139,7 +168,8 @@
 
                                 <!-- Campo nPrecio -->
                                 <div id="fieldset_nprecio" class="col-lg-12" style="float: left; padding-right: 10px;">
-                                    <label class="control-label pr-2" for="id_nprecio"><b>Precio Personalizado</b>:</label>
+                                    <label class="control-label pr-2" for="id_nprecio"><b>Precio
+                                        Personalizado</b>:</label>
                                     {{ form.nprecio }}
                                     <p class="help-text">{{ form.nprecio.help_text }}</p>
                                 </div>
@@ -175,16 +205,9 @@
                     <div class="container-fluid">
                         <div class="row" style="display: flex; justify-content: center;">
                             <a href="javascript:void(0);" id="btn_addtrabajo"
-                               class="btn btn-danger btn-icon-split"
-                               style="border: 1px solid #c5c5c5; margin: 20px 20px;">
+                               class="btn btn-danger btn-icon-split btn-animate"
+                               style="border: 1px solid #c5c5c5; margin: 20px 0;">
                                 <span class="text">Agregar</span>
-                                <span class="icon text-gray-100"><i class="fas fa-arrow-right"></i></span>
-                            </a>
-
-                            <a href="{% url 'servicio_multiple' %}"
-                               class="btn btn-success btn-icon-split"
-                               style="border: 1px solid #c5c5c5; margin: 20px 20px;">
-                                <span class="text">Multiple</span>
                                 <span class="icon text-gray-100"><i class="fas fa-arrow-right"></i></span>
                             </a>
                         </div>
@@ -209,6 +232,7 @@
                                 <th style="width: 5%">Trabajador</th>
                                 <th style="width: 5%">Cliente</th>
                                 <th style="width: 5%">Detalle</th>
+                                <th style="width: 1%">Factura</th>
                                 <th style="width: 1%"></th>
                             </tr>
                             </thead>
@@ -221,6 +245,9 @@
                                     <td style="font-size: 12px">{{ l.trabajador|default_if_none:"" }}</td>
                                     <td style="font-size: 12px">{{ l.cliente|default_if_none:"" }}</td>
                                     <td style="font-size: 12px">{{ l.detalle }}</td>
+                                    <td>
+
+                                    </td>
                                     <td style="text-align: center;">
                                         <div class="dropdown no-arrow">
                                             <a class="dropdown-toggle" href="#" role="button"

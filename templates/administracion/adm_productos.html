@@ -1,10 +1,9 @@
 {% extends 'base_dashboard.html' %}
-
 {% block extrahead %}
     <script>
         $(function () {
-            $('#id_subcategoria').select2();
-            $('#id_vitrina').select2();
+            var table = $('#dataTable').DataTable();
+            table.order([0, 'desc']).draw();
         })
     </script>
 {% endblock %}

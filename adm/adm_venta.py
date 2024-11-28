@@ -5,12 +5,12 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from django import forms
 
-from .forms import AddTrabajoForm, TrabajoDiaForm
+from .forms import AddTrabajoForm, TrabajoDiaForm, AddVentaForm
 from core.funciones import normalizarTexto
 
 # IMPORTACIONES DE FORMULARIOS
 from core.forms import PersonaForm
-from adm.models import Trabajo, TrabajoDia, Trabajador, Cliente
+from adm.models import Trabajo, TrabajoDia, Trabajador, Cliente, Producto
 
 def view(request):
     data = {}
@@ -89,8 +89,7 @@ def view(request):
             action = request.GET['action']
             if action == 'add':
                 try:
-                    form = AddTrabajoForm()
-                    data['form'] = form
+                    data['form'] = AddTrabajoForm()
                     data['action'] = action
                     template = get_template("modals/form.html")
                     return JsonResponse({"result": True, 'data': template.render(data)})
@@ -108,21 +107,22 @@ def view(request):
 
             if action == 'obtenerprecio':
                 try:
-                    trabajo = Trabajo.objects.get(pk=request.GET['id'])
-                    return JsonResponse({"result": True, 'precio': trabajo.precio})
+                    producto = Producto.objects.get(pk=request.GET['id'])
+                    return JsonResponse({"result": True, 'precio': producto.precio})
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el valor.', 'detalle': str(ex)})
+
             return HttpResponse("Método no soportado")
         else:
             try:
-                data['form'] = form = AddTrabajoForm()
+                data['form'] = form = AddVentaForm()
                 form.fields['precio'].widget.attrs['readonly'] = True
 
                 data['title'] = u'Servicios de Mecánica'
                 data['subtitle'] = u'Registra los servicios de mecánica realizados'
                 data['list'] = TrabajoDia.objects.filter(status=True)
 
-                data['activo'] = 1
-                return render(request, 'servicios/view.html', data)
+                data['activo'] = 2
+                return render(request, 'venta/view.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")

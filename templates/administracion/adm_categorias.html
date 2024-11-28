@@ -3,7 +3,8 @@
 {% block extrahead %}
     <script>
         $(function () {
-            $('#dataTable2').DataTable();
+            var table = $('#dataTable').DataTable();
+            table.order([0, 'desc']).draw();
         })
     </script>
 

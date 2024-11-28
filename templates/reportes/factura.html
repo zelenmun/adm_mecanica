@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura</title>
+    <!-- Custom styles from SB Admin 2 -->
+    <link href="/static/dashboard/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="/static/dashboard/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container my-5">
+        <!-- Encabezado -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 text-gray-800">Factura</h1>
+            <p class="text-right text-muted">
+                Fecha: <span id="factura-fecha">{{ fecha }}</span>
+            </p>
+        </div>
+
+        <!-- Texto modificable -->
+        <div class="mb-4">
+            <h5 class="text-primary">Información de la Factura</h5>
+            <p id="factura-texto">Aquí puedes incluir detalles adicionales sobre la factura.</p>
+        </div>
+
+        <!-- Tabla de productos -->
+        <div class="table-responsive">
+            <table class="table table-bordered" id="tabla-productos" width="100%" cellspacing="0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Descripción</th>
+                        <th>Precio Unitario</th>
+                        <th>Cantidad</th>
+                        <th>Precio Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Ejemplo Producto</td>
+                        <td>Este es un producto de ejemplo</td>
+                        <td>$10.00</td>
+                        <td>2</td>
+                        <td>$20.00</td>
+                    </tr>
+                    <!-- Más filas pueden agregarse dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Total -->
+        <div class="text-right mt-4">
+            <h5>Total: <span id="factura-total">$20.00</span></h5>
+        </div>
+    </div>
+
+    <!-- Scripts necesarios de SB Admin 2 -->
+    <script src="/static/dashboard/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/dashboard/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/dashboard/js/sb-admin-2.min.js"></script>
+</body>
+</html>

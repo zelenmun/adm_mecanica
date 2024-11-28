@@ -10,81 +10,7 @@
 
     <title></title>
 
-    <!-- Custom fonts for this template-->
-    <link href="/static/dashboard/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-          rel="stylesheet">
-
-    <!-- Custom styles for this template-->
-    <link href="/static/dashboard/css/sb-admin-2.min.css" rel="stylesheet">
-    <!-- Custom styles for this page -->
-    <link href="/static/dashboard/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
-
-    <!-- Agregar CSS de Select2 -->
-    <link href="/static/select2/dist/css/select2.min.css" rel="stylesheet"/>
-
-    <style>
-        body {
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-
-        .spinner {
-            border: 6px solid #e74a3b;
-            border-top-color: transparent;
-            border-bottom-color: transparent;
-            border-radius: 50%;
-
-            width: 60px;
-            height: 60px;
-
-            animation: spin 1s infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            50% {
-                transform: rotate(180deg) scale(1.2);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .btn-animate {
-            transition: all 0.3s ease; /* Cambios suaves en cualquier propiedad */
-        }
-
-        .btn-animate:hover {
-            background-color: #e6e6e6; /* Color al pasar el mouse */
-            transform: scale(1.05); /* Ligero agrandamiento */
-        }
-
-        .btn-animate:active {
-            transform: scale(0.95); /* Pequeño efecto al hacer clic */
-        }
-
-        .icon-size {
-            font-size: 15px; /* Ajusta el tamaño aquí */
-        }
-
-        .form-control:focus,
-        .select2-container--default.select2-container--focus .select2-selection--single {
-            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-        }
-
-        .select2-container .select2-search__field:focus {
-            outline: none; /* Elimina el contorno predeterminado */
-            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25); /* Añadir sombra si es necesario */
-        }
-
-
-        .select2-container--default .select2-selection--single:focus {
-            outline: none;
-        }
-    </style>
+    {% include 'importcss.html' %}
 </head>
 <body id="page-top">
 <!-- Modal -->
@@ -158,33 +84,33 @@
         </div>
 
         <!-- Nav Item - Pages Collapse Menu -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="{% url 'adm_servicio' %}" aria-expanded="true"
-               aria-controls="collapseTwo">
+        <li class="nav-item {% if activo == 1 %}activom{% endif %}">
+            <a class="nav-link collapsed" href="{% url 'adm_servicio' %}" data-toggle="collapse"
+               data-target="#collapseTwo"
+               aria-expanded="true" aria-controls="collapseTwo">
                 <i class="fas fa-fw fa-wrench"></i>
                 <span>Servicios</span>
-                <i class="fas fa-angle-right float-right"></i> <!-- Ícono de flecha manual -->
             </a>
         </li>
 
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+        <li class="nav-item {% if activo == 2 %}activom{% endif %}">
+            <a class="nav-link collapsed" href="{% url 'adm_venta' %}" data-toggle="collapse" data-target="#collapseTwo"
                aria-expanded="true" aria-controls="collapseTwo">
                 <i class="fa fa-store"></i>
                 <span>Ventas</span>
             </a>
         </li>
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+        <li class="nav-item {% if activo == 3 %}activom{% endif %}">
+            <a class="nav-link collapsed" href="{% url 'productos' %}" data-toggle="collapse" data-target="#collapseTwo"
                aria-expanded="true" aria-controls="collapseTwo">
                 <i class="fas fa-fw fa-shopping-bag"></i>
                 <span>Compras</span>
             </a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item {% if activo == 4 %}activom{% endif %}">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
                aria-expanded="true" aria-controls="collapseTwo">
                 <i class="fas fa-fw fa-boxes"></i>
@@ -192,7 +118,7 @@
             </a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item {% if activo == 5 %}activom{% endif %}">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
                aria-expanded="true" aria-controls="collapseTwo">
                 <i class="fas fa-fw fa-dollar-sign"></i>
@@ -202,7 +128,10 @@
 
         <!-- Divider -->
         <hr class="sidebar-divider d-none d-md-block">
-
+        <!-- Heading -->
+        <div class="sidebar-heading">
+            Módulos Secundarios
+        </div>
         <li class="nav-item">
             <a class="nav-link collapsed" data-toggle="collapse" data-target="#collapsedatabase"
                aria-expanded="false" aria-controls="collapsedatabase">
@@ -217,7 +146,6 @@
                     <a href="{% url 'proveedores' %}" class="collapse-item">Proveedores</a>
                     <a href="{% url 'trabajadores' %}" class="collapse-item">Trabajadores</a>
                     <h6 class="collapse-header">Inventario:</h6>
-                    <a href="{% url 'productos' %}" class="collapse-item">Productos</a>
                     <a href="{% url 'categorias' %}" class="collapse-item">Categoría</a>
                     <a href="{% url 'vitrinas' %}" class="collapse-item">Vitrina</a>
                     <h6 class="collapse-header">Servicios:</h6>
@@ -271,12 +199,11 @@
                         </div>
                     </form>
                 {% else %}
-                    <!-- Page Heading -->
-                    <div class="col">
-                        <h1 class="h3 mb-2 text-gray-800">{{ title }}</h1>
-                        <span class="visually-hidden">{{ subtitle }}</span>
+                    <div class="col d-flex align-items-center" style="padding-bottom: 10px;">
+                        <h1 class="h3 mb-0 text-gray-800" style="font-size: 1.5rem; margin-right: 15px;">{{ title }}</h1>
+                        <div style="border-left: 2px solid #ccc; height: 24px; margin-right: 15px;"></div>
+                        <span class="text-muted" style="font-size: 1.2rem;">{{ subtitle }}</span>
                     </div>
-
                 {% endif %}
 
 
@@ -368,40 +295,7 @@
     <i class="fas fa-angle-up"></i>
 </a>
 
-<!-- Bootstrap core JavaScript -->
-<script src="/static/dashboard/vendor/jquery/jquery.min.js"></script>
-<script src="/static/dashboard/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-<!-- Core plugin JavaScript -->
-<script src="/static/dashboard/vendor/jquery-easing/jquery.easing.min.js"></script>
-
-<!-- Custom scripts for all pages -->
-<script src="/static/dashboard/js/sb-admin-2.min.js"></script>
-
-<!-- Page level plugins -->
-<script src="/static/dashboard/vendor/chart.js/Chart.min.js"></script>
-<script src="/static/dashboard/vendor/datatables/jquery.dataTables.min.js"></script>
-<script src="/static/dashboard/vendor/datatables/dataTables.bootstrap4.min.js"></script>
-
-<!-- Page level custom scripts -->
-<script src="/static/dashboard/js/demo/chart-area-demo.js"></script>
-<script src="/static/dashboard/js/demo/chart-pie-demo.js"></script>
-<script src="/static/dashboard/js/demo/datatables-demo.js"></script>
-
-<!-- JSQUERY -->
-<script src="/static/jsquery/jquery.blockUI.js"></script>
-<script src="/static/jsquery/jquery.validationEngine.js"></script>
-
-<!-- SWEETALERT2 -->
-<script src="/static/sweetalert2/dist/sweetalert2.all.js"></script>
-
-<!-- JAVASCRIPT -->
-<script src="/static/js/smoke.js"></script>
-
-<!-- SELECT2 -->
-
-<!-- Agregar JS de Select2 -->
-<script src="/static/select2/dist/js/select2.min.js"></script>
+{% include 'importjavascript.html' %}
 {% block extrahead %}{% endblock %}
 <script>
     $.ajaxSetup({

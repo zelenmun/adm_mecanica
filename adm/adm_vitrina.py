@@ -34,6 +34,8 @@ def view(request):
                     codigo = normalizarTexto(form.cleaned_data['texto'])
                     if Vitrina.objects.filter(codigo=codigo, status=True).exclude(pk=vitrina.id).exists():
                         return JsonResponse({'result': False, 'mensaje': u'Ya existe un registro con este código.', 'detalle': ''})
+                    if vitrina.producto_vitrina.exists():
+                        return JsonResponse({'result': False, 'mensaje': u'No se puede modificar una vitrina que contiene productos.', 'detalle':''})
                     vitrina.codigo = codigo
                     vitrina.save()
                     return JsonResponse({'result': True, 'mensaje':u'Se ha editado correctamente la vitrina.'})
@@ -44,7 +46,7 @@ def view(request):
         if action == 'del':
             try:
                 vitrina = Vitrina.objects.get(pk=request.POST['id'])
-                if vitrina.vitrina_producto.exists():
+                if vitrina.producto_vitrina.exists():
                     return JsonResponse({'result': False, 'mensaje': u'No se puede eliminar una vitrina que contiene productos.', 'detalle':''})
                 vitrina.status = False
                 vitrina.save()

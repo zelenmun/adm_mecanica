@@ -122,9 +122,18 @@ class KardexProducto(ModeloBase):
 
 class Venta(ModeloBase):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True, related_name='venta', verbose_name=u'Nombre del Cliente')
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, blank=True, null=True, related_name='venta', verbose_name=u'Nombre del Producto')
+    trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, blank=True, null=True, related_name='ventatrabajador', verbose_name=u'Trabajador')
     fecha_venta = models.DateField(blank=True, null=True, verbose_name=u'Nombre del Producto')
+    descuento = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Descuento')
+    preciov = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio de la venta')
+    detalle = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Detalle')
 
+class VentaDetalle(ModeloBase):
+    venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalleventa', verbose_name=u'Venta')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, blank=True, null=True, related_name='venta', verbose_name=u'Producto')
+    cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad')
+    preciou = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del producto')
+    preciot = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio Total')
 
 class Trabajo(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre de Trabajo')
@@ -140,3 +149,6 @@ class TrabajoDia(ModeloBase):
     trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Trabajador', related_name='trabajos_dia')
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Cliente', related_name='mantenimientos')
     detalle = models.CharField(max_length=5000, blank=True, null=True, verbose_name=u'Detalle del Trabajo')
+
+    def __str__(self):
+        return f'{self.trabajo} ${self.precio}'
