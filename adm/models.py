@@ -128,6 +128,15 @@ class Venta(ModeloBase):
     preciov = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio de la venta')
     detalle = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Detalle')
 
+    def productos_vendidos(self):
+        detalles = self.detalleventa.all()
+        return "<br>".join([f"{detalle.producto.nombre.upper()} x <b>{detalle.cantidad}</b> x ${detalle.preciou}" for detalle in detalles])
+
+    def subtotal(self):
+        detalles = self.detalleventa.all()
+        return sum(detalle.preciot for detalle in detalles)
+
+
 class VentaDetalle(ModeloBase):
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalleventa', verbose_name=u'Venta')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, blank=True, null=True, related_name='venta', verbose_name=u'Producto')

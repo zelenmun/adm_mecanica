@@ -20,32 +20,33 @@ def view(request):
                 form = ClienteForm(request.POST)
                 if form.is_valid():
                     cedula = form.cleaned_data['cedula']
-                    nombre = form.cleaned_data['nombre']
-                    apellido1 = form.cleaned_data['apellido1']
-                    apellido2 = form.cleaned_data.get('apellido2')
-                    direccion = form.cleaned_data.get('direccion')
-                    celular = form.cleaned_data.get('celular')
-                    correo = form.cleaned_data.get('correo')
-                    if Persona.objects.filter(cedula=cedula, status=True).exists():
-                        return JsonResponse({'result': False, 'mensaje': u'Ya se encuentra registrado este cliente.', 'detalle':''})
-                    persona = Persona.objects.create(
-                        cedula=cedula,
-                        nombre=nombre,
-                        apellido1=apellido1,
-                        apellido2=apellido2,
-                        direccion=direccion,
-                        celular=celular,
-                        correo=correo,
-                    )
-                    persona.save()
-                    cliente = Cliente(persona=persona)
-                    cliente.save()
-                    return JsonResponse({'result': True, 'mensaje':u'Se ha registrado correctamente.'})
-                return JsonResponse( {'result': False, 'mensaje': u'No se ha llenado correctamente el formulario.','detalle': ''})
+                    if cedula.isdigit():
+                        nombre = normalizarTexto(form.cleaned_data['nombre'])
+                        apellido1 = normalizarTexto(form.cleaned_data['apellido1'])
+                        apellido2 = normalizarTexto(form.cleaned_data.get('apellido2'))
+                        direccion = normalizarTexto(form.cleaned_data.get('direccion'))
+                        celular = form.cleaned_data.get('celular')
+                        correo = form.cleaned_data.get('correo')
+                        if Persona.objects.filter(cedula=cedula, status=True).exists():
+                            return JsonResponse({'result': False, 'mensaje': u'Ya se encuentra registrado este cliente.', 'detalle':''})
+                        persona = Persona.objects.create(
+                            cedula=cedula,
+                            nombre=nombre,
+                            apellido1=apellido1,
+                            apellido2=apellido2,
+                            direccion=direccion,
+                            celular=celular,
+                            correo=correo,
+                        )
+                        persona.save()
+                        cliente = Cliente(persona=persona)
+                        cliente.save()
+                        return JsonResponse({'result': True, 'mensaje':u'Se ha registrado correctamente.'})
+                    else:
+                        return JsonResponse({'result': False, 'mensaje': u'Ingrese una cédula válida.','detalle': ''})
+                return JsonResponse({'result': False, 'mensaje': u'No se ha llenado correctamente el formulario.','detalle': ''})
             except Exception as ex:
                 return JsonResponse({'result': True, 'mensaje':u'Parece que ha ocurrido un error con el registro del cliente.', 'detalle': str(ex)})
-
-
     else:
         if 'action' in request.GET:
             data['action'] = action = request.GET['action']
