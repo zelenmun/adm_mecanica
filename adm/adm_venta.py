@@ -24,4 +24,4 @@ def view(request):
                 data['list'] = Venta.objects.filter(status=True)
                 return render(request, 'venta/view.html', data)
             except Exception as ex:
-                return HttpResponse("Método no soportado")
+                return HttpResponse(f"Método no soportado{str(ex)}")

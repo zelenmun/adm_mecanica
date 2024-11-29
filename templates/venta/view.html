@@ -9,9 +9,9 @@
 {% endblock %}
 {% block dashboard %}
     <div class="container-fluid">
-        <div class="card mb-4 py-1 border-left-primary">
+        <div class="card mb-4 py-1 border-left-info">
             <div class="card-body">
-                <a href="{% url 'registroventa' %}" class="btn btn-primary btn-icon-split">
+                <a href="{% url 'registroventa' %}" class="btn btn-info btn-icon-split">
                     <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
                     <span class="text">Registrar Venta</span>
                 </a>
@@ -29,7 +29,8 @@
                             <th style="width: 1%">ID</th>
                             <th style="width: 5%">Detalle</th>
                             <th style="width: 2%">Fecha</th>
-                            <th style="width: 1%">Subtotal</th>
+                            <th style="width: 1%">Trabajador</th>
+                            <th style="width: 1%">Cliente</th>
                             <th style="width: 1%">Descuento</th>
                             <th style="width: 1%">Total</th>
                             <th style="width: 1%"></th>
@@ -41,7 +42,8 @@
                                 <td>{{ l.id }}</td>
                                 <td>{{ l.productos_vendidos|safe }}</td>
                                 <td>{{ l.fecha_venta|date:"d-m-Y" }}</td>
-                                <td>${{ l.subtotal }}</td>
+                                <td style="font-size: 12px">{{ l.trabajador|default_if_none:"" }}</td>
+                                <td style="font-size: 12px">{{ l.cliente|default_if_none:"" }}</td>
                                 <td>${{ l.descuento }}</td>
                                 <td><b>${{ l.preciov }}</b></td>
                                 <td style="text-align: center">

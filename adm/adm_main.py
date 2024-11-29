@@ -21,14 +21,19 @@ def view(request):
                 data['lunes'] = lunes
                 data['cantidad'] = u'200.00'
                 workday = TrabajoDia.objects.filter(status=True, fecha_creacion__date=hoy)
-                precio_total = workday.aggregate(Sum('precio'))['precio__sum']
+                precio_total = 0
+                if workday is not None:
+                    for day in workday:
+                        precio_total += day.preciot
+
                 if precio_total is None:
                     precio_total = 0
+
                 data['servicios'] = f'{precio_total}'
                 data['dashboardatras'] = True
                 return render(request, 'dashboard/view.html', data)
             except Exception as ex:
-                return HttpResponse("Método no soportado")
+                return HttpResponse(f"Método no soportado {str(ex)}")
 
 
 def obtener_rango_semana_actual():

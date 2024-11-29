@@ -9,10 +9,10 @@ class Cliente(ModeloBase):
     deuda_pendiente = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=u'Deuda del cliente')
 
     def __str__(self):
-        return f'{self.persona} debe: {self.deuda_pendiente}'
+        return f'{self.persona} | DEBE: ${self.deuda_pendiente}'
 
 class Vehiculo(ModeloBase):
-    propietario = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name=u'Persona', related_name='vehiculo')
+    propietario = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name=u'Persona', related_name='vehiculo', blank=True, null=True)
     descripcion = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Descripción del vehículo')
     placa = models.CharField(max_length=10, blank=True, null=True, verbose_name=u'Placa del vehículo', unique=True)
     modelo = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'Modelo del vehículo')
@@ -144,7 +144,7 @@ class KardexProducto(ModeloBase):
 class Venta(ModeloBase):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True, related_name='venta', verbose_name=u'Nombre del Cliente')
     trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, blank=True, null=True, related_name='ventatrabajador', verbose_name=u'Trabajador')
-    fecha_venta = models.DateField(blank=True, null=True, verbose_name=u'Nombre del Producto')
+    fecha_venta = models.DateField(blank=True, null=True, verbose_name=u'Fecha de Venta')
     descuento = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Descuento')
     preciov = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio de la venta')
     detalle = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Detalle')
@@ -174,11 +174,27 @@ class Trabajo(ModeloBase):
         return f'{self.nombre}'
 
 class TrabajoDia(ModeloBase):
-    trabajo = models.ForeignKey(Trabajo, on_delete=models.CASCADE, verbose_name=u'Trabajo', related_name='trabajo_dia')
-    precio = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del Trabajo')
     trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Trabajador', related_name='trabajos_dia')
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Cliente', related_name='mantenimientos')
     detalle = models.CharField(max_length=5000, blank=True, null=True, verbose_name=u'Detalle del Trabajo')
+    descuento = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Descuento')
+    preciot = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio Total')
+    fecha_servicio = models.DateField(blank=True, null=True, verbose_name=u'Fecha del Servicio')
 
     def __str__(self):
-        return f'{self.trabajo} ${self.precio}'
+        return f'${self.preciot}'
+
+    def trabajos_realizados(self):
+        detalles = self.trabajodiadetalle.all()
+        return "<br>".join([f"{detalle.trabajo} x <b>{detalle.cantidad}</b> x ${detalle.preciou}" for detalle in detalles])
+
+    def subtotal(self):
+        detalles = self.trabajodiadetalle.all()
+        return sum(detalle.preciot for detalle in detalles)
+
+class TrabajoDiaDetalle(ModeloBase):
+    trabajodia = models.ForeignKey(TrabajoDia, on_delete=models.CASCADE, verbose_name=u'TrabajoDia', related_name='trabajodiadetalle')
+    trabajo = models.ForeignKey(Trabajo, on_delete=models.CASCADE, verbose_name='Trabajo', related_name='trabajodetalle')
+    cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'')
+    preciou = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del producto')
+    preciot = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio Total')

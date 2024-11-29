@@ -13,7 +13,7 @@ from adm.models import Producto, VentaDetalle, Venta, Cliente, Trabajador, Karde
 from core.models import Persona
 
 # IMPORTACIONES DE FORMULARIOS
-from adm.forms import ProductoForm, MultipleServiceForm, ClienteForm
+from adm.forms import ProductoForm, RegistroVentaForm, ClienteForm, RegistroTotalForm
 from core.forms import PersonaForm
 
 
@@ -109,9 +109,7 @@ def view(request):
                         return JsonResponse({"result": True, 'mensaje': 'No hay lotes disponibles para este producto.'})
 
                 except Exception as ex:
-                    return JsonResponse(
-                        {"result": False, 'mensaje': u'Ha ocurrido un error al obtener el valor.', 'detalle': str(ex)
-                         })
+                    return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el valor.', 'detalle': str(ex)})
 
             if action == 'obtenercliente':
                 try:
@@ -132,16 +130,21 @@ def view(request):
         else:
             try:
                 data['title'] = u'Ventas'
-                data['subtitle'] = u'Registro de múltiples ventas'
+                data['subtitle'] = u'Registro de ventas de productos'
 
-                form = MultipleServiceForm()
+                form = RegistroVentaForm()
                 form2 = ClienteForm()
+                form3 = RegistroTotalForm()
+
                 form.fields['preciou'].widget.attrs['readonly'] = True
                 form.fields['precios'].widget.attrs['readonly'] = True
-                form.fields['preciot'].widget.attrs['readonly'] = True
+                form3.fields['preciot'].widget.attrs['readonly'] = True
+                form3.fields['preciosd'].widget.attrs['readonly'] = True
+
                 data['form'] = form
                 data['form2'] = form2
+                data['form3'] = form3
                 data['activo'] = 2
                 return render(request, 'venta/registroventa.html', data)
             except Exception as ex:
-                return HttpResponse("Método no soportado")
+                return HttpResponse(f"Método no soportado, {str(ex)}")

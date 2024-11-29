@@ -1,5 +1,5 @@
 {% extends 'base_dashboard.html' %}
-{% block atras %}{% url 'adm_venta' %}{% endblock %}
+{% block atras %}{% url 'adm_servicio' %}{% endblock %}
 {% block extrahead %}
     <script>
         $(function () {
@@ -11,7 +11,7 @@
             var table = $('#dataTable').DataTable()
 
 
-            $('#id_producto').select2()
+            $('#id_trabajo').select2()
 
             $('#btn_cliente').click(function () {
                 $('#itemspanelTitle2').html('ASIGNAR CLIENTE');  // Actualiza el título del modal
@@ -121,18 +121,18 @@
                 }
             })
 
-            $('#id_producto').change(function () {
+            $('#id_trabajo').change(function () {
                 if ($(this).val() !== '') {
                     $('#id_cantidad').val(1);
                     obtenerPrecioProducto();
                 } else {
                     $('#id_cantidad').val('');
-                    $('#id_addproducto').addClass('disabled');
+                    $('#id_addtrabajo').addClass('disabled');
                 }
             });
 
             function manejarCambioCantidad() {
-                if($(this).val() > parseInt(maxproductos, 10)){
+                if ($(this).val() > parseInt(maxproductos, 10)) {
                     $(this).val(maxproductos)
                 }
 
@@ -155,9 +155,9 @@
 
             $('#id_descuento').on('keyup click', manejarCambioDescuento);
 
-            $('#id_addproducto').click(function () {
-                const id = $('#id_producto').val();
-                const producto = $('#id_producto option:selected').text();
+            $('#id_addtrabajo').click(function () {
+                const id = $('#id_trabajo').val();
+                const producto = $('#id_trabajo option:selected').text();
                 const preciou = $('#id_preciou').val();
                 const cantidad = $('#id_cantidad').val();
                 const precios = $('#id_precios').val();
@@ -195,7 +195,7 @@
                     precios,
                     actions
                 ]).draw();
-                $('#id_addproducto').addClass('disabled')
+                $('#id_addtrabajo').addClass('disabled')
                 $('#id_preciot').val('$' + calcularTotalVenta())
                 $('#id_preciosd').val('$' + calcularSubtotal())
             });
@@ -222,15 +222,12 @@
                             showConfirmButton: false,
                             timer: 1000
                         })
-                        $('#id_preciosd').val('')
-                        $('#id_preciot').val('')
-                        $('#id_addproducto').removeClass('disabled');
                     }
                 });
             });
 
             function obtenerPrecioProducto() {
-                var valor = $('#id_producto').val();
+                var valor = $('#id_trabajo').val();
                 if (valor !== '') {
                     $.ajax({
                         type: 'GET',
@@ -255,10 +252,9 @@
                 var cantidad = parseFloat($('#id_cantidad').val()); // Obtener la cantidad
                 var precioUnitario = parseFloat($('#id_preciou').val().replace('$', '')); // Obtener el precio unitario, sin el signo de dólar
                 if (!isNaN(cantidad) && !isNaN(precioUnitario)) {
-                    var total = precioUnitario * cantidad; // Calcular el total
-                    $('#id_precios').val('$' + total.toFixed(2)); // Mostrar el total con dos decimales
-                    $('#id_preciot').val('$' + calcularTotalVenta()); // Actualizar el total general de la venta
-                    $('#id_addproducto').removeClass('disabled'); // Habilitar el botón de agregar producto
+                    var total = precioUnitario * cantidad;
+                    $('#id_precios').val('$' + total.toFixed(2));
+                    $('#id_addtrabajo').removeClass('disabled');
                 }
             }
 
@@ -307,17 +303,20 @@
                                 var rowData = this.data();
                                 dataToSend.push({
                                     id: rowData[0],
-                                    producto: rowData[1],
+                                    trabajo: rowData[1],
                                     preciou: rowData[2],
                                     cantidad: rowData[3],
                                     total: rowData[4]
                                 });
                             });
+
                             var formData = new FormData()
+
                             formData.append('tabla', JSON.stringify(dataToSend))
                             formData.append('descuento', $('#id_descuento').val())
-                            formData.append('preciov', $('#id_preciot').val())
+                            formData.append('preciot', $('#id_preciot').val())
                             formData.append('detalle', $('#id_detalle').val())
+                            formData.append('trabajador', $('#id_trabajador').val())
                             formData.append('action', 'add')
                             formData.append('cedula', cedulacliente)
                             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
@@ -338,7 +337,7 @@
                                             showConfirmButton: false,
                                             timer: 1500
                                         }).then(() => {
-                                            window.location.href = '{% url 'adm_venta' %}';
+                                            window.location.href = '{% url 'adm_servicio' %}';
                                         });
 
                                     } else {
@@ -408,7 +407,7 @@
     </div>
 
     <div class="container-fluid">
-        <div class="card mb-4 py-1 border-left-info">
+        <div class="card mb-4 py-1 border-left-danger">
             <div class="card-body">
                 <div style="display: flex; width: 100%; align-items: stretch;">
                     <div style="flex: 1; padding-right: 10px; padding-left: 0" class="col-9">
@@ -422,14 +421,13 @@
                         {% include 'modals/form3.html' %}
                     </div>
                 </div>
-
                 <div class="row" style="display: flex; align-items: center; justify-content: flex-start; padding: 0 24px 0 24px; margin-top: 20px;">
                     <!-- Primera Área -->
                     <div class="row" style="display: flex; align-items: center; margin-right: 20px;">
-                        <a href="javascript:void(0);" style="margin-left: 10px" id="id_addproducto"
-                           class="btn btn-info btn-icon-split disabled">
+                        <a href="javascript:void(0);" style="margin-left: 10px" id="id_addtrabajo"
+                           class="btn btn-danger btn-icon-split disabled">
                             <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
-                            <span class="text">Agregar Producto</span>
+                            <span class="text">Agregar Trabajo</span>
                         </a>
                         <a href="javascript:void(0);" id="btn_cliente" class="btn btn-primary btn-icon-split"
                            style="margin-left: 20px;">
@@ -461,7 +459,7 @@
                         <thead>
                         <tr>
                             <th style="width: 1%">ID</th>
-                            <th style="width: 5%">Producto</th>
+                            <th style="width: 5%">Servicio</th>
                             <th style="width: 1%">Precio Unitario</th>
                             <th style="width: 1%">Cantidad</th>
                             <th style="width: 1%">Total</th>
