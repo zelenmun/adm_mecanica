@@ -3,11 +3,12 @@ from django.http import HttpResponse
 from django.db.models import Sum
 
 from adm.models import TrabajoDia
-from datetime import datetime
+from datetime import datetime, timedelta, date
 def view(request):
     data = {}
     hoy = datetime.now().date()  # Obtiene solo la fecha (sin hora)
     data['hoy'] = hoy
+    lunes = obtener_rango_semana_actual()
     if request.method == 'POST':
         action = request.POST['action']
     else:
@@ -17,7 +18,7 @@ def view(request):
             try:
                 data['buscador'] = True
                 data['title'] = f'Dashboard Mecánica | {hoy}'
-                data['dias'] = u'7'
+                data['lunes'] = lunes
                 data['cantidad'] = u'200.00'
                 workday = TrabajoDia.objects.filter(status=True, fecha_creacion__date=hoy)
                 precio_total = workday.aggregate(Sum('precio'))['precio__sum']
@@ -28,3 +29,9 @@ def view(request):
                 return render(request, 'dashboard/view.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")
+
+
+def obtener_rango_semana_actual():
+    hoy = date.today()
+    lunes = hoy - timedelta(days=hoy.weekday())
+    return lunes

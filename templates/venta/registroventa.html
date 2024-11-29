@@ -5,10 +5,11 @@
         $(function () {
             var existcliente = false
             var cedulacliente = ''
-
+            var maxproductos = 0
             let typingTimer;
             const typingDelay = 300;
             var table = $('#dataTable').DataTable()
+
 
             $('#id_producto').select2()
 
@@ -122,36 +123,37 @@
 
             $('#id_producto').change(function () {
                 if ($(this).val() !== '') {
-                    $('#id_cantidad').val(1)
-                    obtenerPrecioProducto()
+                    $('#id_cantidad').val(1);
+                    obtenerPrecioProducto();
                 } else {
-                    $('#id_cantidad').val('')
-                    $('#id_addproducto').addClass('disabled')
-                }
-            })
-
-            $('#id_cantidad').on('keyup', function () {
-                if ($(this).val() !== '' && $(this).val() > 0) {
-                    clearTimeout(typingTimer);
-                    typingTimer = setTimeout(function () {
-                        calcularTotal();
-                    }, typingDelay);
-                } else {
-                    $(this).val(1)
+                    $('#id_cantidad').val('');
+                    $('#id_addproducto').addClass('disabled');
                 }
             });
 
-            $('#id_descuento').on('keyup', function () {
-                if ($(this).val() !== '') {
-                    clearTimeout(typingTimer);
-                    typingTimer = setTimeout(function () {
-                        $('#id_preciot').val('$' + calcularTotalVenta())
-                    }, typingDelay);
-                } else {
-                    $(this).val('')
-                    $('#id_preciot').val('$' + calcularTotalVenta())
+            function manejarCambioCantidad() {
+                if($(this).val() > parseInt(maxproductos, 10)){
+                    $(this).val(maxproductos)
                 }
-            });
+
+                const $cantidad = $('#id_cantidad');
+                if ($cantidad.val() !== '' && $cantidad.val() > 0) {
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(calcularTotal, typingDelay);
+                }
+            }
+
+            $('#id_cantidad').on('keyup click', manejarCambioCantidad);
+
+            function manejarCambioDescuento() {
+                const $descuento = $('#id_descuento');
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => {
+                    $('#id_preciot').val('$' + calcularTotalVenta());
+                }, typingDelay);
+            }
+
+            $('#id_descuento').on('keyup click', manejarCambioDescuento);
 
             $('#id_addproducto').click(function () {
                 const id = $('#id_producto').val();
@@ -224,16 +226,18 @@
             });
 
             function obtenerPrecioProducto() {
-                var valor = $('#id_producto').val(); // Obtener el ID del producto seleccionado
+                var valor = $('#id_producto').val();
                 if (valor !== '') {
                     $.ajax({
                         type: 'GET',
                         url: '{{ request.path }}',
-                        data: {'action': 'obtenerprecio', 'id': valor}, // Enviar el ID del producto al servidor
+                        data: {'action': 'obtenerprecio', 'id': valor},
                         success: function (data) {
                             if (data.result === true) {
-                                $('#id_preciou').val('$' + data.precio); // Mostrar el precio unitario
-                                calcularTotal(); // Llamar a la función para calcular el total después de obtener el precio
+                                $('#id_preciou').val('$' + data.precio);
+                                maxproductos = data.stock
+                                $('#id_cantidad').attr('max', maxproductos)
+                                calcularTotal();
                             }
                         },
                         dataType: "json"
@@ -271,72 +275,80 @@
             }
 
             $('#btn_guardar').click(function () {
-                Swal.fire({
-                    icon: "warning",
-                    title: "¡Confirma la venta!",
-                    html: `<p>Las ventas no se pueden modificar, verifica los detalles antes de proceder</p><hr><span style="font-size: 12px">Tendrán que llamar a Zelen si la cagan.</span>`,
-                    showCancelButton: true,
-                    confirmButtonText: "Confirmar"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        bloqueointerface();
-                        var dataToSend = [];
-                        table.rows().every(function () {
-                            var rowData = this.data();
-                            dataToSend.push({
-                                id: rowData[0],
-                                producto: rowData[1],
-                                preciou: rowData[2],
-                                cantidad: rowData[3],
-                                total: rowData[4]
-                            });
-                        });
-                        var formData = new FormData()
-                        formData.append('tabla', JSON.stringify(dataToSend))
-                        formData.append('descuento', $('#id_descuento').val())
-                        formData.append('preciov', $('#id_preciot').val())
-                        formData.append('detalle', $('#id_detalle').val())
-                        formData.append('action', 'add')
-                        formData.append('cedula', cedulacliente)
-                        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
-                        console.log(formData)
-                        $.ajax({
-                            type: 'POST',
-                            url: '{{ request.path }}',
-                            data: formData,
-                            processData: false,
-                            contentType: false,
-                            success: function (response) {
-                                $.unblockUI();
-                                if (response.result === true) {
-                                    $.unblockUI();
-                                    Swal.fire({
-                                        position: "center",
-                                        icon: "success",
-                                        title: "¡Listo!",
-                                        html: `<p><b>${response.mensaje}</b></p><hr>${response.detalle}`,
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    }).then(() => {
-                                        window.location.href = '{% url 'adm_venta' %}';
-                                    });
+                if (table.rows().count() > 0) {
 
-                                } else {
-                                    Swal.fire({
-                                        icon: "error",
-                                        type: "error",
-                                        title: "Parece que ha ocurrido un problema!",
-                                        html: `<p><b>${response.mensaje}</b></p><hr>${response.detalle}`
-                                    });
+                    Swal.fire({
+                        icon: "warning",
+                        title: "¡Confirma la venta!",
+                        html: `<p>Las ventas no se pueden modificar, verifica los detalles antes de proceder</p><hr><span style="font-size: 12px">Tendrán que llamar a Zelen si la cagan.</span>`,
+                        showCancelButton: true,
+                        confirmButtonText: "Confirmar"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            bloqueointerface();
+                            var dataToSend = [];
+                            table.rows().every(function () {
+                                var rowData = this.data();
+                                dataToSend.push({
+                                    id: rowData[0],
+                                    producto: rowData[1],
+                                    preciou: rowData[2],
+                                    cantidad: rowData[3],
+                                    total: rowData[4]
+                                });
+                            });
+                            var formData = new FormData()
+                            formData.append('tabla', JSON.stringify(dataToSend))
+                            formData.append('descuento', $('#id_descuento').val())
+                            formData.append('preciov', $('#id_preciot').val())
+                            formData.append('detalle', $('#id_detalle').val())
+                            formData.append('action', 'add')
+                            formData.append('cedula', cedulacliente)
+                            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+                            $.ajax({
+                                type: 'POST',
+                                url: '{{ request.path }}',
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function (response) {
+                                    $.unblockUI();
+                                    if (response.result === true) {
+                                        Swal.fire({
+                                            position: "center",
+                                            icon: "success",
+                                            title: "¡Listo!",
+                                            html: `<p><b>${response.mensaje}</b></p><hr>${response.detalle}`,
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        }).then(() => {
+                                            window.location.href = '{% url 'adm_venta' %}';
+                                        });
+
+                                    } else {
+                                        Swal.fire({
+                                            icon: "error",
+                                            type: "error",
+                                            title: "Parece que ha ocurrido un problema!",
+                                            html: `<p><b>${response.mensaje}</b></p><hr>${response.detalle}`
+                                        });
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    $.unblockUI();
+                                    console.error('Error al enviar los datos:', error);
                                 }
-                            },
-                            error: function (xhr, status, error) {
-                                $.unblockUI();
-                                console.error('Error al enviar los datos:', error);
-                            }
-                        });
-                    }
-                });
+                            });
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "¡Espera!",
+                        html: `<p>Antes de poder registrar la venta debes <b>ingresar los productos en la tabla</b>.</p><hr><span style="font-size: 12px">Esta acción es obligatoria.</span>`,
+                        confirmButtonText: "Aceptar"
+                    })
+                }
             })
         })
     </script>
@@ -453,7 +465,7 @@
                             <th style="width: 1%">ID</th>
                             <th style="width: 5%">Producto</th>
                             <th style="width: 1%">Precio Unitario</th>
-                            <th style="width: 1%">Cantiada</th>
+                            <th style="width: 1%">Cantidad</th>
                             <th style="width: 1%">Total</th>
                             <th style="width: 1%"></th>
                         </tr>

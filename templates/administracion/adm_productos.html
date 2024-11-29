@@ -31,9 +31,11 @@
                             <th style="width: 5%">Nombre</th>
                             <th style="width: 5%">Descripción</th>
                             <th style="width: 2%">Subcategoria</th>
-                            <th style="width: 1%">Precio</th>
+                            <th style="width: 1%">Precio Compra</th>
+                            <th style="width: 1%">Precio Venta</th>
                             <th style="width: 1%">Cantidad</th>
                             <th style="width: 1%">Vitrina</th>
+                            <th style="width: 5%">Lote</th>
                             <th style="width: 1%"></th>
                         </tr>
                         </thead>
@@ -44,9 +46,11 @@
                                 <td>{{ l.nombre }}</td>
                                 <td>{{ l.descripcion }}</td>
                                 <td>{{ l.subcategoria.nombre }}</td>
-                                <td>${{ l.precio }}</td>
-                                <td>{{ l.get_cantidad_actual }}</td>
+                                <td>${{ l.lote_actual.preciocompra }}</td>
+                                <td>${{ l.lote_actual.precioventa }}</td>
+                                <td>{{ l.lote_actual.cantidad }}</td>
                                 <td>{{ l.vitrina|default:"" }}</td>
+                                <td>{{ l.lote_actual|default_if_none:"AGOTADO" }}</td>
                                 <td style="text-align: center">
                                     <div class="dropdown no-arrow">
                                         <a class="dropdown-toggle" href="#" role="button"

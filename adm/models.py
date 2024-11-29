@@ -4,7 +4,15 @@ from core.models import ModeloBase, Persona
 
 
 # Create your models here.
+class Cliente(ModeloBase):
+    persona = models.ForeignKey(Persona, on_delete=models.CASCADE, verbose_name=u'Persona', related_name='cliente')
+    deuda_pendiente = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=u'Deuda del cliente')
+
+    def __str__(self):
+        return f'{self.persona} debe: {self.deuda_pendiente}'
+
 class Vehiculo(ModeloBase):
+    propietario = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name=u'Persona', related_name='vehiculo')
     descripcion = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Descripción del vehículo')
     placa = models.CharField(max_length=10, blank=True, null=True, verbose_name=u'Placa del vehículo', unique=True)
     modelo = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'Modelo del vehículo')
@@ -13,26 +21,9 @@ class Vehiculo(ModeloBase):
     def __str__(self):
         return f'{self.modelo} - {self.placa}'
 
-
-class Cliente(ModeloBase):
-    persona = models.ForeignKey(Persona, on_delete=models.CASCADE, verbose_name=u'Persona', related_name='clientes')
-    deuda_pendiente = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=u'Deuda del cliente')
-
-    def __str__(self):
-        return f'{self.persona} debe: {self.deuda_pendiente}'
-
-
-class Vehiculo_Cliente(ModeloBase):
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name=u'Cliente', related_name='vehiculos')
-    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE, verbose_name=u'Vehículo', related_name='clientes')
-
-    def __str__(self):
-        return f'{self.vehiculo} - {self.cliente}'
-
-
 class Trabajador(ModeloBase):
     nombre = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'Nombre del Trabajador')
-
+    sueldo = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Sueldo del trabajador')
 
 class Proveedor(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre del Proveedor')
@@ -64,35 +55,56 @@ class Producto(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre del Producto')
     subcategoria = models.ForeignKey(Subcategoria, on_delete=models.CASCADE, related_name='productos', blank=True, null=True)
     vitrina = models.ForeignKey(Vitrina, on_delete=models.CASCADE, blank=True, null=True, related_name='producto_vitrina', verbose_name=u'Vitrina')
-    precio = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del Producto')
+    # precioventa = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio de Venta')
+    # preciocompra = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio de Compra')
     descripcion = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Descripción del producto')
 
     def __str__(self):
         return f'{self.nombre}'
 
-    def get_cantidad_actual(self):
-        """Calcula la cantidad actual desde los movimientos del kardex"""
-        entrada = KardexProducto.objects.filter(producto=self, tipo_movimiento=1).aggregate(total=models.Sum('cantidad'))['total'] or 0
-        salida = KardexProducto.objects.filter(producto=self, tipo_movimiento=2).aggregate(total=models.Sum('cantidad'))['total'] or 0
+    def get_cantidad_lote(self, lote_id):
+        """Calcula la cantidad actual disponible para un lote específico desde el kardex"""
+        entrada = KardexProducto.objects.filter(producto=self, lote_id=lote_id, tipo_movimiento=1).aggregate(total=models.Sum('cantidad'))['total'] or 0
+
+        salida = KardexProducto.objects.filter(producto=self, lote_id=lote_id, tipo_movimiento=2).aggregate(total=models.Sum('cantidad'))['total'] or 0
+
         return entrada - salida
 
+    def lote_actual(self):
+        """Devuelve el lote actual con stock disponible."""
+        return LoteProducto.objects.filter(
+            producto=self,
+            cantidad__gt=0  # Solo lotes con stock disponible
+        ).order_by('fecha_adquisicion').first()
+
+class LoteProducto(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, verbose_name=u'Producto', related_name='loteproducto')
+    cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad')
+    precioventa = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio de Venta')
+    preciocompra = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio de Compra')
+    fecha_adquisicion = models.DateField(null=True, blank=True, verbose_name=u'Fecha de ingreso')
+
+    def __str__(self):
+        return f"Lote {self.id} - {self.producto.nombre} - ${self.preciocompra}"
 
 TIPO_MOVIMIENTO = (
     (1, u'ENTRADA'),
     (2, u'SALIDA')
 )
 
-
 class KardexProducto(ModeloBase):
     producto = models.ForeignKey(Producto, verbose_name=u'Producto', related_name='kardex_producto', on_delete=models.CASCADE)
-    fecha_movimiento = models.DateField(verbose_name=u'Fecha del Movimiento', auto_now_add=True)
-    tipo_movimiento = models.IntegerField(default=1, choices=TIPO_MOVIMIENTO, verbose_name=u'Tipo de Movimiento')
-    cantidad = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=u'Cantidad')
-    costo_unitario = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=u'Costo Unitario')
-    costo_total = models.DecimalField(max_digits=12, decimal_places=2, verbose_name=u'Costo Total')
-    saldo_cantidad = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=u'Saldo Cantidad', default=0)
-    saldo_costo = models.DecimalField(max_digits=12, decimal_places=2, verbose_name=u'Saldo Costo', default=0)
+    fecha_movimiento = models.DateField(blank=True, null=True, verbose_name=u'Fecha del Movimiento', auto_now_add=True)
+    tipo_movimiento = models.IntegerField(blank=True, null=True, default=1, choices=TIPO_MOVIMIENTO, verbose_name=u'Tipo de Movimiento')
+    cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad')
+    costo_unitario = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, verbose_name=u'Costo Unitario')
+    precio_unitario = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, verbose_name=u'Precio Unitario')
+    costo_total = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2, verbose_name=u'Costo Total')
+    saldo_cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Saldo Cantidad')
+    saldo_costo = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2, verbose_name=u'Saldo Costo')
+    saldo_ganancia = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2, verbose_name=u'Saldo Ganancia')
     observacion = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Observación')
+    lote = models.ForeignKey(LoteProducto, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Lote')
 
     def __str__(self):
         return f'Kardex de {self.producto.nombre} - {self.fecha_movimiento}'
@@ -100,6 +112,14 @@ class KardexProducto(ModeloBase):
     def save(self, *args, **kwargs):
         # Cálculo del costo total del movimiento
         self.costo_total = self.cantidad * self.costo_unitario
+
+        # Si hay precio de venta, calculamos la ganancia
+        if self.precio_unitario:
+            ganancia_total = (self.precio_unitario - self.costo_unitario) * self.cantidad
+        else:
+            ganancia_total = 0
+
+        self.saldo_ganancia = ganancia_total
 
         # Obtener el último registro del kardex
         ultimo_kardex = KardexProducto.objects.filter(producto=self.producto).order_by('-id').first()
@@ -118,6 +138,7 @@ class KardexProducto(ModeloBase):
 
         # Guardar el registro actualizado
         super(KardexProducto, self).save(*args, **kwargs)
+
 
 
 class Venta(ModeloBase):

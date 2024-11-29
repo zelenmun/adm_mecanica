@@ -16,15 +16,17 @@
                 <div class="table-responsive">
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
-                        <tr>
+                        <tr style="text-align: center">
                             <th style="width: 1%">Producto</th>
                             <th style="width: 1%">Fecha Movimiento</th>
                             <th style="width: 1%">Tipo Movimiento</th>
                             <th style="width: 1%">Cantidad</th>
+                            <th style="width: 1%">Saldo Cantidad</th>
+                            <th style="width: 1%">Precio Unitario</th>
                             <th style="width: 1%">Costo Unitario</th>
                             <th style="width: 1%">Costo Total</th>
-                            <th style="width: 1%">Saldo Cantidad</th>
                             <th style="width: 1%">Saldo Costo</th>
+                            <th style="width: 5%">Lote</th>
                             <th style="width: 1%">Observación</th>
                         </tr>
                         </thead>
@@ -33,25 +35,14 @@
                             <tr style="text-align: center">
                                 <td>{{ l.producto }}</td>
                                 <td>{{ l.fecha_movimiento }}</td>
-                                <td>{{ l.get_tipo_movimiento_display }}
-                                    {#                                {% if l.tipo_movimiento == 1 %}#}
-                                    {#                                    <h3 class="badge badge-danger">{{ l.get_tipo_movimiento_display }}</h3>#}
-                                    {#                                {% else %}#}
-                                    {#                                    <small class="badge badge-success">{{ l.get_tipo_movimiento_display }}</small>#}
-                                    {#                                {% endif %}#}
-                                </td>
+                                <td>{{ l.get_tipo_movimiento_display }}</td>
                                 <td>{{ l.cantidad }}</td>
-                                <td>${{ l.costo_unitario }}</td>
-                                <td>
-                                    ${{ l.costo_total }}
-                                    {#                                {% if l.tipo_movimiento == 1 %}#}
-                                    {#                                    <h3 class="badge badge-danger">${{ l.costo_total }}</h3>#}
-                                    {#                                {% else %}#}
-                                    {#                                    <small class="badge badge-success">${{ l.costo_total }}</small>#}
-                                    {#                                {% endif %}#}
-                                </td>
                                 <td>{{ l.saldo_cantidad }}</td>
+                                <td>${{ l.precio_unitario }}</td>
+                                <td>${{ l.costo_unitario }}</td>
+                                <td>${{ l.costo_total }}</td>
                                 <td>${{ l.saldo_costo }}</td>
+                                <td>{{ l.lote }}</td>
                                 <td>{{ l.observacion|default:"" }}</td>
                             </tr>
                         {% endfor %}
