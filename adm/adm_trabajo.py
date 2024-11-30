@@ -45,11 +45,9 @@ def view(request):
                     trabajo.save()
                     return JsonResponse({'result': True, 'mensaje': 'Se ha modificado el registro excitosamente'})
                 else:
-                    return JsonResponse(
-                        {"result": False, 'mensaje': u'El formulario no se ha llenado correctamente', 'detalle': ''})
+                    return JsonResponse({"result": False, 'mensaje': u'El formulario no se ha llenado correctamente', 'detalle': ''})
             except Exception as ex:
-                return JsonResponse(
-                    {"result": False, 'mensaje': u'Ha ocurrido un error al guardar', 'detalle': str(ex)})
+                return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar', 'detalle': str(ex)})
 
         if action == 'del':
             try:
@@ -86,6 +84,8 @@ def view(request):
                 data['subtitle'] = u'Administre sus servicios de mecánica'
                 data['palabraclave'] = u'Trabajo'
                 data['list'] = Trabajo.objects.filter(status=True)
+                data['administracion'] = True
+                data['adm_activo'] = 5
                 return render(request, 'administracion/adm_trabajos.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")

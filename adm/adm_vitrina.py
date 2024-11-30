@@ -81,6 +81,8 @@ def view(request):
                 data['title'] = u'Administración de Vitrinas'
                 data['subtitle'] = u'Administre sus vitrinas'
                 data['list'] = Vitrina.objects.filter(status=True)
+                data['administracion'] = True
+                data['adm_activo'] = 4
                 return render(request, 'administracion/adm_vitrinas.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")

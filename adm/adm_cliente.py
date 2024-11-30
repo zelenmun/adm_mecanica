@@ -94,6 +94,8 @@ def view(request):
                 data['title'] = u'Administración de Clientes'
                 data['subtitle'] = u'Administre sus clientes'
                 data['list'] = Cliente.objects.filter(persona__status=True, status=True).select_related('persona').order_by('-id')
+                data['administracion'] = True
+                data['adm_activo'] = 1
                 return render(request, 'administracion/adm_clientes.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")

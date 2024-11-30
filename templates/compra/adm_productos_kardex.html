@@ -14,34 +14,36 @@
         <div class="card shadow mb-4">
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="font-size: 13px">
                         <thead>
                         <tr style="text-align: center">
-                            <th style="width: 1%">Producto</th>
+                            <th style="width: .2%">ID</th>
                             <th style="width: 1%">Fecha Movimiento</th>
-                            <th style="width: 1%">Tipo Movimiento</th>
+{#                            <th style="width: 1%">Tipo Movimiento</th>#}
                             <th style="width: 1%">Cantidad</th>
                             <th style="width: 1%">Saldo Cantidad</th>
                             <th style="width: 1%">Precio Unitario</th>
                             <th style="width: 1%">Costo Unitario</th>
                             <th style="width: 1%">Costo Total</th>
                             <th style="width: 1%">Saldo Costo</th>
-                            <th style="width: 5%">Lote</th>
+                            <th style="width: 1%">Saldo Ganancia</th>
+                            <th style="width: 2%">Lote</th>
                             <th style="width: 1%">Observación</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for l in list %}
-                            <tr style="text-align: center">
-                                <td>{{ l.producto }}</td>
-                                <td>{{ l.fecha_movimiento }}</td>
-                                <td>{{ l.get_tipo_movimiento_display }}</td>
+                            <tr style="text-align: center;background-color: {% if l.tipo_movimiento == 1 %}rgba(239,192,228,0.13){% else %}rgba(190,255,132,0.15){% endif %}">
+                                <td>{{ l.id }}</td>
+                                <td>{{ l.fecha_creacion }}</td>
+{#                                <td>{{ l.get_tipo_movimiento_display }}</td>#}
                                 <td>{{ l.cantidad }}</td>
                                 <td>{{ l.saldo_cantidad }}</td>
                                 <td>${{ l.precio_unitario }}</td>
                                 <td>${{ l.costo_unitario }}</td>
                                 <td>${{ l.costo_total }}</td>
                                 <td>${{ l.saldo_costo }}</td>
+                                <td>${{ l.saldo_ganancia }}</td>
                                 <td>{{ l.lote }}</td>
                                 <td>{{ l.observacion|default:"" }}</td>
                             </tr>

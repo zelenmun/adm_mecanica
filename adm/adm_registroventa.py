@@ -43,71 +43,62 @@ def view(request):
                 venta.save()
 
                 for detalle in detalles:
-                    producto = Producto.objects.get(pk=detalle['id'])
-                    cantidad_restante = int(detalle['cantidad'])
+                    lote = LoteProducto.objects.get(pk=detalle['id'])
+                    cantidad = int(detalle['cantidad'])
                     preciou = Decimal(detalle['preciou'][1:])
-                    preciot = Decimal(detalle['total'][1:])
 
-                    while cantidad_restante > 0:
-                        # Obtener el lote más antiguo con stock disponible
-                        lote = LoteProducto.objects.filter(
-                            producto=producto,
-                            cantidad__gt=0
-                        ).order_by('fecha_adquisicion').first()
+                    ventadetalle = VentaDetalle(
+                        venta=venta,
+                        producto=lote.producto,
+                        cantidad=cantidad,
+                        preciou=preciou,
+                        preciot=preciou * cantidad,
+                    )
+                    ventadetalle.save()
 
-                        if not lote:
-                            return JsonResponse({"result": False, 'mensaje': f'No hay suficiente stock para el producto {producto.nombre}.', 'detalle': ''})
+                    # Registrar el movimiento en el Kardex
+                    kardex = KardexProducto(
+                        producto=lote.producto,
+                        tipo_movimiento=2,
+                        cantidad=cantidad,
+                        costo_unitario=lote.preciocompra,
+                        precio_unitario=preciou,
+                        lote=lote,
+                    )
+                    kardex.save()
 
-                        # Determinar la cantidad a descontar de este lote
-                        cantidad_a_usar = min(cantidad_restante, lote.cantidad)
-
-                        # Registrar el detalle de la venta
-                        ventadetalle = VentaDetalle(
-                            venta=venta,
-                            producto=producto,
-                            cantidad=cantidad_a_usar,
-                            preciou=preciou,
-                            preciot=preciou * cantidad_a_usar,
-                        )
-                        ventadetalle.save()
-
-                        # Registrar el movimiento en el Kardex
-                        kardex = KardexProducto(
-                            producto=producto,
-                            tipo_movimiento=2,
-                            cantidad=cantidad_a_usar,
-                            costo_unitario=lote.preciocompra,
-                            precio_unitario=preciou,
-                            lote=lote,
-                        )
-                        kardex.save()
-
-                        # Actualizar la cantidad del lote
-                        lote.cantidad -= cantidad_a_usar
-                        lote.save()
-
-                        # Reducir la cantidad restante
-                        cantidad_restante -= cantidad_a_usar
-
+                    # Actualizar la cantidad del lote
+                    lote.cantidad -= cantidad
+                    lote.save()
                 return JsonResponse({"result": True, 'mensaje': u'Ha realizado la venta correctamente', 'detalle': ''})
             except Exception as ex:
                 transaction.set_rollback(True)
-                return JsonResponse(
-                    {"result": False, 'mensaje': u'Ha ocurrido un error al guardar', 'detalle': str(ex)})
+                return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar', 'detalle': str(ex)})
 
     else:
         if 'action' in request.GET:
             data['action'] = action = request.GET['action']
 
-            if action == 'obtenerprecio':
+            if action == 'cargarlotes':
                 try:
                     producto = Producto.objects.get(pk=request.GET['id'])
-                    lote = LoteProducto.objects.filter(producto=producto, cantidad__gt=0).order_by('fecha_adquisicion').first()
+                    lote = producto.loteproducto.filter(status=True, cantidad__gte=1)
+                    selectLote = []
                     if lote:
-                        return JsonResponse({"result": True, 'precio': lote.precioventa, 'stock': lote.cantidad})
+                        for lt in lote:
+                            selectLote.append(f'{lt.id}|{lt.producto} - ${lt.precioventa} x {lt.cantidad}')
+                        return JsonResponse({"result": True, 'selectLote': selectLote})
                     else:
                         return JsonResponse({"result": True, 'mensaje': 'No hay lotes disponibles para este producto.'})
+                except Exception as ex:
+                    return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el valor.', 'detalle': str(ex)})
 
+            if action == 'cargarprecio':
+                try:
+                    lote = LoteProducto.objects.get(pk=request.GET['id'])
+                    precio = lote.precioventa
+                    cantidad = lote.cantidad
+                    return JsonResponse({"result": True, 'precio': precio, 'cantidad': cantidad})
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el valor.', 'detalle': str(ex)})
 
@@ -123,10 +114,8 @@ def view(request):
                         data['celular'] = persona.celular
                         data['direccion'] = persona.direccion
                         return JsonResponse({'result': True, 'data': data})
-                    return JsonResponse({'result': False})
                 except Exception as ex:
-                    return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.',
-                                         'detalle': str(ex)})
+                    return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
         else:
             try:
                 data['title'] = u'Ventas'

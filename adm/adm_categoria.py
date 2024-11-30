@@ -165,6 +165,8 @@ def view(request):
                 data['subtitle'] = u'Administre las categorías y subcategorías de los productos'
                 data['list1'] = Categoria.objects.filter(status=True).order_by('-id')
                 data['list2'] = Subcategoria.objects.filter(status=True).order_by('-id')
+                data['administracion'] = True
+                data['adm_activo'] = 3
                 return render(request, 'administracion/adm_categorias.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")

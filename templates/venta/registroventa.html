@@ -12,6 +12,7 @@
 
 
             $('#id_producto').select2()
+            $('#id_lote').select2()
 
             $('#btn_cliente').click(function () {
                 $('#itemspanelTitle2').html('ASIGNAR CLIENTE');  // Actualiza el título del modal
@@ -123,16 +124,39 @@
 
             $('#id_producto').change(function () {
                 if ($(this).val() !== '') {
-                    $('#id_cantidad').val(1);
-                    obtenerPrecioProducto();
-                } else {
-                    $('#id_cantidad').val('');
-                    $('#id_addproducto').addClass('disabled');
+                    cargarLotes();
+                }else {
+                    $(this).val('')
+                    $('#id_lote').empty()
+                    $('#id_preciou').val('')
+                    $('#id_cantidad').val('')
+                    $('#id_precios').val('')
                 }
             });
 
+            $('#id_lote').change(function () {
+                var valor = $(this).val()
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ request.path }}',
+                    data: {'action': 'cargarprecio', 'id': valor},
+                    success: function (data) {
+                        if (data.result === true) {
+                            $('#id_preciou').val('$' + data.precio);
+                            maxproductos = data.cantidad
+                            var frmCantidad = $('#id_cantidad')
+                            frmCantidad.val('')
+                            frmCantidad.attr('max', maxproductos)
+                            $('#id_precios').val('')
+                            calcularTotal();
+                        }
+                    },
+                    dataType: "json"
+                });
+            })
+
             function manejarCambioCantidad() {
-                if($(this).val() > parseInt(maxproductos, 10)){
+                if ($(this).val() > parseInt(maxproductos, 10)) {
                     $(this).val(maxproductos)
                 }
 
@@ -156,7 +180,7 @@
             $('#id_descuento').on('keyup click', manejarCambioDescuento);
 
             $('#id_addproducto').click(function () {
-                const id = $('#id_producto').val();
+                const id = $('#id_lote').val();
                 const producto = $('#id_producto option:selected').text();
                 const preciou = $('#id_preciou').val();
                 const cantidad = $('#id_cantidad').val();
@@ -229,19 +253,23 @@
                 });
             });
 
-            function obtenerPrecioProducto() {
+            function cargarLotes() {
                 var valor = $('#id_producto').val();
                 if (valor !== '') {
                     $.ajax({
                         type: 'GET',
                         url: '{{ request.path }}',
-                        data: {'action': 'obtenerprecio', 'id': valor},
+                        data: {'action': 'cargarlotes', 'id': valor},
                         success: function (data) {
                             if (data.result === true) {
-                                $('#id_preciou').val('$' + data.precio);
-                                maxproductos = data.stock
-                                $('#id_cantidad').attr('max', maxproductos)
-                                calcularTotal();
+                                $('#id_lote').empty();
+
+                                $.each(data.selectLote, function (index, lote) {
+                                    var id = lote.split('|')[0]
+                                    var lt = lote.split('|')[1]
+                                    $('#id_lote').append('<option value="' + id + '">' + lt + '</option>');
+                                });
+                                $('#id_lote').trigger('change')
                             }
                         },
                         dataType: "json"
@@ -278,7 +306,7 @@
                 return 0
             }
 
-            function calcularSubtotal(){
+            function calcularSubtotal() {
                 subtotal = 0
                 $('#dataTable').DataTable().rows().every(function () {
                     var precio = parseFloat(this.data()[4].split('$')[1]);
@@ -423,7 +451,8 @@
                     </div>
                 </div>
 
-                <div class="row" style="display: flex; align-items: center; justify-content: flex-start; padding: 0 24px 0 24px; margin-top: 20px;">
+                <div class="row"
+                     style="display: flex; align-items: center; justify-content: flex-start; padding: 0 24px 0 24px; margin-top: 20px;">
                     <!-- Primera Área -->
                     <div class="row" style="display: flex; align-items: center; margin-right: 20px;">
                         <a href="javascript:void(0);" style="margin-left: 10px" id="id_addproducto"
@@ -438,7 +467,8 @@
                     </div>
 
                     <!-- Segunda Área -->
-                    <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; margin-right: auto; padding-left: 20px">
+                    <div class="row"
+                         style="display: flex; flex-direction: column; align-items: flex-start; margin-right: auto; padding-left: 20px">
                         <span id="nombrecliente"></span>
                         <span id="cedulacliente"></span>
                     </div>

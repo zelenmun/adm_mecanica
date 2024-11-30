@@ -160,9 +160,6 @@ def view(request):
                     producto = Producto.objects.get(pk=request.GET['id'])
                     form = ProductoForm(initial={
                         'nombre':producto.nombre,
-                        'precioventa':producto.precioventa,
-                        'preciocompra':producto.preciocompra,
-                        'cantidad':producto.get_cantidad_actual(),
                         'vitrina':producto.vitrina,
                         'subcategoria':producto.subcategoria,
                         'descripcion':producto.descripcion})
@@ -187,7 +184,7 @@ def view(request):
                     data['title'] = f'Kardex del producto: {producto.nombre}'
                     data['subtitle'] = f'Visualice los movimientos de su producto: {producto.nombre}'
                     data['list'] = KardexProducto.objects.filter(status=True, producto=producto)
-                    return render(request, 'administracion/adm_productos_kardex.html', data)
+                    return render(request, 'compra/adm_productos_kardex.html', data)
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
 
@@ -197,6 +194,6 @@ def view(request):
                 data['subtitle'] = u'Administre sus productos'
                 data['list'] = Producto.objects.filter(status=True).order_by('-id')
                 data['activo'] = 3
-                return render(request, 'administracion/adm_productos.html', data)
+                return render(request, 'compra/adm_productos.html', data)
             except Exception as ex:
                 return HttpResponse("Método no soportado")

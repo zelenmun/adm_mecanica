@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Model
 
 from core.models import ModeloBase, Persona
 
@@ -77,15 +78,15 @@ class Producto(ModeloBase):
             cantidad__gt=0  # Solo lotes con stock disponible
         ).order_by('fecha_adquisicion').first()
 
-class LoteProducto(models.Model):
+class LoteProducto(ModeloBase):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, verbose_name=u'Producto', related_name='loteproducto')
     cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad')
     precioventa = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio de Venta')
     preciocompra = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio de Compra')
-    fecha_adquisicion = models.DateField(null=True, blank=True, verbose_name=u'Fecha de ingreso')
+    fecha_adquisicion = models.DateTimeField(null=True, blank=True, verbose_name=u'Fecha de ingreso')
 
     def __str__(self):
-        return f"Lote {self.id} - {self.producto.nombre} - ${self.preciocompra}"
+        return f"LOTE {self.id} - {self.producto.nombre} - ${self.preciocompra}"
 
 TIPO_MOVIMIENTO = (
     (1, u'ENTRADA'),
@@ -94,7 +95,7 @@ TIPO_MOVIMIENTO = (
 
 class KardexProducto(ModeloBase):
     producto = models.ForeignKey(Producto, verbose_name=u'Producto', related_name='kardex_producto', on_delete=models.CASCADE)
-    fecha_movimiento = models.DateField(blank=True, null=True, verbose_name=u'Fecha del Movimiento', auto_now_add=True)
+    fecha_movimiento = models.DateTimeField(blank=True, null=True, verbose_name=u'Fecha del Movimiento', auto_now_add=True)
     tipo_movimiento = models.IntegerField(blank=True, null=True, default=1, choices=TIPO_MOVIMIENTO, verbose_name=u'Tipo de Movimiento')
     cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad')
     costo_unitario = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, verbose_name=u'Costo Unitario')
@@ -119,7 +120,6 @@ class KardexProducto(ModeloBase):
         else:
             ganancia_total = 0
 
-        self.saldo_ganancia = ganancia_total
 
         # Obtener el último registro del kardex
         ultimo_kardex = KardexProducto.objects.filter(producto=self.producto).order_by('-id').first()
@@ -129,12 +129,14 @@ class KardexProducto(ModeloBase):
         saldo_costo_anterior = ultimo_kardex.saldo_costo if ultimo_kardex else 0
 
         # Ajustar los saldos según el tipo de movimiento
-        if self.tipo_movimiento == 1:  # Ingreso
+        if self.tipo_movimiento == 1:  # Ingreso / Compra
             self.saldo_cantidad = saldo_cantidad_anterior + self.cantidad
             self.saldo_costo = saldo_costo_anterior + self.costo_total
-        elif self.tipo_movimiento == 2:  # Egreso
+            self.saldo_ganancia = 0
+        elif self.tipo_movimiento == 2:  # Egreso / Venta
             self.saldo_cantidad = saldo_cantidad_anterior - self.cantidad
             self.saldo_costo = saldo_costo_anterior - self.costo_total
+            self.saldo_ganancia = ganancia_total
 
         # Guardar el registro actualizado
         super(KardexProducto, self).save(*args, **kwargs)
@@ -144,7 +146,7 @@ class KardexProducto(ModeloBase):
 class Venta(ModeloBase):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True, related_name='venta', verbose_name=u'Nombre del Cliente')
     trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, blank=True, null=True, related_name='ventatrabajador', verbose_name=u'Trabajador')
-    fecha_venta = models.DateField(blank=True, null=True, verbose_name=u'Fecha de Venta')
+    fecha_venta = models.DateTimeField(blank=True, null=True, verbose_name=u'Fecha de Venta')
     descuento = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Descuento')
     preciov = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio de la venta')
     detalle = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Detalle')
@@ -179,7 +181,7 @@ class TrabajoDia(ModeloBase):
     detalle = models.CharField(max_length=5000, blank=True, null=True, verbose_name=u'Detalle del Trabajo')
     descuento = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Descuento')
     preciot = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio Total')
-    fecha_servicio = models.DateField(blank=True, null=True, verbose_name=u'Fecha del Servicio')
+    fecha_servicio = models.DateTimeField(blank=True, null=True, verbose_name=u'Fecha del Servicio')
 
     def __str__(self):
         return f'${self.preciot}'

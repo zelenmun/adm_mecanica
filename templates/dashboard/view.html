@@ -1,4 +1,24 @@
 {% extends 'base_dashboard.html' %}
+{% block extrahead %}
+    <script>
+        function actualizarGrafica() {
+            $.ajax({
+                url: '{% url 'adm_main' %}',
+                type: 'GET',
+                dataType: 'json',
+                data: {'action': 'cargarchartarea'},
+                success: function (response) {
+                    myLineChart.data.datasets[0].data = response.valores;
+                    myLineChart.update();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al obtener datos:", error);
+                }
+            });
+        }
+        actualizarGrafica();
+    </script>
+{% endblock %}
 {% block dashboard %}
     <div class="container-fluid">
 
@@ -21,7 +41,7 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Ganancias Desde Lunes<br> {{ lunes }}
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ cantidad }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ totalingreso }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -35,17 +55,18 @@
             <div class="col-xl-2 col-md-6 mb-4">
                 <div class="card border-left-success shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <a class="row no-gutters align-items-center" href="{% url 'adm_venta' %}"
+                           style="text-decoration: none;">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                     Ventas
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ data.ventas }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ totalventas }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fa fa-store fa-2x text-gray-300"></i>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -54,28 +75,18 @@
             <div class="col-xl-2 col-md-6 mb-4">
                 <div class="card border-left-info shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <a class="row no-gutters align-items-center" href="{% url 'adm_servicio' %}"
+                           style="text-decoration: none;">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Servicios
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Servicios
                                 </div>
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col-auto">
-                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
-                                            ${{ servicios }}</div>
-                                    </div>
-                                    {#                                    <div class="col">#}
-                                    {#                                        <div class="progress progress-sm mr-2">#}
-                                    {#                                            <div class="progress-bar bg-info" role="progressbar"#}
-                                    {#                                                 style="width: 50%" aria-valuenow="50" aria-valuemin="0"#}
-                                    {#                                                 aria-valuemax="100"></div>#}
-                                    {#                                        </div>#}
-                                    {#                                    </div>#}
-                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ totalservicios }}</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-fw fa-wrench fa-2x text-gray-300"></i>
+                                <i class="fa fa-wrench fa-2x text-gray-300"></i>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -89,7 +100,7 @@
                                 <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                     Ingresos
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ data.ingresos }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ ingresos }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-chart-line fa-2x text-gray-300"></i>
@@ -133,7 +144,7 @@
                     <!-- Card Body -->
                     <div class="card-body">
                         <div class="chart-area">
-                            <canvas id="myAreaChart"></canvas>
+                            <canvas id="chartDiasSemana"></canvas>
                         </div>
                     </div>
                 </div>
@@ -176,7 +187,8 @@
                             <h4 class="small font-weight-bold">{{ l.nombre }} <span
                                     class="float-right">{{ l.porcentaje }}%</span></h4>
                             <div class="progress mb-4">
-                                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ l.porcentaje }}%"
+                                <div class="progress-bar bg-danger" role="progressbar"
+                                     style="width: {{ l.porcentaje }}%"
                                      aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </div>
@@ -196,7 +208,8 @@
                             <h4 class="small font-weight-bold">{{ l.nombre }} <span
                                     class="float-right">{{ l.porcentaje }}%</span></h4>
                             <div class="progress mb-4">
-                                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ l.porcentaje }}%"
+                                <div class="progress-bar bg-danger" role="progressbar"
+                                     style="width: {{ l.porcentaje }}%"
                                      aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </div>

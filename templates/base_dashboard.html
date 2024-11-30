@@ -110,19 +110,11 @@
             </a>
         </li>
 
-        <li class="nav-item {% if activo == 4 %}activom{% endif %}">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-               aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-fw fa-boxes"></i>
-                <span>Inventario</span>
-            </a>
-        </li>
-
-        <li class="nav-item {% if activo == 5 %}activom{% endif %}">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+        <li class="nav-item {% if activo == 3 %}activom{% endif %}">
+            <a class="nav-link collapsed" href="{% url 'productos' %}" data-toggle="collapse" data-target="#collapseTwo"
                aria-expanded="true" aria-controls="collapseTwo">
                 <i class="fas fa-fw fa-dollar-sign"></i>
-                <span>Financiero</span>
+                <span>Gastos No Operativo</span>
             </a>
         </li>
 
@@ -138,18 +130,23 @@
                 <i class="fas fa-fw fa-boxes"></i>
                 <span>Administración</span>
             </a>
-            <div id="collapsedatabase" class="collapse" aria-labelledby="headingUtilities"
+            <div id="collapsedatabase" class="collapse {% if administracion %}show{% endif %}"
+                 aria-labelledby="headingUtilities"
                  data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <h6 class="collapse-header">Personal:</h6>
-                    <a href="{% url 'clientes' %}" class="collapse-item">Clientes</a>
-                    <a href="{% url 'proveedores' %}" class="collapse-item">Proveedores</a>
-                    <a href="{% url 'trabajadores' %}" class="collapse-item">Trabajadores</a>
+                    <a href="{% url 'clientes' %}" class="collapse-item"
+                       {% if adm_activo == 1 %}style="background: #a9a9a95c"{% endif %}>Clientes</a>
+                    <a href="{% url 'trabajadores' %}" class="collapse-item"
+                       {% if adm_activo == 2 %}style="background: #a9a9a95c"{% endif %}>Trabajadores</a>
                     <h6 class="collapse-header">Inventario:</h6>
-                    <a href="{% url 'categorias' %}" class="collapse-item">Categoría</a>
-                    <a href="{% url 'vitrinas' %}" class="collapse-item">Vitrina</a>
+                    <a href="{% url 'categorias' %}" class="collapse-item"
+                       {% if adm_activo == 3 %}style="background: #a9a9a95c"{% endif %}>Categoría</a>
+                    <a href="{% url 'vitrinas' %}" class="collapse-item"
+                       {% if adm_activo == 4 %}style="background: #a9a9a95c"{% endif %}>Vitrina</a>
                     <h6 class="collapse-header">Servicios:</h6>
-                    <a href="{% url 'trabajos' %}" class="collapse-item">Trabajos</a>
+                    <a href="{% url 'trabajos' %}" class="collapse-item"
+                       {% if adm_activo == 5 %}style="background: #a9a9a95c"{% endif %}>Trabajos</a>
                 </div>
             </div>
         </li>
@@ -200,7 +197,8 @@
                     </form>
                 {% else %}
                     <div class="col d-flex align-items-center" style="padding-bottom: 10px;">
-                        <h1 class="h3 mb-0 text-gray-800" style="font-size: 1.5rem; margin-right: 15px;">{{ title }}</h1>
+                        <h1 class="h3 mb-0 text-gray-800"
+                            style="font-size: 1.5rem; margin-right: 15px;">{{ title }}</h1>
                         <div style="border-left: 2px solid #ccc; height: 24px; margin-right: 15px;"></div>
                         <span class="text-muted" style="font-size: 1.2rem;">{{ subtitle }}</span>
                     </div>

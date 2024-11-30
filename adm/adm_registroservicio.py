@@ -51,18 +51,28 @@ def view(request):
                         preciou = Decimal(detalle['preciou'][1:])
                         preciot = Decimal(detalle['total'][1:])
 
+                        workdaydetail = TrabajoDiaDetalle(
+                            trabajodia=workday,
+                            trabajo=trabajo,
+                            cantidad=cantidad,
+                            preciou=preciou,
+                            preciot=preciot
+                        )
                         workdaydetail.save()
-                    workdaydetail = TrabajoDiaDetalle(
-                        trabajodia=workday,
-                        trabajo=trabajo,
-                        cantidad=cantidad,
-                        preciou=preciou,
-                        preciot=preciot
-                    )
                     return JsonResponse({"result": True, 'mensaje': u'Ha realizado la venta correctamente', 'detalle': ''})
             except Exception as ex:
                 transaction.set_rollback(True)
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar', 'detalle': str(ex)})
+
+        if action == 'del':
+            try:
+                with transaction.atomic():
+                    trabajo = Trabajo.objects.get(pk=request.POST['id'])
+                    trabajo.status = False
+                    trabajo.save()
+            except Exception as ex:
+                transaction.set_rollback(True)
+                return JsonResponse({"result": False, "mensaje": 'Parece que ha ocurrido un problema al eliminar el registro', 'detalle': str(ex)})
 
     else:
         if 'action' in request.GET:
