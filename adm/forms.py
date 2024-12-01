@@ -83,12 +83,14 @@ class RegistroTotalForm(FormModeloBase):
     preciot = forms.CharField(label=u'Total Venta ($)', max_length=500, required=False, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Precio Total Venta'}))
 
 class RegistroServicioForm(FormModeloBase):
-    trabajo = forms.ModelChoiceField(label=u'Trabajo', queryset=Trabajo.objects.filter(status=True), required=True, widget=forms.Select(attrs={'col': '12', 'class': 'form-control'}))
-    preciou = forms.CharField(label=u'Precio Unitario ($)', max_length=500, required=False, widget=forms.TextInput(attrs={'col': '4', 'class': 'form-control', 'placeholder': 'Precio Unitario', 'separator': 'true',"separatortitle":'Detalle del servicio'}))
+    trabajo = forms.ModelChoiceField(label=u'Trabajo', queryset=Trabajo.objects.filter(status=True), required=True, widget=forms.Select(attrs={'col': '4', 'class': 'form-control'}))
     cantidad = forms.IntegerField(label=u'Cantidad', min_value=1, required=True, widget=forms.NumberInput(attrs={'col': '4', 'class': 'form-control', 'placeholder': 'Cantidad'}))
-    precios = forms.CharField(label=u'Total ($)', max_length=500, required=False, widget=forms.TextInput(attrs={'col': '4', 'class': 'form-control', 'placeholder': 'Total'}))
-    detalle = forms.CharField(label=u'Detalle', required=False, widget=forms.Textarea(attrs={'rows': '1', 'placeholder': 'Información Adicional', 'class': 'form-control', 'col': '9'}))
-    trabajador = forms.ModelChoiceField(label=u'Mecánico encargado', queryset=Trabajador.objects.filter(status=True), required=False, widget=forms.Select(attrs={'col': '3', 'class': 'form-control'}))
+    trabajador = forms.ModelChoiceField(label=u'Mecánico', queryset=Trabajador.objects.filter(status=True), required=False, widget=forms.Select(attrs={'col': '4', 'class': 'form-control'}))
+    # preciou = forms.CharField(label=u'Precio Unitario ($)', max_length=500, required=False, widget=forms.TextInput(attrs={'col': '4', 'class': 'form-control', 'placeholder': 'Precio Unitario', 'separator': 'true',"separatortitle":'Detalle del servicio'}))
+    # precios = forms.CharField(label=u'Total Producto($)', max_length=500, required=False, widget=forms.TextInput(attrs={'col': '4', 'class': 'form-control', 'placeholder': 'Total'}))
+    abono = forms.DecimalField(label=u'Abono ($)', max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col': '4', 'separator': 'true',"separatortitle":'Detalle general de la venta', 'placeholder': 'Pago del Cliente'}))
+    descuento = forms.DecimalField(label=u'Descuento ($)', min_value=0,max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col':'4', 'placeholder': 'Descuento de la Venta'}))
+    detalle = forms.CharField(label=u'Detalle', required=False, widget=forms.Textarea(attrs={'rows': '1', 'placeholder': 'Información Adicional', 'class': 'form-control', 'col': '4'}))
 
 
 

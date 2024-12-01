@@ -20,14 +20,14 @@ def view(request):
 
             if action == 'generarfacturapdf':
                 try:
-                    print(HTML.__module__)
-                    file = r'C:/PycharmProjects/adm_mecanica/static/reportes/factura.pdf'
-                    path = r'C:/PycharmProjects/adm_mecanica/templates/reportes/factura.html'
-                    HTML(filename=path).write_pdf(file)
+                    fecha = request.GET['fecha'].replace('-', '_')
+                    cliente = request.GET['cliente'].replace(' ', '_')
+                    file = fr'../static/pdf/facturas/factura/factura_{fecha}{cliente}.pdf'
+                    path = r'../templates/reportes/factura.html'
+                    # HTML(filename=path).write_pdf(file)
                     return JsonResponse({"result": True, 'mensaje': 'Ha impreso la factura.'})
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': 'Ha ocurrido un error generando la factura.', 'detalle': str(ex)})
-
         else:
             try:
                 data['title'] = u'Ventas'

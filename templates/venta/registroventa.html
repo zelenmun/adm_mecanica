@@ -13,6 +13,8 @@
 
             $('#id_producto').select2()
             $('#id_lote').select2()
+            $('#fieldset_areacliente').css('display', 'none');
+
 
             $('#btn_cliente').click(function () {
                 $('#itemspanelTitle2').html('ASIGNAR CLIENTE');  // Actualiza el título del modal
@@ -53,9 +55,9 @@
 
             $('#btn_guardarcliente').click(function () {
                 var cedula = $('#id_cedula').val()
-                var nombre = $('#id_nombre').val()
-                var apellido1 = $('#id_apellido1').val()
-                var apellido2 = $('#id_apellido2').val()
+                var nombre = $('#id_nombre').val().toUpperCase()
+                var apellido1 = $('#id_apellido1').val().toUpperCase()
+                var apellido2 = $('#id_apellido2').val().toUpperCase()
                 var celular = $('#id_celular').val()
                 var correo = $('#id_correo').val()
                 var direccion = $('#id_direccion').val()
@@ -64,6 +66,8 @@
                         $('#nombrecliente').text('Cliente: ' + nombre + ' ' + apellido1 + ' ' + apellido2);
                         $('#cedulacliente').text('Cédula: ' + cedula);
                         $("#itemspanel2").modal('hide')
+
+                        $('#fieldset_areacliente').hide();
                     } else {
                         var formdata = new FormData()
                         formdata.append('cedula', cedula)
@@ -275,7 +279,7 @@
                                 });
                                 $('#id_lote').trigger('change')
 
-                                if(data.selectLote.length == 1){
+                                if (data.selectLote.length == 1) {
                                     $('#id_lote').attr('readonly', true)
                                 }
                             }
@@ -474,11 +478,17 @@
                         </a>
                     </div>
 
+                    <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; margin-right: auto; padding-left: 20px" id="fieldset_areaseparadora"></div>
+
                     <!-- Segunda Área -->
-                    <div class="row"
+                    <div class="row" id="fieldset_areacliente"
                          style="display: flex; flex-direction: column; align-items: flex-start; margin-right: auto; padding-left: 20px">
                         <span id="nombrecliente"></span>
                         <span id="cedulacliente"></span>
+                        <a href="javascript:void(0);" id="eliminarcliente" class="btn btn-primary btn-icon-split"
+                           style="margin-left: 20px;">
+                            <span class="icon text-white-50"><i class="fas fa-user-times"></i></span>
+                        </a>
                     </div>
 
                     <!-- Tercera Área -->

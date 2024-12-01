@@ -97,8 +97,8 @@ def view(request):
                 form2 = ClienteForm()
                 form3 = RegistroTotalForm()
 
-                form.fields['preciou'].widget.attrs['readonly'] = True
-                form.fields['precios'].widget.attrs['readonly'] = True
+                form3.fields['preciou'].widget.attrs['readonly'] = True
+                form3.fields['precios'].widget.attrs['readonly'] = True
                 form3.fields['preciot'].widget.attrs['readonly'] = True
                 form3.fields['preciosd'].widget.attrs['readonly'] = True
 
