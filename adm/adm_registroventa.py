@@ -116,6 +116,8 @@ def view(request):
                         return JsonResponse({'result': True, 'data': data})
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
+
+
         else:
             try:
                 data['title'] = u'Ventas'
@@ -125,8 +127,8 @@ def view(request):
                 form2 = ClienteForm()
                 form3 = RegistroTotalForm()
 
-                form.fields['preciou'].widget.attrs['readonly'] = True
-                form.fields['precios'].widget.attrs['readonly'] = True
+                form3.fields['preciou'].widget.attrs['readonly'] = True
+                form3.fields['precios'].widget.attrs['readonly'] = True
                 form3.fields['preciot'].widget.attrs['readonly'] = True
                 form3.fields['preciosd'].widget.attrs['readonly'] = True
 
@@ -136,4 +138,8 @@ def view(request):
                 data['activo'] = 2
                 return render(request, 'venta/registroventa.html', data)
             except Exception as ex:
-                return HttpResponse(f"Método no soportado, {str(ex)}")
+                data['title'] = u'Error en: Registro de Ventas'
+                data['subtitle'] = u''
+                data['exception'] = str(ex)
+                data['dashboardatras'] = True
+                return render(request, 'exceptions/5XX.html', data)

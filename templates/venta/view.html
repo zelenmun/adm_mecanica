@@ -4,6 +4,30 @@
         $(function () {
             var table = $('#dataTable').DataTable();
             table.order([0, 'desc']).draw();
+
+            $('.id_generarfactura').click(function (){
+                $.ajax({
+                    type: 'GET',
+                    url:'{% url 'adm_venta' %}',
+                    data: {'action': 'generarfacturapdf'},
+                    success: function (data){
+                        if (data.result === true){
+                            Swal.fire({
+                                icon: 'success',
+                                type: 'success',
+                                title: data.mensaje
+                            });
+                        }else{
+                            Swal.fire({
+                                icon: 'error',
+                                type: 'error',
+                                title: data.mensaje
+                            });
+                        }
+                    },
+                    dataType: "json",
+                });
+            });
         })
     </script>
 {% endblock %}
@@ -64,6 +88,13 @@
                                                     <i class="fas fa-trash"></i>
                                                 </span>
                                                 <span class="text" style="flex-grow: 1;">Eliminar</span>
+                                            </a>
+                                            <a class="dropdown-item id_generarfactura" href="javascript:void(0);"
+                                                style="display: flex; align-items: center;">
+                                                <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fas fa-trash"></i>
+                                                </span>
+                                                <span class="text" style="flex-grow: 1;">Factura</span>
                                             </a>
                                         </div>
                                     </div>
