@@ -19,4 +19,4 @@ def view(request):
                 data['adm_activo'] = 2
                 return render(request, 'administracion/adm_trabajadores.html', data)
             except Exception as ex:
-                return HttpResponse("Método no soportado")
+                return HttpResponse(f"Método no soportado, {str(ex)}")

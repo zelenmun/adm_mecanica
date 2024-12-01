@@ -17,4 +17,4 @@ def view(request):
                 data['subtitle'] = u'Administre sus proveedores'
                 return render(request, 'administracion/adm_proveedores.html', data)
             except Exception as ex:
-                return HttpResponse("Método no soportado")
+                return HttpResponse(f"Método no soportado, {str(ex)}")

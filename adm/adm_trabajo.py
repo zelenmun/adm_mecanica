@@ -22,7 +22,8 @@ def view(request):
                     trabajo = Trabajo(nombre=nombre, precio=precio, detalle=detalle)
                     trabajo.save()
                     return JsonResponse({'result': True, 'mensaje': 'Se ha guardado la el trabajo excitosamente'})
-                return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle':''})
+                else:
+                    return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle':''})
             except Exception as ex:
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
 
@@ -88,4 +89,4 @@ def view(request):
                 data['adm_activo'] = 5
                 return render(request, 'administracion/adm_trabajos.html', data)
             except Exception as ex:
-                return HttpResponse("Método no soportado")
+                return HttpResponse(f"Método no soportado, {str(ex)}")

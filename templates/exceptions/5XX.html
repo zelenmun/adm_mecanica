@@ -1,0 +1,11 @@
+{% extends 'base_dashboard.html' %}
+{% block dashboard %}
+    <div class="text-center">
+        <div class="error mx-auto" data-text="5XX">
+            5XX
+        </div>
+        <p class="lead text-gray-800 mb-5">Ha ocurrido un error de servidor</p>
+        <p class="text-gray-500 mb-0">{{ exception }}</p>
+        <a href="/">&larr; Volver a la página principal</a>
+    </div>
+{% endblock %}

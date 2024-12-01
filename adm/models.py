@@ -200,3 +200,8 @@ class TrabajoDiaDetalle(ModeloBase):
     cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'')
     preciou = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del producto')
     preciot = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio Total')
+
+class GastoNoOperativo(ModeloBase):
+    titulo = models.CharField(blank=True, null=True, max_length=500, verbose_name=u'Titulo del Gasto')
+    detalle = models.CharField(blank=True, null=True, verbose_name=u'Titulo del Gasto', max_length=2000)
+    valor = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Valor del Gasto')

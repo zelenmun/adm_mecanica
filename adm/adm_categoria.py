@@ -26,7 +26,8 @@ def view(request):
                     categoria = Categoria(nombre=nombre)
                     categoria.save(request)
                     return JsonResponse({'result': True, 'mensaje': 'Se ha guardado la categoría excitosamente'})
-                return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle':''})
+                else:
+                    return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle':''})
             except Exception as ex:
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
 
@@ -46,7 +47,8 @@ def view(request):
                     categoria.nombre = nombre
                     categoria.save()
                     return JsonResponse({'result': True, 'mensaje': 'Se ha editado la categoría excitosamente'})
-                return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle': ''})
+                else:
+                    return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle': ''})
             except Exception as ex:
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
 
@@ -74,7 +76,8 @@ def view(request):
                     subcategoria = Subcategoria(nombre=subcategoria, categoria=categoria)
                     subcategoria.save(request)
                     return JsonResponse({'result': True, 'mensaje': 'Se ha guardado la categoría excitosamente'})
-                return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle':''})
+                else:
+                    return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle':''})
             except Exception as ex:
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
 
@@ -95,7 +98,8 @@ def view(request):
 
                     subcategoria.save(request)
                     return JsonResponse({'result': True, 'mensaje': 'Se ha editado la categoría excitosamente'})
-                return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle': ''})
+                else:
+                    return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle': ''})
             except Exception as ex:
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
 
@@ -169,5 +173,8 @@ def view(request):
                 data['adm_activo'] = 3
                 return render(request, 'administracion/adm_categorias.html', data)
             except Exception as ex:
-                return HttpResponse("Método no soportado")
-            #wjikdhasdff
+                data['title'] = u'Error en: Categorías'
+                data['subtitle'] = u''
+                data['exception'] = str(ex)
+                data['dashboardatras'] = True
+                return render(request, 'exceptions/5XX.html', data)

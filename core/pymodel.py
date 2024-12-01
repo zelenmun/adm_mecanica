@@ -21,4 +21,4 @@ def view(request):
                 data['subtitle'] = u''
                 return render(request, '', data)
             except Exception as ex:
-                return HttpResponse("Método no soportado")
+                return HttpResponse(f"Método no soportado, {str(ex)}")

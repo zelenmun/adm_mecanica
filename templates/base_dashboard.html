@@ -11,6 +11,7 @@
     <title></title>
 
     {% include 'importcss.html' %}
+
 </head>
 <body id="page-top">
 <!-- Modal -->
@@ -110,8 +111,8 @@
             </a>
         </li>
 
-        <li class="nav-item {% if activo == 3 %}activom{% endif %}">
-            <a class="nav-link collapsed" href="{% url 'productos' %}" data-toggle="collapse" data-target="#collapseTwo"
+        <li class="nav-item {% if activo == 4 %}activom{% endif %}">
+            <a class="nav-link collapsed" href="{% url 'gastonooperativo' %}" data-toggle="collapse" data-target="#collapseTwo"
                aria-expanded="true" aria-controls="collapseTwo">
                 <i class="fas fa-fw fa-dollar-sign"></i>
                 <span>Gastos No Operativo</span>
@@ -294,7 +295,7 @@
 </a>
 
 {% include 'importjavascript.html' %}
-{% block extrahead %}{% endblock %}
+
 <script>
     $.ajaxSetup({
         headers: {
@@ -341,9 +342,9 @@
                                     Swal.fire({
                                         position: "center",
                                         icon: "success",
-                                        title: "Has completado el registro exitosamente!",
+                                        title: response.mensaje,
                                         showConfirmButton: false,
-                                        timer: 1500
+                                        timer: 2000
                                     }).then(() => {
                                         $("#itemspanel").modal('hide');
                                         location.reload();
@@ -588,5 +589,6 @@
         });
     });
 </script>
+{% block extrahead %}{% endblock %}
 </body>
 </html>

@@ -83,7 +83,7 @@ def view(request):
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar', 'detalle': str(ex)})
 
 
-        return HttpResponse("Método no soportado")
+        return HttpResponse(f"Método no soportado")
     else:
         if 'action' in request.GET:
             action = request.GET['action']
@@ -112,7 +112,7 @@ def view(request):
                     return JsonResponse({"result": True, 'precio': trabajo.precio})
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el valor.', 'detalle': str(ex)})
-            return HttpResponse("Método no soportado")
+            return HttpResponse(f"Método no soportado, {str(ex)}")
         else:
             try:
                 data['form'] = form = AddTrabajoForm()
@@ -125,4 +125,4 @@ def view(request):
                 data['activo'] = 1
                 return render(request, 'servicios/view.html', data)
             except Exception as ex:
-                return HttpResponse("Método no soportado")
+                return HttpResponse(f"Método no soportado, {str(ex)}")

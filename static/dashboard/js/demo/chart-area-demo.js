@@ -47,6 +47,7 @@ var myLineChart = new Chart(ctx, {
             pointHoverBorderColor: "rgba(78, 115, 223, 1)",
             pointHitRadius: 10,
             pointBorderWidth: 2,
+            data: [0, 25, 50, 75, 100, 125, 150] // Datos de ejemplo
         }],
     },
     options: {
@@ -66,16 +67,17 @@ var myLineChart = new Chart(ctx, {
                     drawBorder: false
                 },
                 ticks: {
-                    maxTicksLimit: 7 // Limitar ticks a los días de la semana
+                    // Personaliza valores si lo necesitas
                 }
             }],
             yAxes: [{
                 ticks: {
-                    maxTicksLimit: 5,
+                    stepSize: 100, // Incrementos de 25
+                    beginAtZero: false, // Comenzar desde cero
+                    maxTicksLimit: 10, // Límite de ticks en el eje Y
                     padding: 10,
-                    // Personaliza el formato de los valores del eje Y si lo necesitas
                     callback: function (value, index, values) {
-                        return number_format(value); // Sin prefijo de dólar
+                        return '$' + value; // Personaliza los valores (opcional)
                     }
                 },
                 gridLines: {
@@ -107,7 +109,7 @@ var myLineChart = new Chart(ctx, {
             callbacks: {
                 label: function (tooltipItem, chart) {
                     var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-                    return datasetLabel + ': ' + number_format(tooltipItem.yLabel);
+                    return datasetLabel + ': ' + tooltipItem.yLabel + ' unidades'; // Personalización del tooltip
                 }
             }
         }

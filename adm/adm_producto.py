@@ -65,7 +65,8 @@ def view(request):
                         kardex.save()
 
                         return JsonResponse({'result': True, 'mensaje': 'Se ha guardado el producto excitosamente'})
-                    return JsonResponse({"result": False, 'mensaje': u'El formulario no se ha llenado correctamente.', 'detalle': ''})
+                    else:
+                        return JsonResponse({"result": False, 'mensaje': u'El formulario no se ha llenado correctamente.', 'detalle': ''})
             except Exception as ex:
                 transaction.set_rollback(True)
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
@@ -90,7 +91,8 @@ def view(request):
                     producto.descripcion = descripcion
                     producto.save()
                     return JsonResponse({'result': True, 'mensaje': 'Se ha editado la categoría excitosamente'})
-                return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle': ''})
+                else:
+                    return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle': ''})
             except Exception as ex:
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
 
@@ -139,7 +141,8 @@ def view(request):
                     )
                     kardex.save()
                     return JsonResponse({'result': True, 'mensaje': 'Se ha guardado el producto excitosamente'})
-                return JsonResponse({"result": False, 'mensaje': u'El formulario no se ha llenado correctamente.', 'detalle': ''})
+                else:
+                    return JsonResponse({"result": False, 'mensaje': u'El formulario no se ha llenado correctamente.', 'detalle': ''})
             except Exception as ex:
                 transaction.set_rollback(True)
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
@@ -196,4 +199,4 @@ def view(request):
                 data['activo'] = 3
                 return render(request, 'compra/adm_productos.html', data)
             except Exception as ex:
-                return HttpResponse("Método no soportado")
+                return HttpResponse(f"Método no soportado, {str(ex)}")

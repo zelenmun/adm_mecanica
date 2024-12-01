@@ -22,9 +22,10 @@ def view(request):
                     vitrina = Vitrina(codigo=codigo)
                     vitrina.save()
                     return JsonResponse({'result': True, 'mensaje':u'Se ha ingresado correctamente la vitrina.'})
-                return JsonResponse({'result': False, 'mensaje': u'No se ha llenado correctamente el formulario.', 'detalle':''})
+                else:
+                    return JsonResponse({'result': False, 'mensaje': u'No se ha llenado correctamente el formulario.', 'detalle':''})
             except Exception as ex:
-                return JsonResponse({'result': True, 'mensaje':u'Parece que ha ocurrido un error con el registro de la vitrina.', 'detalle': str(ex)})
+                return JsonResponse({'result': False, 'mensaje':u'Parece que ha ocurrido un error con el registro de la vitrina.', 'detalle': str(ex)})
 
         if action == 'edit':
             try:
@@ -39,9 +40,10 @@ def view(request):
                     vitrina.codigo = codigo
                     vitrina.save()
                     return JsonResponse({'result': True, 'mensaje':u'Se ha editado correctamente la vitrina.'})
-                return JsonResponse({'result': False, 'mensaje': u'No se ha llenado correctamente el formulario.', 'detalle':''})
+                else:
+                    return JsonResponse({'result': False, 'mensaje': u'No se ha llenado correctamente el formulario.', 'detalle':''})
             except Exception as ex:
-                return JsonResponse({'result': True, 'mensaje':u'Parece que ha ocurrido un error con la edición de la vitrina.', 'detalle': str(ex)})
+                return JsonResponse({'result': False, 'mensaje':u'Parece que ha ocurrido un error con la edición de la vitrina.', 'detalle': str(ex)})
 
         if action == 'del':
             try:
@@ -82,7 +84,10 @@ def view(request):
                 data['subtitle'] = u'Administre sus vitrinas'
                 data['list'] = Vitrina.objects.filter(status=True)
                 data['administracion'] = True
-                data['adm_activo'] = 4
                 return render(request, 'administracion/adm_vitrinas.html', data)
             except Exception as ex:
-                return HttpResponse("Método no soportado")
+                data['title'] = u'Error en: Vitrinas'
+                data['subtitle'] = u''
+                data['exception'] = str(ex)
+                data['dashboardatras'] = True
+                return render(request, 'exceptions/5XX.html', data)

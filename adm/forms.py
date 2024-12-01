@@ -88,3 +88,8 @@ class RegistroTotalForm(FormModeloBase):
     descuento = forms.DecimalField(label=u'Descuento ($)', min_value=0,max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col':'12', 'placeholder': 'Descuento General'}))
     preciosd = forms.CharField(label=u'Subtotal (Sin descuento) ', max_length=500, required=False, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Precio Total Venta'}))
     preciot = forms.CharField(label=u'Total Venta (Aplica descuento)', max_length=500, required=False, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Precio Total Venta'}))
+
+class GastoNoOperativoForm(FormModeloBase):
+    titulo = forms.CharField(label=u'Titulo', max_length=500, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Nombra el Gasto'}))
+    valor = forms.CharField(label=u'Valor del gasto ($)', max_length=500, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Precio del Gasto'}))
+    detalle = forms.CharField(label=u'Detalle', required=False, widget=forms.Textarea(attrs={'rows': '1', 'placeholder': 'Detalle del Gasto...', 'class': 'form-control', 'col': '12'}))

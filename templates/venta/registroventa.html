@@ -124,8 +124,12 @@
 
             $('#id_producto').change(function () {
                 if ($(this).val() !== '') {
+                    $('#id_lote').empty()
+                    $('#id_preciou').val('')
+                    $('#id_cantidad').val('')
+                    $('#id_precios').val('')
                     cargarLotes();
-                }else {
+                } else {
                     $(this).val('')
                     $('#id_lote').empty()
                     $('#id_preciou').val('')
@@ -270,6 +274,10 @@
                                     $('#id_lote').append('<option value="' + id + '">' + lt + '</option>');
                                 });
                                 $('#id_lote').trigger('change')
+
+                                if(data.selectLote.length == 1){
+                                    $('#id_lote').attr('readonly', true)
+                                }
                             }
                         },
                         dataType: "json"
