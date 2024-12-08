@@ -7,7 +7,7 @@ class PersonaForm(FormModeloBase):
     password = forms.CharField(max_length=10, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'type':'password', 'placeholder':'Contraseña'}))
     cpassword = forms.CharField(max_length=10, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'type':'password', 'placeholder':'Confirmar Contraseña'}))
 
-    cedula = forms.CharField(max_length=10, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'separator': 'true',"separatortitle":'Ingrese los datos de la persona', 'placeholder':'Cédula*'}))
+    cedula = forms.CharField(max_length=10, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder':'Cédula*'}))
     nombre = forms.CharField(required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder':'Nombre*'}))
     apellido1 = forms.CharField(required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder':'Primer Apellido*'}))
     apellido2 = forms.CharField(required=False, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'type':'email', 'placeholder':'Segundo Apellido'}))

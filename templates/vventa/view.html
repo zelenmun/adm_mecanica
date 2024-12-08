@@ -51,30 +51,26 @@
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                         <tr>
-                            <th style="width: .1%">ID</th>
+                            <th style="width: 1%">ID</th>
                             <th style="width: 5%">Detalle</th>
-                            <th style="width: 1%">Fecha</th>
+                            <th style="width: 2%">Fecha</th>
+                            <th style="width: 1%">Trabajador</th>
                             <th style="width: 1%">Cliente</th>
-                            <th style="width: .1%">Abono</th>
-                            <th style="width: .1%">Descuento</th>
-                            <th style="width: .1%">Subtotal</th>
-                            <th style="width: .1%">Total</th>
-                            <th style="width: .1%;">Estado</th>
-                            <th style="width: .1%"></th>
+                            <th style="width: 1%">Descuento</th>
+                            <th style="width: 1%">Total</th>
+                            <th style="width: 1%"></th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for l in list %}
                             <tr>
                                 <td>{{ l.id }}</td>
-                                <td>{{ l.obtener_detalles|safe }}</td>
+                                <td>{{ l.productos_vendidos|safe }}</td>
                                 <td>{{ l.fecha_venta|date:"d-m-Y" }}</td>
-                                <td style="font-size: 12px">{{ l.cliente|default_if_none:""|safe }}</td>
-                                <td style="color:{% if l.abono == 0 %}salmon{% elif l.abono == l.totalventa %}#1cc88a{% else %}#2e59d9{% endif %}">${{ l.abono }}</td>
+                                <td style="font-size: 12px">{{ l.trabajador|default_if_none:"" }}</td>
+                                <td style="font-size: 12px">{{ l.cliente|default_if_none:"" }}</td>
                                 <td>${{ l.descuento }}</td>
-                                <td>${{ l.subtotalventa }}</td>
-                                <td style="color: salmon"><b>${{ l.totalventa }}</b></td>
-                                <td style="color:{% if l.estado == 1 %}salmon{% elif l.estado == 2 %}#1cc88a{% endif %}"><b>{{ l.get_estado_display }}</b></td>
+                                <td><b>${{ l.preciov }}</b></td>
                                 <td style="text-align: center">
                                     <div class="dropdown no-arrow">
                                         <a class="dropdown-toggle" href="#" role="button"
@@ -95,15 +91,6 @@
                                                     <i class="fas fa-trash"></i>
                                                 </span>
                                                 <span class="text" style="flex-grow: 1;">Eliminar</span>
-                                            </a>
-                                            <a class="dropdown-item id_generarfactura" href="javascript:void(0);"
-                                               style="display: flex; align-items: center;"
-                                                onclick="formModal('{{ l.id }}', 'Abonar venta', 'abonardeuda', true, '')">
-                                                <span class="icon text-gray-600"
-                                                      style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-plus"></i>
-                                                </span>
-                                                <span class="text" style="flex-grow: 1;">Abonar</span>
                                             </a>
                                             <a class="dropdown-item id_generarfactura" href="javascript:void(0);"
                                                style="display: flex; align-items: center;"

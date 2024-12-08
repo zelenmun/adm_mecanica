@@ -3,24 +3,67 @@
 {% block extrahead %}
     <script>
         $(function () {
-            var existcliente = false
-            var cedulacliente = ''
-            var maxproductos = 0
+            var existcliente = false;
+            var cedulacliente = '';
+            var maxproductos = 0;
+            var precioproducto = 0;
+            var precioservicio = 0;
             let typingTimer;
             const typingDelay = 300;
-            var table = $('#dataTable').DataTable()
+            var table = $('#dataTable').DataTable();
 
+            $('#id_producto').select2();
 
-            $('#id_producto').select2()
-            $('#id_lote').select2()
-            $('#fieldset_areacliente').css('display', 'none');
+            $('#id_lote').select2();
 
+            $('#fieldset_areacliente').hide();
+
+            $('#btn_plus1').click(function () {
+                input = $('#id_pcantidad')
+                cantidad = input.val()
+                $('#id_pcantidad').val(++cantidad)
+                manejarCambioCantidadBtn()
+            });
+
+            $('#btn_minus1').click(function () {
+                input = $('#id_pcantidad')
+                cantidad = input.val()
+                $('#id_pcantidad').val(--cantidad)
+                manejarCambioCantidadBtn()
+            });
+
+            $('#btn_plus2').click(function () {
+                input = $('#id_scantidad')
+                cantidad = input.val()
+                $('#id_scantidad').val(++cantidad)
+            });
+
+            $('#btn_minus2').click(function () {
+                const $cantidad = $('#id_scantidad')
+                $cantidad.val(--cantidad)
+                if ($cantidad.val() < 0) {
+                    $cantidad.val(0)
+                }
+            });
+
+            $('#btn_plus3').click(function () {
+                input = $('#id_dcantidad')
+                cantidad = input.val()
+                $('#id_dcantidad').val(++cantidad)
+            });
+
+            $('#btn_minus3').click(function () {
+                const $cantidad = $('#id_dcantidad')
+                $cantidad.val(--cantidad)
+                if ($cantidad.val() < 0) {
+                    $cantidad.val(0)
+                }
+            });
 
             $('#btn_cliente').click(function () {
                 $('#itemspanelTitle2').html('ASIGNAR CLIENTE');  // Actualiza el título del modal
                 $("#itemspanel2").modal({backdrop: 'static', keyboard: false}).modal('show');
-
-            })
+            });
 
             $('#id_cedula').keyup(function () {
                 var cedula = $(this).val()
@@ -42,16 +85,9 @@
                         }
                     })
                 } else {
-                    $('#id_nombre').val('').removeAttr('readonly', true)
-                    $('#id_apellido1').val('').removeAttr('readonly', true)
-                    $('#id_apellido2').val('').removeAttr('readonly', true)
-                    $('#id_direccion').val('').removeAttr('readonly', true)
-                    $('#id_celular').val('').removeAttr('readonly', true)
-                    $('#id_correo').val('').removeAttr('readonly', true)
-                    existcliente = false;
-                    cedulacliente = ''
+                    eliminarClienteModal()
                 }
-            })
+            });
 
             $('#btn_guardarcliente').click(function () {
                 var cedula = $('#id_cedula').val()
@@ -63,11 +99,11 @@
                 var direccion = $('#id_direccion').val()
                 if (cedula !== '' && nombre !== '' && apellido1 !== '') {
                     if (existcliente) {
-                        $('#nombrecliente').text('Cliente: ' + nombre + ' ' + apellido1 + ' ' + apellido2);
-                        $('#cedulacliente').text('Cédula: ' + cedula);
+                        $('#nombrecliente').text('CLIENTE: ' + nombre + ' ' + apellido1 + ' ' + apellido2);
+                        $('#cedulacliente').text('CÉDULA: ' + cedula);
                         $("#itemspanel2").modal('hide')
 
-                        $('#fieldset_areacliente').hide();
+                        $('#fieldset_areacliente').show();
                     } else {
                         var formdata = new FormData()
                         formdata.append('cedula', cedula)
@@ -95,6 +131,8 @@
                                     })
                                     $('#nombrecliente').text('Cliente: ' + nombre + ' ' + apellido1 + ' ' + apellido2);
                                     $('#cedulacliente').text('Cédula: ' + cedula);
+
+                                    $('#fieldset_areacliente').show();
 
                                     $('#id_nombre').attr('readonly', true)
                                     $('#id_apellido1').attr('readonly', true)
@@ -124,21 +162,31 @@
                         confirmButtonText: "Ok"
                     })
                 }
-            })
+                cedulacliente = cedula
+            });
+
+            $('#eliminarcliente').click(function () {
+                $('#nombrecliente').text('');
+                $('#cedulacliente').text('');
+                $('#id_cedula').val('')
+
+                $('#fieldset_areacliente').hide();
+                eliminarClienteModal();
+
+            });
 
             $('#id_producto').change(function () {
                 if ($(this).val() !== '') {
                     $('#id_lote').empty()
-                    $('#id_preciou').val('')
-                    $('#id_cantidad').val('')
-                    $('#id_precios').val('')
+                    $('#id_precioproducto').val('')
+                    $('#id_pcantidad').val('')
                     cargarLotes();
                 } else {
                     $(this).val('')
                     $('#id_lote').empty()
-                    $('#id_preciou').val('')
-                    $('#id_cantidad').val('')
-                    $('#id_precios').val('')
+                    $('#id_precioproducto').val('')
+                    $('#id_pcantidad').val('')
+                    precioproducto = 0
                 }
             });
 
@@ -147,89 +195,242 @@
                 $.ajax({
                     type: 'GET',
                     url: '{{ request.path }}',
-                    data: {'action': 'cargarprecio', 'id': valor},
+                    data: {'action': 'cargarprecioproducto', 'id': valor},
                     success: function (data) {
                         if (data.result === true) {
-                            $('#id_preciou').val('$' + data.precio);
+                            precioproducto = data.precio
+                            $('#id_precioproducto').val(precioproducto)
                             maxproductos = data.cantidad
-                            var frmCantidad = $('#id_cantidad')
-                            frmCantidad.val('')
-                            frmCantidad.attr('max', maxproductos)
-                            $('#id_precios').val('')
-                            calcularTotal();
+                            var $frmCantidad = $('#id_pcantidad')
+                            $frmCantidad.val(1)
+                            $frmCantidad.attr('max', maxproductos)
                         }
                     },
                     dataType: "json"
                 });
-            })
+            });
 
-            function manejarCambioCantidad() {
-                if ($(this).val() > parseInt(maxproductos, 10)) {
-                    $(this).val(maxproductos)
+            $('#id_servicio').change(function () {
+                var valor = $(this).val()
+                if (valor !== '') {
+                    $.ajax({
+                        type: 'GET',
+                        url: '{{ request.path }}',
+                        data: {'action': 'cargarprecioservicio', 'id': valor},
+                        success: function (data) {
+                            if (data.result === true) {
+                                precioservicio = data.precio
+                                $('#id_precioservicio').val(precioservicio);
+                                $('#id_scantidad').val(1);
+                            }
+                        },
+                        dataType: "json"
+                    });
+                } else {
+                    $('#id_precioservicio').val('');
+                    $('#id_scantidad').val('');
+                    precioservicio = 0
                 }
+            });
 
-                const $cantidad = $('#id_cantidad');
-                if ($cantidad.val() !== '' && $cantidad.val() > 0) {
-                    clearTimeout(typingTimer);
-                    typingTimer = setTimeout(calcularTotal, typingDelay);
-                }
-            }
-
-            $('#id_cantidad').on('keyup click', manejarCambioCantidad);
-
-            function manejarCambioDescuento() {
-                const $descuento = $('#id_descuento');
-                clearTimeout(typingTimer);
-                typingTimer = setTimeout(() => {
-                    $('#id_preciot').val('$' + calcularTotalVenta());
-                }, typingDelay);
-            }
+            $('#id_pcantidad').on('keyup click', manejarCambioCantidad);
 
             $('#id_descuento').on('keyup click', manejarCambioDescuento);
 
-            $('#id_addproducto').click(function () {
-                const id = $('#id_lote').val();
-                const producto = $('#id_producto option:selected').text();
-                const preciou = $('#id_preciou').val();
-                const cantidad = $('#id_cantidad').val();
-                const precios = $('#id_precios').val();
+            $('#btn_guardar_p').click(function () {
+                const detalle = $('#id_producto option:selected').text();
+                const cantidad = $('#id_pcantidad').val();
+                if (detalle !== '' && cantidad > 0) {
+                    const id = $('#id_lote').val();
+                    const tipo = 'PRODUCTO';
 
-                const actions = `
-                    <div class="dropdown no-arrow" style="display: flex; justify-content: center">
-                        <a class="dropdown-toggle" href="#" role="button"
-                           id="dropdownMenuLink"
-                           data-toggle="dropdown" aria-haspopup="true"
-                           aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                             aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Acciones:</div>
-                            <div class="dropdown-divider"></div>
+                    const idsExistentes = table.column(0).data().toArray();
+                    const tiposExistentes = table.column(1).data().toArray();
 
-                            <a class="dropdown-item btn_eliminarfila" href="javascript:void(0);"
-                                style="display: flex; align-items: center;">
-                                <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-trash"></i>
-                                </span>
-                                <span class="text" style="flex-grow: 1;">Eliminar</span>
-                            </a>
-                        </div>
-                    </div>
-                `;
-                const tablaDetalle = $('#dataTable').DataTable();
+                    if (idsExistentes.includes(id) && tiposExistentes.includes(tipo)) {
+                        Swal.fire({
+                            type: 'error',
+                            icon: 'error',
+                            title: 'Espera!',
+                            text: 'No puedes agregar un mismo registro dos veces.'
+                        })
+                    } else {
+                        const actions = `
+                            <div class="dropdown no-arrow" style="display: flex; justify-content: center">
+                                <a class="dropdown-toggle" href="#" role="button"
+                                   id="dropdownMenuLink"
+                                   data-toggle="dropdown" aria-haspopup="true"
+                                   aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                     aria-labelledby="dropdownMenuLink">
+                                    <div class="dropdown-header">Acciones:</div>
+                                    <div class="dropdown-divider"></div>
 
-                tablaDetalle.row.add([
-                    id,
-                    producto,
-                    preciou,
-                    cantidad,
-                    precios,
-                    actions
-                ]).draw();
-                $('#id_addproducto').addClass('disabled')
-                $('#id_preciot').val('$' + calcularTotalVenta())
-                $('#id_preciosd').val('$' + calcularSubtotal())
+                                    <a class="dropdown-item btn_eliminarfila" href="javascript:void(0);"
+                                        style="display: flex; align-items: center;">
+                                        <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-trash"></i>
+                                        </span>
+                                        <span class="text" style="flex-grow: 1;">Eliminar</span>
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                        const tablaDetalle = $('#dataTable').DataTable();
+                        const total = precioproducto * cantidad
+
+                        tablaDetalle.row.add([
+                            id,
+                            tipo,
+                            detalle,
+                            '$' + precioproducto,
+                            cantidad,
+                            '$' + total,
+                            actions
+                        ]).draw();
+
+                        calcularTotales()
+                    }
+                } else {
+                    Swal.fire({
+                        type: 'warning',
+                        icon: 'warning',
+                        title: 'Espera!',
+                        text: 'Es necesario agregar un PRODUCTO y una CANTIDAD'
+                    })
+                }
+            });
+
+            $('#btn_guardar_s').click(function () {
+                const detalle = $('#id_servicio option:selected').text();
+                const cantidad = $('#id_scantidad').val();
+                if (detalle !== '' && cantidad > 0) {
+                    const id = $('#id_servicio').val();
+                    const tipo = 'SERVICIO';
+
+                    const idsExistentes = table.column(0).data().toArray();
+                    const tiposExistentes = table.column(1).data().toArray();
+
+                    if (idsExistentes.includes(id) && tiposExistentes.includes(tipo)) {
+                        Swal.fire({
+                            type: 'error',
+                            icon: 'error',
+                            title: 'Espera!',
+                            text: 'No puedes agregar un mismo registro dos veces.'
+                        })
+                    } else {
+                        const actions = `
+                            <div class="dropdown no-arrow" style="display: flex; justify-content: center">
+                                <a class="dropdown-toggle" href="#" role="button"
+                                   id="dropdownMenuLink"
+                                   data-toggle="dropdown" aria-haspopup="true"
+                                   aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                     aria-labelledby="dropdownMenuLink">
+                                    <div class="dropdown-header">Acciones:</div>
+                                    <div class="dropdown-divider"></div>
+
+                                    <a class="dropdown-item btn_eliminarfila" href="javascript:void(0);"
+                                        style="display: flex; align-items: center;">
+                                        <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-trash"></i>
+                                        </span>
+                                        <span class="text" style="flex-grow: 1;">Eliminar</span>
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                        const tablaDetalle = $('#dataTable').DataTable();
+
+                        const total = precioservicio * cantidad
+
+                        tablaDetalle.row.add([
+                            id,
+                            tipo,
+                            detalle,
+                            '$' + precioservicio,
+                            cantidad,
+                            '$' + total,
+                            actions
+                        ]).draw();
+                        calcularTotales()
+                    }
+                } else {
+                    Swal.fire({
+                        type: 'warning',
+                        icon: 'warning',
+                        title: 'Espera!',
+                        text: 'Es necesario agregar un SERVICIO y una CANTIDAD'
+                    })
+                }
+            });
+
+            $('#btn_guardar_d').click(function () {
+                const detalle = $('#id_detalle').val().toUpperCase();
+                const ganancia = $('#id_ganancia').val();
+                if (detalle && ganancia) {
+                    const id = 0;
+                    const cantidad = 0;
+                    const tipo = 'ADICIONAL';
+
+                    const detalleExistente = table.column(2).data().toArray();
+                    if (detalleExistente.includes(detalle)) {
+                        Swal.fire({
+                            type: 'error',
+                            icon: 'error',
+                            title: 'Espera!',
+                            text: 'No puedes agregar un mismo registro dos veces.'
+                        })
+                    } else {
+                        const actions = `
+                            <div class="dropdown no-arrow" style="display: flex; justify-content: center">
+                                <a class="dropdown-toggle" href="#" role="button"
+                                   id="dropdownMenuLink"
+                                   data-toggle="dropdown" aria-haspopup="true"
+                                   aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                     aria-labelledby="dropdownMenuLink">
+                                    <div class="dropdown-header">Acciones:</div>
+                                    <div class="dropdown-divider"></div>
+
+                                    <a class="dropdown-item btn_eliminarfila" href="javascript:void(0);"
+                                        style="display: flex; align-items: center;">
+                                        <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-trash"></i>
+                                        </span>
+                                        <span class="text" style="flex-grow: 1;">Eliminar</span>
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                        const tablaDetalle = $('#dataTable').DataTable();
+
+                        tablaDetalle.row.add([
+                            id,
+                            tipo,
+                            detalle,
+                            '$' + ganancia,
+                            cantidad,
+                            '$' + ganancia,
+                            actions
+                        ]).draw();
+                        calcularTotales()
+                    }
+                } else {
+                    Swal.fire({
+                        type: 'warning',
+                        icon: 'warning',
+                        title: 'Espera!',
+                        text: 'Es necesario agregar un DETALLE y una GANANCIA'
+                    })
+                }
+
             });
 
             $('#dataTable').on('click', '.btn_eliminarfila', function () {
@@ -261,78 +462,15 @@
                 });
             });
 
-            function cargarLotes() {
-                var valor = $('#id_producto').val();
-                if (valor !== '') {
-                    $.ajax({
-                        type: 'GET',
-                        url: '{{ request.path }}',
-                        data: {'action': 'cargarlotes', 'id': valor},
-                        success: function (data) {
-                            if (data.result === true) {
-                                $('#id_lote').empty();
-
-                                $.each(data.selectLote, function (index, lote) {
-                                    var id = lote.split('|')[0]
-                                    var lt = lote.split('|')[1]
-                                    $('#id_lote').append('<option value="' + id + '">' + lt + '</option>');
-                                });
-                                $('#id_lote').trigger('change')
-
-                                if (data.selectLote.length == 1) {
-                                    $('#id_lote').attr('readonly', true)
-                                }
-                            }
-                        },
-                        dataType: "json"
-                    });
-                } else {
-                    $('#id_precio').val('');
+            $('#id_abono').on('keyup click', function () {
+                var subtotal = calcularTotalVenta()
+                if ($(this).val() > subtotal) {
+                    $(this).val(subtotal)
                 }
-            }
-
-            function calcularTotal() {
-                var cantidad = parseFloat($('#id_cantidad').val()); // Obtener la cantidad
-                var precioUnitario = parseFloat($('#id_preciou').val().replace('$', '')); // Obtener el precio unitario, sin el signo de dólar
-                if (!isNaN(cantidad) && !isNaN(precioUnitario)) {
-                    var total = precioUnitario * cantidad; // Calcular el total
-                    $('#id_precios').val('$' + total.toFixed(2)); // Mostrar el total con dos decimales
-                    $('#id_preciot').val('$' + calcularTotalVenta()); // Actualizar el total general de la venta
-                    $('#id_addproducto').removeClass('disabled'); // Habilitar el botón de agregar producto
-                }
-            }
-
-            function calcularTotalVenta() {
-                var total = 0;
-                var descuento = $('#id_descuento').val()
-                $('#dataTable').DataTable().rows().every(function () {
-                    var precio = parseFloat(this.data()[4].split('$')[1]);
-                    if (!isNaN(precio)) {
-                        total += precio;
-                    }
-                });
-
-                if (total >= descuento) {
-                    return total - descuento;
-                }
-                return 0
-            }
-
-            function calcularSubtotal() {
-                subtotal = 0
-                $('#dataTable').DataTable().rows().every(function () {
-                    var precio = parseFloat(this.data()[4].split('$')[1]);
-                    if (!isNaN(precio)) {
-                        subtotal += precio;
-                    }
-                });
-                console.log(subtotal)
-                return subtotal
-            }
+            });
 
             $('#btn_guardar').click(function () {
                 if (table.rows().count() > 0) {
-
                     Swal.fire({
                         icon: "warning",
                         title: "¡Confirma la venta!",
@@ -347,17 +485,18 @@
                                 var rowData = this.data();
                                 dataToSend.push({
                                     id: rowData[0],
-                                    producto: rowData[1],
-                                    preciou: rowData[2],
-                                    cantidad: rowData[3],
-                                    total: rowData[4]
+                                    tipo: rowData[1],
+                                    detalle: rowData[2],
+                                    preciou: rowData[3],
+                                    cantidad: rowData[4],
+                                    total: rowData[5]
                                 });
                             });
+                            console.log(dataToSend)
                             var formData = new FormData()
                             formData.append('tabla', JSON.stringify(dataToSend))
                             formData.append('descuento', $('#id_descuento').val())
-                            formData.append('preciov', $('#id_preciot').val())
-                            formData.append('detalle', $('#id_detalle').val())
+                            formData.append('abono', $('#id_abono').val())
                             formData.append('action', 'add')
                             formData.append('cedula', cedulacliente)
                             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
@@ -405,9 +544,133 @@
                         confirmButtonText: "Aceptar"
                     })
                 }
-            })
+            });
+
+            function eliminarClienteModal() {
+                $('#id_nombre').val('').removeAttr('readonly', true)
+                $('#id_apellido1').val('').removeAttr('readonly', true)
+                $('#id_apellido2').val('').removeAttr('readonly', true)
+                $('#id_direccion').val('').removeAttr('readonly', true)
+                $('#id_celular').val('').removeAttr('readonly', true)
+                $('#id_correo').val('').removeAttr('readonly', true)
+                existcliente = false;
+                cedulacliente = ''
+            }
+
+            function manejarCambioDescuento() {
+                const $descuento = $('#id_descuento');
+                const subtotal = calcularSubtotal()
+                const total = calcularTotalVenta()
+                if ($descuento.val() > subtotal) {
+                    $descuento.val(subtotal)
+                }
+
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => {
+                    $('#id_preciototal').text('$' + total);
+                }, typingDelay);
+
+                if($('#id_abono').val() > total){
+                    $('#id_abono').val(total)
+                }
+            }
+
+            function cargarLotes() {
+                var valor = $('#id_producto').val();
+                if (valor !== '') {
+                    $.ajax({
+                        type: 'GET',
+                        url: '{{ request.path }}',
+                        data: {'action': 'cargarlotes', 'id': valor},
+                        success: function (data) {
+                            if (data.result === true) {
+                                $('#id_lote').empty();
+
+                                $.each(data.selectLote, function (index, lote) {
+                                    var id = lote.split('|')[0]
+                                    var lt = lote.split('|')[1]
+                                    $('#id_lote').append('<option value="' + id + '">' + lt + '</option>');
+                                });
+                                $('#id_lote').trigger('change')
+                            }
+                        },
+                        dataType: "json"
+                    });
+                } else {
+                    $('#id_precio').val('');
+                }
+            }
+
+            function calcularTotales() {
+                $('#id_preciototal').text('$' + calcularTotalVenta())
+                $('#id_preciosubtotal').text('$' + calcularSubtotal())
+            }
+
+            function calcularTotalVenta() {
+                var total = 0;
+                var descuento = $('#id_descuento').val()
+                $('#dataTable').DataTable().rows().every(function () {
+                    var precio = parseFloat(this.data()[5].split('$')[1]);
+                    if (!isNaN(precio)) {
+                        total += precio;
+                    }
+                });
+
+                if (total >= descuento) {
+                    return total - descuento;
+                }
+                return 0
+            }
+
+            function calcularSubtotal() {
+                subtotal = 0
+                $('#dataTable').DataTable().rows().every(function () {
+                    var precio = parseFloat(this.data()[5].split('$')[1]);
+                    if (!isNaN(precio)) {
+                        subtotal += precio;
+                    }
+                });
+                return subtotal
+            }
+
+            function manejarCambioCantidad() {
+                if ($(this).val() > parseInt(maxproductos, 10)) {
+                    $(this).val(maxproductos)
+                }
+
+                const $cantidad = $('#id_pcantidad');
+                if ($cantidad.val() !== '' && $cantidad.val() > 0) {
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(calcularTotal, typingDelay);
+                }
+            }
+
+            function manejarCambioCantidadBtn() {
+                const $cantidad = $('#id_pcantidad');
+
+                if ($cantidad.val() < 0) {
+                    $cantidad.val(0);
+                }
+
+                if ($cantidad.val() > parseInt(maxproductos, 10)) {
+                    $cantidad.val(maxproductos);
+                }
+
+                if ($cantidad.val() !== '' && $cantidad.val() > 0) {
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(calcularTotal, typingDelay);
+                }
+            }
         })
     </script>
+    <style>
+        .select2 {
+            width: 100%; /* Ajusta el ancho según tu diseño */
+            white-space: nowrap; /* Evita el salto de línea */
+            overflow: hidden; /* Oculta el contenido que se salga del ancho */
+            text-overflow: ellipsis; /* Agrega "..." cuando el texto es demasiado largo */
+        }
+    </style>
 {% endblock %}
 {% block dashboard %}
     <!-- Modal -->
@@ -429,7 +692,7 @@
                           enctype="multipart/form-data" action="{{ request.path }}">
                         {% csrf_token %}
                         <div class="row panelbody">
-                            {% include 'modals/form2.html' %}
+                            {% include 'modals/form4.html' %}
                         </div>
                     </form>
                 </div>
@@ -450,76 +713,171 @@
     <div class="container-fluid">
         <div class="card mb-4 py-1 border-left-info">
             <div class="card-body">
-                <div style="display: flex; width: 100%; align-items: stretch;">
-                    <div style="flex: 1; padding-right: 10px; padding-left: 0" class="col-8">
-                        {% include 'modals/form.html' %}
+                <div style="display: flex; flex-direction: row">
+                    <div class="col-10">
+                        <div class="flex w-full items-stretch" style="display: flex; flex-direction: row">
+                            <!-- Columna 1: Botón -->
+                            <div class="flex-1 flex items-center justify-start"
+                                 style="margin-top: 15px; align-content: center;">
+                                <a href="javascript:void(0);" id="btn_guardar_p" class="btn btn-success btn-icon-split">
+                                    <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
+                                </a>
+                            </div>
+
+                            <!-- Columna 2: Formulario -->
+                            <div class="flex-1 flex items-center justify-center" style="width: 100%">
+                                {% include 'modals/form.html' %}
+                            </div>
+
+                            <!-- Columna 3: Botones adicionales -->
+                            <div style="margin-top: 15px; align-content: center; display: flex; flex-direction: row; align-items: center; gap: 5px">
+                                <a href="javascript:void(0);" id="btn_plus1" class="btn btn-success btn-icon-split">
+                                    <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
+                                </a>
+                                <a href="javascript:void(0);" id="btn_minus1" class="btn btn-danger btn-icon-split">
+                                    <span class="icon text-white-50"><i class="fas fa-minus"></i></span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="flex w-full items-stretch" style="display: flex; flex-direction: row">
+                            <!-- Columna 1: Botón -->
+                            <div class="flex-1 flex items-center justify-start"
+                                 style="margin-top: 15px; align-content: center;">
+                                <a href="javascript:void(0);" id="btn_guardar_s" class="btn btn-success btn-icon-split">
+                                    <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
+                                </a>
+                            </div>
+
+                            <!-- Columna 2: Formulario -->
+                            <div class="flex-1 flex items-center justify-center" style="width: 100%">
+                                {% include 'modals/form2.html' %}
+                            </div>
+
+                            <!-- Columna 3: Botones adicionales -->
+                            <div style="margin-top: 15px; align-content: center; display: flex; flex-direction: row; align-items: center; gap: 5px">
+                                <a href="javascript:void(0);" id="btn_plus2" class="btn btn-success btn-icon-split">
+                                    <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
+                                </a>
+                                <a href="javascript:void(0);" id="btn_minus2" class="btn btn-danger btn-icon-split">
+                                    <span class="icon text-white-50"><i class="fas fa-minus"></i></span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="flex w-full items-stretch" style="display: flex; flex-direction: row">
+                            <!-- Columna 1: Botón -->
+                            <div class="flex-1 flex items-center justify-start"
+                                 style="margin-top: 15px; align-content: center;">
+                                <a href="javascript:void(0);" id="btn_guardar_d" class="btn btn-success btn-icon-split">
+                                    <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
+                                </a>
+                            </div>
+
+                            <!-- Columna 2: Formulario -->
+                            <div class="flex-1 flex items-center justify-center" style="width: 100%">
+                                {% include 'modals/form3.html' %}
+                            </div>
+
+                            <!-- Columna 3: Botones adicionales -->
+                            {#                            <div style="margin-top: 15px; align-content: center; display: flex; flex-direction: row; align-items: center; gap: 5px">#}
+                            {#                                <a href="javascript:void(0);" id="btn_plus3" class="btn btn-success btn-icon-split">#}
+                            {#                                    <span class="icon text-white-50"><i class="fas fa-plus"></i></span>#}
+                            {#                                </a>#}
+                            {#                                <a href="javascript:void(0);" id="btn_minus3" class="btn btn-danger btn-icon-split">#}
+                            {#                                    <span class="icon text-white-50"><i class="fas fa-minus"></i></span>#}
+                            {#                                </a>#}
+                            {#                            </div>#}
+                        </div>
                     </div>
+                    <div style="border-left: 2px solid #ccc;"></div>
+                    <div class="col-2" style="padding: 0; display: flex">
+                        <div style="padding: 0; display: flex; flex-direction: column; justify-content: space-between;">
+                            <!-- Columna 2: Formulario -->
+                            <div class="flex-1 flex items-center justify-center" style="width: 100%">
+                                {% include 'modals/form5.html' %}
+                            </div>
+                            <div class="col"
+                                 style="justify-content: space-around; display: flex; flex-grow: inherit; width: 100%">
+                                <a href="javascript:void(0);" id="btn_guardar" class="btn btn-info btn-icon-split"
+                                   style="width: 100%">
+                                    <span class="icon text-white-50"><i class="fas fa-save"></i></span>
+                                    <span class="text">Registrar Venta</span>
+                                </a>
+                            </div>
+                        </div>
 
-                    <!-- Línea divisora -->
-                    <div style="width: 1px; background-color: #8f8f8f;"></div>
 
-                    <div style="flex: 1; padding-left: 10px;" class="col-4">
-                        {% include 'modals/form3.html' %}
                     </div>
                 </div>
-
                 <div class="row"
-                     style="display: flex; align-items: center; justify-content: flex-start; padding: 0 24px 0 24px; margin-top: 20px;">
+                     style="display: flex; align-items: center; justify-content: space-between; padding: 0 20px 0 5px; margin-top: 20px;">
                     <!-- Primera Área -->
-                    <div class="row" style="display: flex; align-items: center; margin-right: 20px;">
-                        <a href="javascript:void(0);" style="margin-left: 10px" id="id_addproducto"
-                           class="btn btn-info btn-icon-split disabled">
-                            <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
-                            <span class="text">Agregar Producto</span>
-                        </a>
-                        <a href="javascript:void(0);" id="btn_cliente" class="btn btn-primary btn-icon-split"
-                           style="margin-left: 20px;">
-                            <span class="icon text-white-50"><i class="fas fa-user"></i></span>
-                        </a>
+                    <div class="row" style="margin-left: 0; display: flex; flex-direction: row; align-items: center">
+                        <div class="row" style="margin-right: 20px;">
+                            <a href="javascript:void(0);" id="btn_cliente" class="btn btn-primary btn-icon-split"
+                               style="margin-left: 20px;">
+                                <span class="icon text-white-50"><i class="fas fa-user"></i></span>
+                            </a>
+                        </div>
+
+                        <div class="row" style="align-items: center" id="fieldset_areacliente">
+                            <!-- Segunda Área -->
+                            <div class="row"
+                                 style="display: flex; flex-direction: column; align-items: flex-start; margin-right: auto; padding-left: 20px">
+                                <span id="nombrecliente"></span>
+                                <span id="cedulacliente"></span>
+                            </div>
+                            <a href="javascript:void(0);" id="eliminarcliente" class="btn btn-danger btn-icon-split"
+                               style="margin-left: 20px;">
+                                <span class="icon text-white-50"><i class="fas fa-user-times"></i></span>
+                            </a>
+                        </div>
                     </div>
 
-                    <div class="row" style="display: flex; flex-direction: column; align-items: flex-start; margin-right: auto; padding-left: 20px" id="fieldset_areaseparadora"></div>
-
-                    <!-- Segunda Área -->
-                    <div class="row" id="fieldset_areacliente"
-                         style="display: flex; flex-direction: column; align-items: flex-start; margin-right: auto; padding-left: 20px">
-                        <span id="nombrecliente"></span>
-                        <span id="cedulacliente"></span>
-                        <a href="javascript:void(0);" id="eliminarcliente" class="btn btn-primary btn-icon-split"
-                           style="margin-left: 20px;">
-                            <span class="icon text-white-50"><i class="fas fa-user-times"></i></span>
-                        </a>
-                    </div>
-
-                    <!-- Tercera Área -->
-                    <a href="javascript:void(0);" id="btn_guardar" class="btn btn-success btn-icon-split">
-                        <span class="icon text-white-50"><i class="fas fa-save"></i></span>
-                        <span class="text">Registrar Venta</span>
-                    </a>
                 </div>
 
             </div>
         </div>
 
         <!-- DataTales Example -->
-        <div class="card shadow mb-4">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                        <thead>
-                        <tr>
-                            <th style="width: 1%">ID</th>
-                            <th style="width: 5%">Producto</th>
-                            <th style="width: 1%">Precio Unitario</th>
-                            <th style="width: 1%">Cantidad</th>
-                            <th style="width: 1%">Total</th>
-                            <th style="width: 1%"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
+        <div class="row" style="padding: 10px">
+            <div class="card shadow mb-4 col-10">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable">
+                            <thead>
+                            <tr>
+                                <th style="width: 1%">ID</th>
+                                <th style="width: 2%">Tipo</th>
+                                <th style="width: 5%">Detalle</th>
+                                <th style="width: 1%">Precio Unitario</th>
+                                <th style="width: 1%">Cantidad</th>
+                                <th style="width: 1%">Total</th>
+                                <th style="width: 1%"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
 
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4 py-1 border-left-info col-2">
+                <div class="card-body"
+                     style="display: flex; justify-content: space-between; flex-direction: column; align-items: center">
+                    <div class="w-100 text-center" style="display: flex; flex-direction: column">
+                        <div style="display: flex; flex-direction: column">
+                            <span>SUBTOTAL:</span>
+                            <span class="fs-2 fs-md-1 fs-lg-1 text-center" id="id_preciosubtotal">$--.--</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column">
+                            <span style="margin-top: 50%">TOTAL: </span>
+                            <span style="font-size: 2vw; color: salmon" id="id_preciototal">$--.--</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

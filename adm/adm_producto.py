@@ -166,8 +166,9 @@ def view(request):
                         'vitrina':producto.vitrina,
                         'subcategoria':producto.subcategoria,
                         'descripcion':producto.descripcion})
-                    # form.fields['cantidad'].widget.attrs['readonly'] = True
-                    # form.fields['preciocompra'].widget.attrs['readonly'] = True
+                    form.fields['cantidad'].widget.attrs['readonly'] = True
+                    form.fields['preciocompra'].widget.attrs['readonly'] = True
+                    form.fields['precioventa'].widget.attrs['readonly'] = True
                     template = get_template('modals/form.html')
                     return JsonResponse({'result': True, 'data': template.render({'form': form})})
                 except Exception as ex:

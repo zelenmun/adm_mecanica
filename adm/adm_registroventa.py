@@ -9,11 +9,12 @@ from django.db import transaction
 
 from core.funciones import normalizarTexto
 
-from adm.models import Producto, VentaDetalle, Venta, Cliente, Trabajador, KardexProducto, LoteProducto
+from adm.models import Producto, VentaProductoDetalle, vVenta, Cliente, Trabajo, KardexProducto, LoteProducto, VentaServicioDetalle, \
+    VentaAdicionalDetalle
 from core.models import Persona
 
 # IMPORTACIONES DE FORMULARIOS
-from adm.forms import ProductoForm, RegistroVentaForm, ClienteForm, RegistroTotalForm
+from adm.forms import VentaProductoForm, ClienteForm, VentaServicioForm, VentaAdicionalForm, PagoClienteForm
 from core.forms import PersonaForm
 
 
@@ -23,54 +24,103 @@ def view(request):
         data['action'] = action = request.POST['action']
         if action == 'add':
             try:
-                tabla = request.POST['tabla']
-                detalles = json.loads(tabla)
-                cedula = request.POST['cedula']
-                cliente = None
-                if cedula:
-                    cliente = Cliente.objects.get(persona__cedula=cedula)
+                with transaction.atomic():
+                    tabla = request.POST['tabla']
+                    detalles = json.loads(tabla)
+                    cedula = request.POST['cedula']
+                    abono = Decimal(request.POST.get('abono', 0) or 0)
+                    estado = 1
 
-                descuento = request.POST['descuento']
-                descuento = float(descuento) if descuento else 0
+                    subtotal = 0
+                    total = 0
 
-                venta = Venta(
-                    cliente=cliente,
-                    fecha_venta=datetime.datetime.now(),
-                    descuento=descuento,
-                    preciov=float(request.POST['preciov'][1:]),
-                    detalle=request.POST['detalle'],
-                )
-                venta.save()
+                    descuento = request.POST['descuento']
+                    descuento = Decimal(descuento) if descuento else 0
 
-                for detalle in detalles:
-                    lote = LoteProducto.objects.get(pk=detalle['id'])
-                    cantidad = int(detalle['cantidad'])
-                    preciou = Decimal(detalle['preciou'][1:])
+                    for detalle in detalles:
+                        subtotal = subtotal + Decimal(detalle['total'][1:])
 
-                    ventadetalle = VentaDetalle(
-                        venta=venta,
-                        producto=lote.producto,
-                        cantidad=cantidad,
-                        preciou=preciou,
-                        preciot=preciou * cantidad,
+                    total = Decimal(subtotal - descuento)
+
+                    cliente = None
+                    if cedula:
+                        cliente = Cliente.objects.get(persona__cedula=cedula)
+                        if abono < total:
+                            cliente.deuda_pendiente += total - abono
+                            cliente.save()
+
+                    if total < 0:
+                        total = 0
+
+                    if abono >= total:
+                        estado = 2
+
+
+                    venta = vVenta(
+                        cliente=cliente,
+                        fecha_venta=datetime.datetime.now(),
+                        descuento=descuento,
+                        totalventa=total,
+                        subtotalventa=subtotal,
+                        estado=estado,
+                        abono=abono
                     )
-                    ventadetalle.save()
+                    venta.save()
 
-                    # Registrar el movimiento en el Kardex
-                    kardex = KardexProducto(
-                        producto=lote.producto,
-                        tipo_movimiento=2,
-                        cantidad=cantidad,
-                        costo_unitario=lote.preciocompra,
-                        precio_unitario=preciou,
-                        lote=lote,
-                    )
-                    kardex.save()
+                    for detalle in detalles:
+                        cantidad = int(detalle['cantidad'])
+                        preciou = Decimal(detalle['preciou'][1:])
+                        total = Decimal(detalle['total'][1:])
 
-                    # Actualizar la cantidad del lote
-                    lote.cantidad -= cantidad
-                    lote.save()
-                return JsonResponse({"result": True, 'mensaje': u'Ha realizado la venta correctamente', 'detalle': ''})
+                        if detalle['tipo'] == 'PRODUCTO':
+                            lote = LoteProducto.objects.get(pk=detalle['id'])
+                            total = Decimal(lote.precioventa * cantidad)
+                            ventadetalle = VentaProductoDetalle(
+                                venta=venta,
+                                producto=lote.producto,
+                                lote=lote,
+                                cantidad=cantidad,
+                                preciounitario=lote.precioventa,
+                                total=total,
+                            )
+                            ventadetalle.save()
+
+                            # Registrar el movimiento en el Kardex
+                            kardex = KardexProducto(
+                                producto=lote.producto,
+                                tipo_movimiento=2,
+                                cantidad=cantidad,
+                                costo_unitario=lote.preciocompra,
+                                precio_unitario=lote.precioventa,
+                                lote=lote,
+                            )
+                            kardex.save()
+
+                            # Actualizar la cantidad del lote
+                            if (lote.cantidad >= cantidad):
+                                lote.cantidad -= cantidad
+                                lote.save()
+
+                        if detalle['tipo'] == 'SERVICIO':
+                            servicio = Trabajo.objects.get(pk=detalle['id'])
+                            total = Decimal(cantidad * preciou)
+
+                            ventadetalle = VentaServicioDetalle(
+                                venta=venta,
+                                servicio=servicio,
+                                cantidad=cantidad,
+                                total=total,
+                            )
+                            ventadetalle.save()
+
+                        if detalle['tipo'] == 'ADICIONAL':
+                            ventadetalle = VentaAdicionalDetalle(
+                                venta=venta,
+                                detalle=normalizarTexto(detalle['detalle']),
+                                precio=total,
+                            )
+                            ventadetalle.save()
+                    return JsonResponse({"result": True, 'mensaje': u'Ha realizado la venta correctamente', 'detalle': ''})
             except Exception as ex:
                 transaction.set_rollback(True)
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar', 'detalle': str(ex)})
@@ -93,12 +143,20 @@ def view(request):
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el valor.', 'detalle': str(ex)})
 
-            if action == 'cargarprecio':
+            if action == 'cargarprecioproducto':
                 try:
                     lote = LoteProducto.objects.get(pk=request.GET['id'])
                     precio = lote.precioventa
                     cantidad = lote.cantidad
                     return JsonResponse({"result": True, 'precio': precio, 'cantidad': cantidad})
+                except Exception as ex:
+                    return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el valor.', 'detalle': str(ex)})
+
+            if action == 'cargarprecioservicio':
+                try:
+                    servicio = Trabajo.objects.get(pk=request.GET['id'])
+                    precio = servicio.precio
+                    return JsonResponse({"result": True, 'precio': precio})
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el valor.', 'detalle': str(ex)})
 
@@ -117,24 +175,25 @@ def view(request):
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
 
-
         else:
             try:
                 data['title'] = u'Ventas'
                 data['subtitle'] = u'Registro de ventas de productos'
 
-                form = RegistroVentaForm()
-                form2 = ClienteForm()
-                form3 = RegistroTotalForm()
+                form = VentaProductoForm()
+                form2 = VentaServicioForm()
+                form3 = VentaAdicionalForm()
+                form4 = ClienteForm()
+                form5 = PagoClienteForm()
 
-                form3.fields['preciou'].widget.attrs['readonly'] = True
-                form3.fields['precios'].widget.attrs['readonly'] = True
-                form3.fields['preciot'].widget.attrs['readonly'] = True
-                form3.fields['preciosd'].widget.attrs['readonly'] = True
+                form.fields['precioproducto'].widget.attrs['readonly'] = True
+                form2.fields['precioservicio'].widget.attrs['readonly'] = True
 
                 data['form'] = form
                 data['form2'] = form2
                 data['form3'] = form3
+                data['form4'] = form4
+                data['form5'] = form5
                 data['activo'] = 2
                 return render(request, 'venta/registroventa.html', data)
             except Exception as ex:

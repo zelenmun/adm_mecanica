@@ -10,7 +10,7 @@ class Cliente(ModeloBase):
     deuda_pendiente = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=u'Deuda del cliente')
 
     def __str__(self):
-        return f'{self.persona} | DEBE: ${self.deuda_pendiente}'
+        return f'{self.persona} <br> DEBE: <b style="color: salmon">${self.deuda_pendiente}</b>'
 
 class Vehiculo(ModeloBase):
     propietario = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name=u'Persona', related_name='vehiculo', blank=True, null=True)
@@ -61,7 +61,7 @@ class Producto(ModeloBase):
     descripcion = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Descripción del producto')
 
     def __str__(self):
-        return f'{self.nombre}'
+        return f'{self.id} - {self.nombre}'
 
     def get_cantidad_lote(self, lote_id):
         """Calcula la cantidad actual disponible para un lote específico desde el kardex"""
@@ -108,7 +108,7 @@ class KardexProducto(ModeloBase):
     lote = models.ForeignKey(LoteProducto, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Lote')
 
     def __str__(self):
-        return f'Kardex de {self.producto.nombre} - {self.fecha_movimiento}'
+        return f'KARDEX DE {self.producto.nombre} - {self.fecha_movimiento}'
 
     def save(self, *args, **kwargs):
         # Cálculo del costo total del movimiento
@@ -205,3 +205,58 @@ class GastoNoOperativo(ModeloBase):
     titulo = models.CharField(blank=True, null=True, max_length=500, verbose_name=u'Titulo del Gasto')
     detalle = models.CharField(blank=True, null=True, verbose_name=u'Titulo del Gasto', max_length=2000)
     valor = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Valor del Gasto')
+
+ESTADO_VENTA = (
+    (1, u'PENDIENTE'),
+    (2, u'PAGADO'),
+    (3, u'DEVUELTO')
+)
+
+class vVenta(ModeloBase):
+    fecha_venta = models.DateTimeField(blank=True, null=True, verbose_name=u'Fecha de Venta')
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Cliente', related_name='trabajos')
+    trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Trabajador', related_name='trabajos')
+    descuento = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Descuento')
+    totalventa = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio Total')
+    subtotalventa = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Subtotal')
+    detalle = models.CharField(max_length=5000, blank=True, null=True, verbose_name=u'Detalle del Trabajo')
+    abono = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Abono')
+    estado = models.IntegerField(default=1, choices=ESTADO_VENTA, blank=True, null=True, verbose_name=u'Estado de la Venta')
+
+    def obtener_detalles(self):
+        detalles = []
+
+        # Obtener detalles de productos
+        for detalle in self.detalleproducto.all():
+            detalles.append(f"<b>{detalle.producto.nombre}</b> x <b>{detalle.cantidad}</b> x <b>${detalle.preciounitario}</b><br>")
+
+        # Obtener detalles de servicios
+        for detalle in self.detalleservicio.all():
+            detalles.append(f"<b>{detalle.servicio}</b> x <b>{detalle.cantidad}</b> x <b>${detalle.total}</b><br>")
+
+        # Obtener detalles adicionales
+        for detalle in self.detalleadicional.all():
+            detalles.append(f"<b>{detalle.detalle}</b> x <b>${detalle.precio}</b><br>")
+
+        return "\n".join(detalles)
+
+class VentaProductoDetalle(ModeloBase):
+    venta = models.ForeignKey(vVenta, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Venta', related_name='detalleproducto')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, verbose_name=u'Producto', related_name='productoventa')
+    lote = models.ForeignKey(LoteProducto, on_delete=models.CASCADE, verbose_name=u'Lote', related_name='detalleventa')
+    preciounitario = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio Unitario')
+    cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad')
+    total = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Total')
+
+class VentaServicioDetalle(ModeloBase):
+    venta = models.ForeignKey(vVenta, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Venta', related_name='detalleservicio')
+    servicio = models.ForeignKey(Trabajo, on_delete=models.CASCADE, verbose_name=u'servicio', related_name='servicioventa')
+    cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad')
+    total = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Total')
+
+class VentaAdicionalDetalle(ModeloBase):
+    venta = models.ForeignKey(vVenta, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Venta', related_name='detalleadicional')
+    detalle = models.CharField(max_length=5000, blank=True, null=True, verbose_name=u'Detalle del Trabajo')
+    # cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad')
+    precio = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio')
+

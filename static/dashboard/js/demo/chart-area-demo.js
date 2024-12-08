@@ -47,7 +47,6 @@ var myLineChart = new Chart(ctx, {
             pointHoverBorderColor: "rgba(78, 115, 223, 1)",
             pointHitRadius: 10,
             pointBorderWidth: 2,
-            data: [0, 25, 50, 75, 100, 125, 150] // Datos de ejemplo
         }],
     },
     options: {
@@ -109,7 +108,7 @@ var myLineChart = new Chart(ctx, {
             callbacks: {
                 label: function (tooltipItem, chart) {
                     var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-                    return datasetLabel + ': ' + tooltipItem.yLabel + ' unidades'; // Personalización del tooltip
+                    return datasetLabel + ': $' + tooltipItem.yLabel; // Personalización del tooltip
                 }
             }
         }

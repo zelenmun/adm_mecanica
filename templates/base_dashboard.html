@@ -83,18 +83,25 @@
         <div class="sidebar-heading">
             Módulos
         </div>
-
-        <!-- Nav Item - Pages Collapse Menu -->
-        <li class="nav-item {% if activo == 1 %}activom{% endif %}">
-            <a class="nav-link collapsed" href="{% url 'adm_servicio' %}" data-toggle="collapse"
-               data-target="#collapseTwo"
-               aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-fw fa-wrench"></i>
-                <span>Servicios</span>
-            </a>
-        </li>
-
-
+        {##}
+        {#        <!-- Nav Item - Pages Collapse Menu -->#}
+        {#        <li class="nav-item {% if activo == 1 %}activom{% endif %}">#}
+        {#            <a class="nav-link collapsed" href="{% url 'adm_servicio' %}" data-toggle="collapse"#}
+        {#               data-target="#collapseTwo"#}
+        {#               aria-expanded="true" aria-controls="collapseTwo">#}
+        {#                <i class="fas fa-fw fa-wrench"></i>#}
+        {#                <span>Servicios</span>#}
+        {#            </a>#}
+        {#        </li>#}
+        {##}
+        {##}
+        {#        <li class="nav-item {% if activo == 2 %}activom{% endif %}">#}
+        {#            <a class="nav-link collapsed" href="{% url 'adm_venta' %}" data-toggle="collapse" data-target="#collapseTwo"#}
+        {#               aria-expanded="true" aria-controls="collapseTwo">#}
+        {#                <i class="fa fa-store"></i>#}
+        {#                <span>Ventas</span>#}
+        {#            </a>#}
+        {#        </li>#}
         <li class="nav-item {% if activo == 2 %}activom{% endif %}">
             <a class="nav-link collapsed" href="{% url 'adm_venta' %}" data-toggle="collapse" data-target="#collapseTwo"
                aria-expanded="true" aria-controls="collapseTwo">
@@ -112,7 +119,8 @@
         </li>
 
         <li class="nav-item {% if activo == 4 %}activom{% endif %}">
-            <a class="nav-link collapsed" href="{% url 'gastonooperativo' %}" data-toggle="collapse" data-target="#collapseTwo"
+            <a class="nav-link collapsed" href="{% url 'gastonooperativo' %}" data-toggle="collapse"
+               data-target="#collapseTwo"
                aria-expanded="true" aria-controls="collapseTwo">
                 <i class="fas fa-fw fa-dollar-sign"></i>
                 <span>Gastos No Operativo</span>
