@@ -20,16 +20,21 @@ def view(request):
             if action == 'generarcuentasdia':
                 try:
                     response = HttpResponse(content_type="application/ms-excel")
-                    response['Content-Disposition'] = f'attachment; filename=excel_dia_{hoy.strftime('%Y_%m_%d')}.xls'
+                    fechaname = hoy.strftime('%Y_%m_%d')
+                    response['Content-Disposition'] = f'attachment; filename=excel_dia_{fechaname}.xls'
                     wb = xlwt.Workbook()
                     ws = wb.add_sheet('Sheetname')
                     estilo = xlwt.easyxf('font: height 300, name Arial, colour_index black, bold on; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin;')
                     estilo_general = xlwt.easyxf('font: height 220, name Arial; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
                     formato_fecha = xlwt.easyxf('align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin;', num_format_str='yyyy/mm/dd')
+                    estilo_cabecera = xlwt.easyxf('font: height 220, name Arial; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color gray_ega;')
 
                     ws.write_merge(0, 0, 0, 8,'TALLER DE SERVICIO MECÁNICO Y VENTA DE REPUESTOS DE MOTOS LINEALES SUPER MOTO',estilo)
 
-                    ws.col(0).width = 1000
+                    ws.write(2, 0, 'FECHA', estilo_general)
+                    ws.write(2, 1, hoy, formato_fecha)
+
+                    ws.col(0).width = 4000
                     ws.col(1).width = 12000
                     ws.col(2).width = 6000
                     ws.col(3).width = 8000
@@ -39,15 +44,15 @@ def view(request):
                     ws.col(7).width = 4000
                     ws.col(8).width = 4000
 
-                    ws.write(4, 0, 'ID', estilo_general)
-                    ws.write(4, 1, 'DETALLE', estilo_general)
-                    ws.write(4, 2, 'FECHA', estilo_general)
-                    ws.write(4, 3, 'CLIENTE', estilo_general)
-                    ws.write(4, 4, 'ABONO', estilo_general)
-                    ws.write(4, 5, 'SUBTOTAL', estilo_general)
-                    ws.write(4, 6, 'DESCUENTO', estilo_general)
-                    ws.write(4, 7, 'TOTAL', estilo_general)
-                    ws.write(4, 8, 'ESTADO', estilo_general)
+                    ws.write(4, 0, 'ID', estilo_cabecera)
+                    ws.write(4, 1, 'DETALLE', estilo_cabecera)
+                    ws.write(4, 2, 'FECHA', estilo_cabecera)
+                    ws.write(4, 3, 'CLIENTE', estilo_cabecera)
+                    ws.write(4, 4, 'ABONO', estilo_cabecera)
+                    ws.write(4, 5, 'SUBTOTAL', estilo_cabecera)
+                    ws.write(4, 6, 'DESCUENTO', estilo_cabecera)
+                    ws.write(4, 7, 'TOTAL', estilo_cabecera)
+                    ws.write(4, 8, 'ESTADO', estilo_cabecera)
 
                     a = 4
 

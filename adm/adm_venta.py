@@ -112,15 +112,15 @@ def view(request):
                 data['subtitle'] = u'Registro de ventas realizadas'
 
                 estado = request.GET.get('estado', None)
-                ventas = None
+                data['fechafiltro'] = fechafiltro = request.GET.get('fechafiltro', None)
+                ventas = vVenta.objects.filter(status=True)
+
                 if estado is not None:
                     estado = int(estado)
                     if estado > 0:
-                        ventas = vVenta.objects.filter(status=True, estado=estado)
-                    else:
-                        ventas = vVenta.objects.filter(status=True)
-                else:
-                    ventas = vVenta.objects.filter(status=True)
+                        ventas = ventas.filter(estado=estado)
+                if fechafiltro:
+                    ventas = ventas.filter(fecha_creacion__date=fechafiltro)
 
                 data['activo'] = 2
                 data['list'] = ventas
