@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Sum
-
+import xlwt
+from xlwt import XFStyle, easyxf
 from adm.models import (KardexProducto, vVenta, VentaProductoDetalle, VentaAdicionalDetalle, VentaServicioDetalle,
                         GastoNoOperativo)
 from datetime import datetime, timedelta, date
@@ -16,13 +17,63 @@ def view(request):
         if 'action' in request.GET:
             action = request.GET['action']
 
-            if action == 'cargarchartarea':
+            if action == 'generarcuentasdia':
                 try:
-                    valores = [130, 391, 492, 290, 930, 817, 245]
+                    response = HttpResponse(content_type="application/ms-excel")
+                    response['Content-Disposition'] = f'attachment; filename=excel_dia_{hoy.strftime('%Y_%m_%d')}.xls'
+                    wb = xlwt.Workbook()
+                    ws = wb.add_sheet('Sheetname')
+                    estilo = xlwt.easyxf('font: height 300, name Arial, colour_index black, bold on; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin;')
+                    estilo_general = xlwt.easyxf('font: height 220, name Arial; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
+                    formato_fecha = xlwt.easyxf('align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin;', num_format_str='yyyy/mm/dd')
 
-                    return JsonResponse({'valores': valores})
+                    ws.write_merge(0, 0, 0, 8,'TALLER DE SERVICIO MECÁNICO Y VENTA DE REPUESTOS DE MOTOS LINEALES SUPER MOTO',estilo)
+
+                    ws.col(0).width = 1000
+                    ws.col(1).width = 12000
+                    ws.col(2).width = 6000
+                    ws.col(3).width = 8000
+                    ws.col(4).width = 4000
+                    ws.col(5).width = 4000
+                    ws.col(6).width = 4000
+                    ws.col(7).width = 4000
+                    ws.col(8).width = 4000
+
+                    ws.write(4, 0, 'ID', estilo_general)
+                    ws.write(4, 1, 'DETALLE', estilo_general)
+                    ws.write(4, 2, 'FECHA', estilo_general)
+                    ws.write(4, 3, 'CLIENTE', estilo_general)
+                    ws.write(4, 4, 'ABONO', estilo_general)
+                    ws.write(4, 5, 'SUBTOTAL', estilo_general)
+                    ws.write(4, 6, 'DESCUENTO', estilo_general)
+                    ws.write(4, 7, 'TOTAL', estilo_general)
+                    ws.write(4, 8, 'ESTADO', estilo_general)
+
+                    a = 4
+
+                    date_format = xlwt.XFStyle()
+                    date_format.num_format_str = 'yyyy/mm/dd'
+
+                    #ventas = vVenta.objects.filter(status=True, fecha_creacion__date=hoy)
+                    ventas = vVenta.objects.filter(status=True)
+
+                    for venta in ventas:
+                        a += 1
+                        ws.write(a, 0, venta.id, estilo_general)  # ID
+                        ws.write(a, 1, venta.obtener_detalles_excel(), estilo_general)  # Detalle
+                        ws.write(a, 2, venta.fecha_venta.strftime('%Y-%m-%d'), formato_fecha)  # Fecha
+                        ws.write(a, 3, str(venta.cliente.persona if venta.cliente else "N/A"), estilo_general)  # Cliente
+                        ws.write(a, 4, venta.abono, estilo_general)  # Abono
+                        ws.write(a, 5, venta.subtotalventa, estilo_general)  # Subtotal
+                        ws.write(a, 6, venta.descuento, estilo_general)  # Descuento
+                        ws.write(a, 7, venta.totalventa, estilo_general)  # Total
+                        ws.write(a, 8, venta.get_estado_display(), estilo_general)  # Estado
+
+                    wb.save(response)
+                    return response
                 except Exception as ex:
-                    return JsonResponse({'valores': [0]})
+                    pass
+
         else:
             try:
                 data['buscador'] = True
@@ -32,15 +83,17 @@ def view(request):
                 totalservicios = calcular_total_servicios(hoy)
                 totalrepuestos = calcular_total_repuestos(hoy)
                 totaldetalles = calcular_total_detalles(hoy)
-                totalegresos = calcular_total_egreso(lunes)
+                totaldescuentos = calcular_total_descuentos(hoy)
+                totalegresos = calcular_total_egreso(hoy)
 
-                totalingreso = (totalservicios + totalrepuestos + totaldetalles) - totalegresos
+                balancegeneral = (totalservicios + totalrepuestos + totaldetalles) - (totalegresos + totaldescuentos)
 
                 data['totalservicios'] = f'{totalservicios}'
                 data['totalrepuestos'] = f'{totalrepuestos}'
 
-                data['balancegeneral'] = f'{totalingreso}'
+                data['balancegeneral'] = f'{balancegeneral}'
                 data['totalegresos'] = f'{totalegresos}'
+                data['totaldescuentos'] = f'{totaldescuentos}'
                 data['dashboardatras'] = True
 
                 ventasdia = vVenta.objects.filter(status=True, fecha_venta__date=hoy)
@@ -51,9 +104,6 @@ def view(request):
                 return HttpResponse(f"Método no soportado {str(ex)}")
 
 def calcular_total_servicios(hoy):
-    """
-    Calcula el precio total de los trabajos del día con estado True.
-    """
     try:
         resultado = VentaServicioDetalle.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('total'))
         return resultado['total'] or 0
@@ -61,9 +111,6 @@ def calcular_total_servicios(hoy):
         return 0
 
 def calcular_total_repuestos(hoy):
-    """
-    Calcula el precio total de los repuestos vendidos del día con estado True.
-    """
     try:
         resultado = VentaProductoDetalle.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('total'))
         return resultado['total'] or 0
@@ -71,22 +118,23 @@ def calcular_total_repuestos(hoy):
         return 0
 
 def calcular_total_detalles(hoy):
-    """
-    Calcula el precio total de los repuestos vendidos del día con estado True.
-    """
     try:
         resultado = VentaAdicionalDetalle.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('precio'))
         return resultado['total'] or 0
     except Exception as e:
         return 0
 
-def calcular_total_egreso(lunes):
-    """
-    Calcula el precio total de los repuestos vendidos del día con estado True.
-    """
+def calcular_total_descuentos(hoy):
     try:
-        resultado = KardexProducto.objects.filter(status=True, tipo_movimiento=1,fecha_creacion__gte=lunes).aggregate(total=Sum('costo_total'))
-        resultado2 = GastoNoOperativo.objects.filter(status=True, fecha_creacion__gte=lunes).aggregate(total=Sum('valor'))
+        resultado = vVenta.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('descuento'))
+        return resultado['total'] or 0
+    except Exception as e:
+        return 0
+
+def calcular_total_egreso(hoy):
+    try:
+        resultado = KardexProducto.objects.filter(status=True, tipo_movimiento=1,fecha_creacion__date=hoy).aggregate(total=Sum('costo_total'))
+        resultado2 = GastoNoOperativo.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('valor'))
 
         valor1 = 0
         valor2 = 0

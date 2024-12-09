@@ -237,6 +237,23 @@ class vVenta(ModeloBase):
 
         return "\n".join(detalles)
 
+    def obtener_detalles_excel(self):
+        detalles = []
+
+        # Obtener detalles de productos
+        for detalle in self.detalleproducto.all():
+            detalles.append(f"{detalle.producto.nombre} x {detalle.cantidad} x ${detalle.preciounitario}")
+
+        # Obtener detalles de servicios
+        for detalle in self.detalleservicio.all():
+            detalles.append(f"{detalle.servicio} x {detalle.cantidad} x ${detalle.total}")
+
+        # Obtener detalles adicionales
+        for detalle in self.detalleadicional.all():
+            detalles.append(f"{detalle.detalle} x ${detalle.precio}")
+
+        return "\n".join(detalles)
+
     def obtener_deuda(self):
         return f'<b style="color: salmon">${self.totalventa - self.abono}</b>'
 
