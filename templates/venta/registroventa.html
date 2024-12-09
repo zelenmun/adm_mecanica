@@ -441,13 +441,12 @@
                     confirmButtonText: "Eliminar"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Obtener la fila con DataTables API
                         const table = $('#dataTable').DataTable();
                         const fila = $(this).closest('tr');
-                        const row = table.row(fila);  // Usar .row() para obtener la fila con DataTables
+                        const row = table.row(fila);
 
-                        // Eliminar la fila
-                        row.remove().draw(); // Eliminar la fila y redibujar la tabla
+                        row.remove().draw();
+
                         Swal.fire({
                             position: "center",
                             icon: "success",
@@ -455,9 +454,8 @@
                             showConfirmButton: false,
                             timer: 1000
                         })
-                        $('#id_preciosd').val('')
-                        $('#id_preciot').val('')
-                        $('#id_addproducto').removeClass('disabled');
+
+                        calcularTotales();
                     }
                 });
             });

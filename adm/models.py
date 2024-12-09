@@ -10,7 +10,7 @@ class Cliente(ModeloBase):
     deuda_pendiente = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=u'Deuda del cliente')
 
     def __str__(self):
-        return f'{self.persona} <br> DEBE: <b style="color: salmon">${self.deuda_pendiente}</b>'
+        return f'<li>{self.persona}</li> <li>DEBE: <b style="color: salmon">${self.deuda_pendiente}</b></li>'
 
 class Vehiculo(ModeloBase):
     propietario = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name=u'Persona', related_name='vehiculo', blank=True, null=True)
@@ -73,10 +73,7 @@ class Producto(ModeloBase):
 
     def lote_actual(self):
         """Devuelve el lote actual con stock disponible."""
-        return LoteProducto.objects.filter(
-            producto=self,
-            cantidad__gt=0  # Solo lotes con stock disponible
-        ).order_by('fecha_adquisicion').first()
+        return LoteProducto.objects.filter(producto=self, cantidad__gt=0).order_by('fecha_adquisicion').first()
 
 class LoteProducto(ModeloBase):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, verbose_name=u'Producto', related_name='loteproducto')
@@ -207,15 +204,15 @@ class GastoNoOperativo(ModeloBase):
     valor = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Valor del Gasto')
 
 ESTADO_VENTA = (
+    (0, u'--------------'),
     (1, u'PENDIENTE'),
-    (2, u'PAGADO'),
-    (3, u'DEVUELTO')
+    (2, u'PAGADO')
 )
 
 class vVenta(ModeloBase):
     fecha_venta = models.DateTimeField(blank=True, null=True, verbose_name=u'Fecha de Venta')
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Cliente', related_name='trabajos')
-    trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Trabajador', related_name='trabajos')
+    #trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Trabajador', related_name='trabajos')
     descuento = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Descuento')
     totalventa = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio Total')
     subtotalventa = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Subtotal')
@@ -228,17 +225,20 @@ class vVenta(ModeloBase):
 
         # Obtener detalles de productos
         for detalle in self.detalleproducto.all():
-            detalles.append(f"<b>{detalle.producto.nombre}</b> x <b>{detalle.cantidad}</b> x <b>${detalle.preciounitario}</b><br>")
+            detalles.append(f"<li><b>{detalle.producto.nombre}</b> x <b>{detalle.cantidad}</b> x <b>${detalle.preciounitario}</b></li>")
 
         # Obtener detalles de servicios
         for detalle in self.detalleservicio.all():
-            detalles.append(f"<b>{detalle.servicio}</b> x <b>{detalle.cantidad}</b> x <b>${detalle.total}</b><br>")
+            detalles.append(f"<li><b>{detalle.servicio}</b> x <b>{detalle.cantidad}</b> x <b>${detalle.total}</b></li>")
 
         # Obtener detalles adicionales
         for detalle in self.detalleadicional.all():
-            detalles.append(f"<b>{detalle.detalle}</b> x <b>${detalle.precio}</b><br>")
+            detalles.append(f"<li><b>{detalle.detalle}</b> x <b>${detalle.precio}</b></li>")
 
         return "\n".join(detalles)
+
+    def obtener_deuda(self):
+        return f'<b style="color: salmon">${self.totalventa - self.abono}</b>'
 
 class VentaProductoDetalle(ModeloBase):
     venta = models.ForeignKey(vVenta, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Venta', related_name='detalleproducto')

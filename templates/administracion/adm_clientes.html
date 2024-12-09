@@ -2,6 +2,58 @@
 
 {% block extrahead %}
     <script>
+        function saldarDeuda(nombre, cantidad, action, id) {
+            Swal.fire({
+                html: `Estás por saldar la deuda de <b>$${cantidad}</b> perteneciente a <b>${nombre}</b> `,
+                text: "Esta acción es irreversible",
+                type: 'warning',
+                icon: 'warning',
+                showCancelButton: true,
+                allowOutsideClick: false,
+                confirmButtonText: 'Saldar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.value) {
+                    bloqueointerface();
+                    $.ajax({
+                        url: "{{ request.path }}",
+                        type: "POST",
+                        data: {
+                            action: action,
+                            id: id
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            $.unblockUI();
+                            if (data.result === true) {
+                                Swal.fire({
+                                    position: "top-end",
+                                    icon: "success",
+                                    title: "Has cancelado la deuda exitosamente!",
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: "error",
+                                    type: "error",
+                                    title: "Oops...!",
+                                    html: `<p><b>${data.mensaje}</b></p><hr>${data.detalle}`
+                                });
+                            }
+                        },
+                        error: function () {
+                            $.unblockUI();
+                            mensajeWarning("Error en la comunicación con el servidor.");
+                        }
+                    });
+
+                }
+            })
+        }
+
         $(function () {
             var table = $('#dataTable').DataTable();
             table.order([0, 'desc']).draw();
@@ -88,8 +140,9 @@
                                                 <span class="text" style="flex-grow: 1;">Registrar Deuda</span>
                                             </a>
 
-                                            <a class="dropdown-item" href="javascript:void(0);" style="display: flex; align-items: center;"
-                                            onclick="saldarDeuda('{{ l.persona.nombre }} {{ l.persona.apellido1 }}', {{ l.deuda_pendiente }}, 'saldardeuda', '{{ l.id }}')">
+                                            <a class="dropdown-item" href="javascript:void(0);"
+                                               style="display: flex; align-items: center;"
+                                               onclick="saldarDeuda('{{ l.persona.nombre }} {{ l.persona.apellido1 }}', '{{ l.deuda_pendiente }}', 'saldardeuda', '{{ l.id }}')">
                                                 <span class="icon text-gray-600"
                                                       style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
                                                     <i class="fas fa-handshake"></i>
@@ -109,57 +162,3 @@
         </div>
     </div>
 {% endblock %}
-<script>
-    function saldarDeuda(nombre, cantidad, action, id) {
-                Swal.fire({
-                    html: `Estás por saldar la deuda de <b>${nombre}</b>, la que consta de ${cantidad}`,
-                    text: "Esta acción es irreversible",
-                    type: 'warning',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    allowOutsideClick: false,
-                    confirmButtonText: 'Saldar!',
-                    cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.value) {
-                        bloqueointerface();
-                        $.ajax({
-                            url: "{{ request.path }}",
-                            type: "POST",
-                            data: {
-                                action: action,
-                                id: id
-                            },
-                            dataType: "json",
-                            success: function (data) {
-                                $.unblockUI();
-                                if (data.result === true) {
-                                    Swal.fire({
-                                        position: "top-end",
-                                        icon: "success",
-                                        title: "Has cancelado la deuda exitosamente!",
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    }).then(() => {
-                                        location.reload();
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        icon: "error",
-                                        type: "error",
-                                        title: "Oops...!",
-                                        html: `<p><b>${data.mensaje}</b></p><hr>${data.detalle}`
-                                    });
-                                }
-                            },
-                            error: function () {
-                                $.unblockUI();
-                                mensajeWarning("Error en la comunicación con el servidor.");
-                            }
-                        });
-
-                    } else {
-                    }
-                })
-            }
-</script>

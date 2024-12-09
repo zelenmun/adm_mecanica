@@ -1,22 +1,12 @@
 {% extends 'base_dashboard.html' %}
 {% block extrahead %}
     <script>
-        function actualizarGrafica() {
-            $.ajax({
-                url: '{% url 'adm_main' %}',
-                type: 'GET',
-                dataType: 'json',
-                data: {'action': 'cargarchartarea'},
-                success: function (response) {
-                    myLineChart.data.datasets[0].data = response.valores;
-                    myLineChart.update();
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error al obtener datos:", error);
-                }
-            });
-        }
-        actualizarGrafica();
+        $(function () {
+            const table = $('#dataTable').DataTable();
+            table.order([0, 'desc']).draw();
+            const $estado = $('#id_estado');
+            $estado.select2()
+        })
     </script>
     {% include 'importcharts.html' %}
 {% endblock %}
@@ -26,8 +16,8 @@
         <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">{{ title }}</h1>
-            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                    class="fas fa-download fa-sm text-white-50"></i> Reporte General</a>
+            <a href="{% url 'registroventa' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                    class="fas fa-plus fa-sm text-white-50"></i> Registrar Venta</a>
         </div>
 
         <!-- Content Row -->
@@ -42,7 +32,7 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Ganancias Desde Lunes<br> {{ lunes }}
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ totalingreso }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ balancegeneral }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -60,12 +50,12 @@
                            style="text-decoration: none;">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Ventas
+                                    Repuestos (HOY)
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ totalventas }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ totalrepuestos }}</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fa fa-store fa-2x text-gray-300"></i>
+                                <i class="fa fa-cogs fa-2x text-gray-300"></i>
                             </div>
                         </a>
                     </div>
@@ -80,7 +70,7 @@
                            style="text-decoration: none;">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Servicios
+                                    Servicios (HOY)
                                 </div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">${{ totalservicios }}</div>
                             </div>
@@ -94,33 +84,14 @@
 
             <!-- Pending Requests Card Example -->
             <div class="col-xl-2 col-md-6 mb-4">
-                <div class="card border-left-warning shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Ingresos
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ ingresos }}</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-chart-line fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pending Requests Card Example -->
-            <div class="col-xl-2 col-md-6 mb-4">
                 <div class="card border-left-danger shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                    Egresos
+                                    Egresos (DESDE LUNES)
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ data.ingresos }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">${{ totalegresos }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-arrow-down fa-2x text-gray-300"></i>
@@ -136,89 +107,51 @@
         <div class="row">
 
             <!-- Area Chart -->
-            <div class="col-xl-8 col-lg-7">
+            <div class="col-xl-12 col-lg-7">
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Resumen de ganancias</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">Resumen de ganancias de hoy</h6>
                     </div>
                     <!-- Card Body -->
                     <div class="card-body">
-                        <div class="chart-area">
-                            <canvas id="chartDiasSemana"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pie Chart -->
-            <div class="col-xl-4 col-lg-5">
-                <div class="card shadow mb-4">
-                    <!-- Card Header - Dropdown -->
-                    <div
-                            class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Fuente de Ingresos</h6>
-                    </div>
-                    <!-- Card Body -->
-                    <div class="card-body">
-                        <div class="chart-pie pt-4 pb-2">
-                            <canvas id="myPieChart"></canvas>
-                        </div>
-                        <div class="mt-4 text-center small">
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-primary"></i> Direct
-                            </span>
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                <tr>
+                                    <th style="width: .1%">ID</th>
+                                    <th style="width: 2%">Detalle</th>
+                                    <th style="width: .5%">Fecha</th>
+                                    <th style="width: .8%">Cliente</th>
+                                    <th style="width: .1%">Abono</th>
+                                    <th style="width: .1%">Subtotal</th>
+                                    <th style="width: .1%">Descuento</th>
+                                    <th style="width: .1%">Total</th>
+                                    <th style="width: .1%;">Estado</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for l in list %}
+                                    <tr>
+                                        <td>{{ l.id }}</td>
+                                        <td style="font-size: 12px">{{ l.obtener_detalles|safe }}</td>
+                                        <td>{{ l.fecha_venta|date:"d-m-Y" }}</td>
+                                        <td style="font-size: 12px">{{ l.cliente|default_if_none:""|safe }}</td>
+                                        <td style="color:{% if l.abono == 0 %}salmon{% elif l.abono == l.totalventa %}#1cc88a{% else %}#2e59d9{% endif %}">
+                                            <b>${{ l.abono }}</b></td>
+                                        <td>${{ l.subtotalventa }}</td>
+                                        <td>${{ l.descuento }}</td>
+                                        <td style="color: salmon"><b>${{ l.totalventa }}</b></td>
+                                        <td style="color:{% if l.estado == 1 %}salmon{% elif l.estado == 2 %}#1cc88a{% endif %}">
+                                            <b>{{ l.get_estado_display }}</b></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Content Row -->
-        <div class="row">
-            <!-- Content Column -->
-            <div class="col-lg-6 mb-4">
-                <!-- Project Card Example -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Lo más vendido</h6>
-                    </div>
-                    {% for l in mostsell %}
-                        <div class="card-body">
-                            <h4 class="small font-weight-bold">{{ l.nombre }} <span
-                                    class="float-right">{{ l.porcentaje }}%</span></h4>
-                            <div class="progress mb-4">
-                                <div class="progress-bar bg-danger" role="progressbar"
-                                     style="width: {{ l.porcentaje }}%"
-                                     aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="col-lg-6 mb-4">
-                <!-- Project Card Example -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Servicios más populares</h6>
-                    </div>
-
-                    {% for l in mostpopular %}
-                        <div class="card-body">
-                            <h4 class="small font-weight-bold">{{ l.nombre }} <span
-                                    class="float-right">{{ l.porcentaje }}%</span></h4>
-                            <div class="progress mb-4">
-                                <div class="progress-bar bg-danger" role="progressbar"
-                                     style="width: {{ l.porcentaje }}%"
-                                     aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                    {% endfor %}
-
-                </div>
-            </div>
-        </div>
-
     </div>
 {% endblock %}

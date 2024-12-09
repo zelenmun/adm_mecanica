@@ -113,8 +113,8 @@
         <li class="nav-item {% if activo == 3 %}activom{% endif %}">
             <a class="nav-link collapsed" href="{% url 'productos' %}" data-toggle="collapse" data-target="#collapseTwo"
                aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-fw fa-shopping-bag"></i>
-                <span>Compras</span>
+                <i class="fas fa-fw fa-cogs"></i>
+                <span>Repuestos</span>
             </a>
         </li>
 
@@ -587,7 +587,7 @@
         $('a').on('click', function (e) {
             e.preventDefault();
             var targetUrl = $(this).attr('href');
-            if (targetUrl !== undefined && targetUrl !== '#' && targetUrl !== 'javascript:void(0);' && targetUrl !== '') {
+            if (targetUrl !== undefined && targetUrl !== '#' && targetUrl !== 'javascript:void(0);' && targetUrl !== '' && targetUrl !== '#page-top') {
                 bloqueointerface()
                 setTimeout(function () {
                     $.unblockUI();

@@ -1,6 +1,7 @@
 from email.policy import default
 
 from django import forms
+from django.db.models import Exists, OuterRef
 from django.contrib.admin.widgets import AutocompleteSelect
 from core.models import Persona
 from core.modeloform import FormModeloBase
@@ -98,7 +99,7 @@ class GastoNoOperativoForm(FormModeloBase):
     detalle = forms.CharField(label=u'Detalle', required=False, widget=forms.Textarea(attrs={'rows': '1', 'placeholder': 'Detalle del Gasto...', 'class': 'form-control', 'col': '12'}))
 
 class VentaProductoForm(FormModeloBase):
-    producto = forms.ModelChoiceField(label=u'Producto', queryset=Producto.objects.filter(status=True), required=False, widget=forms.Select(attrs={'col': '3', 'class': 'form-control'}))
+    producto = forms.ModelChoiceField(label=u'Producto', queryset=Producto.objects.filter(status=True).filter(Exists(LoteProducto.objects.filter(producto=OuterRef('pk'), cantidad__gt=0))), required=False, widget=forms.Select(attrs={'col': '3', 'class': 'form-control'}))
     lote = forms.ModelChoiceField(label=u'Lote', queryset=LoteProducto.objects.none(), required=False, widget=forms.Select(attrs={'col': '3', 'class': 'form-control'}))
     precioproducto = forms.DecimalField(label=u'Precio', max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col': '3', 'placeholder': 'Precio'}))
     pcantidad = forms.IntegerField(label=u'Cantidad', min_value=1, required=False, widget=forms.NumberInput(attrs={'col': '3', 'class': 'form-control', 'placeholder': 'Cantidad'}))
