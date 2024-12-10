@@ -8,6 +8,9 @@
             var maxproductos = 0;
             var precioproducto = 0;
             var precioservicio = 0;
+
+            var $pcantidad = $('#id_pcantidad')
+
             let typingTimer;
             const typingDelay = 300;
             var table = $('#dataTable').DataTable();
@@ -233,7 +236,11 @@
                 }
             });
 
-            $('#id_pcantidad').on('keyup click', manejarCambioCantidad);
+            $pcantidad.on('keyup click', evitarDecimales);
+
+            $pcantidad.on('keyup click', manejarCambioCantidad);
+
+            $('#id_scantidad').on('keyup click', evitarDecimales);
 
             $('#id_descuento').on('keyup click', manejarCambioDescuento);
 
@@ -568,7 +575,7 @@
                     $('#id_preciototal').text('$' + total);
                 }, typingDelay);
 
-                if($('#id_abono').val() > total){
+                if ($('#id_abono').val() > total) {
                     $('#id_abono').val(total)
                 }
             }
@@ -632,12 +639,11 @@
             }
 
             function manejarCambioCantidad() {
-                if ($(this).val() > parseInt(maxproductos, 10)) {
-                    $(this).val(maxproductos)
+                if ($pcantidad.val() > parseInt(maxproductos, 10)) {
+                    $pcantidad.val(maxproductos)
                 }
 
-                const $cantidad = $('#id_pcantidad');
-                if ($cantidad.val() !== '' && $cantidad.val() > 0) {
+                if ($pcantidad.val() !== '' && $pcantidad.val() > 0) {
                     clearTimeout(typingTimer);
                     typingTimer = setTimeout(calcularTotal, typingDelay);
                 }
@@ -657,6 +663,13 @@
                 if ($cantidad.val() !== '' && $cantidad.val() > 0) {
                     clearTimeout(typingTimer);
                     typingTimer = setTimeout(calcularTotal, typingDelay);
+                }
+            }
+
+            function evitarDecimales(){
+                var valor = $(this).val();
+                if (valor % 1 !== 0) {
+                    $(this).val(0);
                 }
             }
         })

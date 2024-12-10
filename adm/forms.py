@@ -89,7 +89,7 @@ class RegistroServicioForm(FormModeloBase):
     trabajador = forms.ModelChoiceField(label=u'Mecánico', queryset=Trabajador.objects.filter(status=True), required=False, widget=forms.Select(attrs={'col': '4', 'class': 'form-control'}))
     # preciou = forms.CharField(label=u'Precio Unitario ($)', max_length=500, required=False, widget=forms.TextInput(attrs={'col': '4', 'class': 'form-control', 'placeholder': 'Precio Unitario', 'separator': 'true',"separatortitle":'Detalle del servicio'}))
     # precios = forms.CharField(label=u'Total Producto($)', max_length=500, required=False, widget=forms.TextInput(attrs={'col': '4', 'class': 'form-control', 'placeholder': 'Total'}))
-    abono = forms.DecimalField(label=u'Abono ($)', max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col': '4', 'separator': 'true',"separatortitle":'Detalle general de la venta', 'placeholder': 'Pago del Cliente'}))
+    abono = forms.DecimalField(label=u'Abono ($)', min_value=0, max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col': '4', 'separator': 'true',"separatortitle":'Detalle general de la venta', 'placeholder': 'Pago del Cliente'}))
     descuento = forms.DecimalField(label=u'Descuento ($)', min_value=0,max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col':'4', 'placeholder': 'Descuento de la Venta'}))
     detalle = forms.CharField(label=u'Detalle', required=False, widget=forms.Textarea(attrs={'rows': '1', 'placeholder': 'Información Adicional', 'class': 'form-control', 'col': '4'}))
 
@@ -113,11 +113,11 @@ class VentaServicioForm(FormModeloBase):
 class VentaAdicionalForm(FormModeloBase):
     detalle = forms.CharField(label=u'Detalle', required=False, widget=forms.Textarea(attrs={'rows': '1', 'placeholder': 'Información Adicional', 'class': 'form-control', 'col': '9'}))
     #compra = forms.DecimalField(label=u'Compra', max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col': '3', 'placeholder': 'Compra'}))
-    ganancia = forms.DecimalField(label=u'Ganancia', max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col': '3', 'placeholder': 'Ganancia', 'step': '1'}))
+    ganancia = forms.DecimalField(label=u'Ganancia', min_value=0, max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col': '3', 'placeholder': 'Ganancia', 'step': '1'}))
     #dcantidad = forms.IntegerField(label=u'Cantidad', min_value=1, required=False, widget=forms.NumberInput(attrs={'col': '3', 'class': 'form-control', 'placeholder': 'Cantidad'}))
 
 class PagoClienteForm(FormModeloBase):
-    abono = forms.DecimalField(label=u'Abono', max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col': '12', 'placeholder': 'Pago del Cliente', 'step': '1'}))
+    abono = forms.DecimalField(label=u'Abono', min_value=0, max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col': '12', 'placeholder': 'Pago del Cliente', 'step': '1'}))
     descuento = forms.DecimalField(label=u'Descuento', min_value=0, max_digits=10, decimal_places=2, required=False, widget=forms.NumberInput(attrs={'decimal': '2', 'col': '12', 'placeholder': 'Descuento de la Venta', 'step': '1'}))
 
 
