@@ -204,7 +204,7 @@ class GastoNoOperativo(ModeloBase):
     valor = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Valor del Gasto')
 
 ESTADO_VENTA = (
-    (0, u'--------------'),
+    (0, u'TODO'),
     (1, u'PENDIENTE'),
     (2, u'PAGADO')
 )

@@ -19,6 +19,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            min-height: 100vh; /* Esto asegura que la página tiene al menos el tamaño de una hoja A4 */
         }
 
         h3 {
@@ -51,6 +52,11 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            page-break-inside: auto;
+        }
+
+        thead {
+            display: table-header-group;
         }
 
         th, td {
@@ -87,12 +93,26 @@
             background-color: #f9f9f9;
         }
 
-        /* Total section */
-        #factura-total {
-            font-size: 14px;
-            font-weight: 700;
+        /* Para el footer */
+        @page {
+            margin: 0;
         }
 
+        body {
+            margin-bottom: 50px; /* Asegura espacio suficiente para el footer en la última página */
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 12px;
+            color: #6c757d;
+            background-color: #f8f9fa; /* Para hacer que el footer sea visible en cada página */
+            border-top: 1px solid #dee2e6;
+        }
     </style>
 </head>
 <body>
@@ -108,13 +128,20 @@
     <div class="mb-4">
         <h5 class="text-primary">Información de la venta.</h5>
         <p id="factura-texto" style="font-size: 12px">Este documento corresponde a una Nota de Venta emitida a
-            <b>{{ persona }}</b>{% if persona != 'CONSUMIDOR FINAL' %} con cédula <b>{{ persona.cedula }}</b>{% endif %}, quien recibió atención el día {{ fecha }}
+            <b>{{ persona }}</b>{% if persona != 'CONSUMIDOR FINAL' %} con cédula <b>{{ persona.cedula }}</b>
+            {% endif %}, quien recibió atención el día {{ fecha }}
             <br><br>
             El total de la transacción asciende a <b>${{ totalventa }}</b> incluyendo un descuento de ${{ descuento }},
             correspondiente a servicios de reparación de
             motocicletas lineales y venta de repuestos.</p>
+
+        <p style="font-size: 12px">El estado actual de esta venta es: <span
+                style="color: {% if venta.estado == 1 %}#d56345{% else %}#1cc88a{% endif %}"><b>{{ venta.get_estado_display }}</b></span>
+        </p>
         {% if venta.estado == 1 %}
-            <p style="font-size: 12px">El cliente mantiene una deuda de <b>${{ pendiente }}</b>, respecto a este servicio.</p>
+            <p style="font-size: 12px; color: #d56345">El cliente mantiene una deuda de <b>${{ pendiente }}</b>,
+                respecto a este
+                servicio.</p>
         {% endif %}
     </div>
 
@@ -158,15 +185,32 @@
         </table>
     </div>
 
-    <div>
-        <p style="font-size: 12px">El estado actual de esta venta es: <span style="color: {% if venta.estado == 1 %}salmon{% else %}#1cc88a{% endif %}"><b>{{ venta.get_estado_display }}</b></span></p>
-        <div class="text-right mt-4">
-            <h5>Subtotal: <span>${{ subtotalventa }}</span></h5>
-            <h5>Descuento: <span>${{ descuento }}</span></h5>
-            <h5>Total: <span>${{ totalventa }}</span></h5>
+    <div style="width: 100%">
+        <div class="table-responsive mt-4" style="width: 30%; margin-left: auto">
+            <table class="table table-bordered">
+                <tbody>
+                <tr>
+                    <td class="text-right"><strong>Subtotal:</strong></td>
+                    <td class="text-right">${{ subtotalventa }}</td>
+                </tr>
+                <tr>
+                    <td class="text-right"><strong>Descuento:</strong></td>
+                    <td class="text-right">${{ descuento }}</td>
+                </tr>
+                <tr>
+                    <td class="text-right"><strong>Total:</strong></td>
+                    <td class="text-right">${{ totalventa }}</td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
+    <footer>
+        <p>Desarrollado por Zelen - 0984576094</p>
+    </footer>
 </div>
+
+
 </body>
 </html>

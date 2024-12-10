@@ -4,7 +4,7 @@ from django.db.models import Sum
 import xlwt
 from xlwt import XFStyle, easyxf
 from adm.models import (KardexProducto, vVenta, VentaProductoDetalle, VentaAdicionalDetalle, VentaServicioDetalle,
-                        GastoNoOperativo)
+                        GastoNoOperativo, Producto, LoteProducto)
 from datetime import datetime, timedelta, date
 def view(request):
     data = {}
@@ -24,18 +24,42 @@ def view(request):
                     response['Content-Disposition'] = f'attachment; filename=excel_dia_{fechaname}.xls'
                     wb = xlwt.Workbook()
                     ws = wb.add_sheet('Sheetname')
-                    estilo = xlwt.easyxf('font: height 300, name Arial, colour_index black, bold on; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin;')
-                    estilo_general = xlwt.easyxf('font: height 220, name Arial; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
-                    formato_fecha = xlwt.easyxf('align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin;', num_format_str='yyyy/mm/dd')
-                    estilo_cabecera = xlwt.easyxf('font: height 220, name Arial; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color gray_ega;')
 
-                    ws.write_merge(0, 0, 0, 8,'TALLER DE SERVICIO MECÁNICO Y VENTA DE REPUESTOS DE MOTOS LINEALES SUPER MOTO',estilo)
+                    wb.set_colour_RGB(0x21, 180, 198, 231)
 
-                    ws.write(2, 0, 'FECHA', estilo_general)
-                    ws.write(2, 1, hoy, formato_fecha)
+                    estilo = xlwt.easyxf('font: height 300, name Calibri, colour_index black, bold on; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color 0x21;')
+                    estilo_general = xlwt.easyxf('font: height 220, name Calibri; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
+                    formato_fecha = xlwt.easyxf('font: height 220, name Calibri; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin;', num_format_str='yyyy/mm/dd')
+                    formato_fecha2 = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color 0x21;', num_format_str='yyyy/mm/dd')
+                    # estilo_cabecera = xlwt.easyxf('font: height 220, name Arial; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color gray25;')
+                    # estilo_cabecera = xlwt.easyxf('font: height 220, name Arial; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color ice_blue;')
+                    estilo_cabecera = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color 0x21;')
+                    estilo_cabecera2 = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color 0x21;')
+                    estilo_totales = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
+                    estilo_totales2 = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
+                    estilo_moneda = xlwt.easyxf('font: height 220, name Calibri; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
 
+                    estilo_moneda.num_format_str = '$#,##0.00'
+                    estilo_totales.num_format_str = '$#,##0.00'
+
+                    a = 1
+
+                    ws.write_merge(a, a, 0, 8,'TALLER DE SERVICIO MECÁNICO Y VENTA DE REPUESTOS DE MOTOS LINEALES SUPER MOTO',estilo)
+
+                    a += 2
+
+                    ws.write(a, 0, 'FECHA', formato_fecha2)
+                    ws.write(a, 1, hoy, formato_fecha2)
+
+                    a += 2
+
+                    ws.write_merge(a, a, 0, 8,'TABLA DE INFORMACIÓN DE VENTAS',estilo_cabecera2)
+
+                    a += 1
+
+                    ws.row(1).height = 1000
                     ws.col(0).width = 4000
-                    ws.col(1).width = 12000
+                    ws.col(1).width = 14000
                     ws.col(2).width = 6000
                     ws.col(3).width = 8000
                     ws.col(4).width = 4000
@@ -44,36 +68,108 @@ def view(request):
                     ws.col(7).width = 4000
                     ws.col(8).width = 4000
 
-                    ws.write(4, 0, 'ID', estilo_cabecera)
-                    ws.write(4, 1, 'DETALLE', estilo_cabecera)
-                    ws.write(4, 2, 'FECHA', estilo_cabecera)
-                    ws.write(4, 3, 'CLIENTE', estilo_cabecera)
-                    ws.write(4, 4, 'ABONO', estilo_cabecera)
-                    ws.write(4, 5, 'SUBTOTAL', estilo_cabecera)
-                    ws.write(4, 6, 'DESCUENTO', estilo_cabecera)
-                    ws.write(4, 7, 'TOTAL', estilo_cabecera)
-                    ws.write(4, 8, 'ESTADO', estilo_cabecera)
-
-                    a = 4
+                    ws.write(a, 0, 'ID', estilo_cabecera)
+                    ws.write(a, 1, 'DETALLE', estilo_cabecera)
+                    ws.write(a, 2, 'FECHA', estilo_cabecera)
+                    ws.write(a, 3, 'CLIENTE', estilo_cabecera)
+                    ws.write(a, 4, 'ABONO', estilo_cabecera)
+                    ws.write(a, 5, 'SUBTOTAL', estilo_cabecera)
+                    ws.write(a, 6, 'DESCUENTO', estilo_cabecera)
+                    ws.write(a, 7, 'TOTAL', estilo_cabecera)
+                    ws.write(a, 8, 'ESTADO', estilo_cabecera)
 
                     date_format = xlwt.XFStyle()
                     date_format.num_format_str = 'yyyy/mm/dd'
 
-                    #ventas = vVenta.objects.filter(status=True, fecha_creacion__date=hoy)
+                    # ventas = vVenta.objects.filter(status=True, fecha_creacion__date=hoy)
                     ventas = vVenta.objects.filter(status=True)
 
                     for venta in ventas:
                         a += 1
-                        ws.write(a, 0, venta.id, estilo_general)  # ID
-                        ws.write(a, 1, venta.obtener_detalles_excel(), estilo_general)  # Detalle
-                        ws.write(a, 2, venta.fecha_venta.strftime('%Y-%m-%d'), formato_fecha)  # Fecha
-                        ws.write(a, 3, str(venta.cliente.persona if venta.cliente else "N/A"), estilo_general)  # Cliente
-                        ws.write(a, 4, venta.abono, estilo_general)  # Abono
-                        ws.write(a, 5, venta.subtotalventa, estilo_general)  # Subtotal
-                        ws.write(a, 6, venta.descuento, estilo_general)  # Descuento
-                        ws.write(a, 7, venta.totalventa, estilo_general)  # Total
-                        ws.write(a, 8, venta.get_estado_display(), estilo_general)  # Estado
+                        ws.write(a, 0, venta.id, estilo_general)
+                        ws.write(a, 1, venta.obtener_detalles_excel(), estilo_general)
+                        ws.write(a, 2, venta.fecha_venta.strftime('%Y-%m-%d'), formato_fecha)
+                        ws.write(a, 3, str(venta.cliente.persona if venta.cliente else "CONSUMIDOR FINAL"), estilo_general)  # Cliente
+                        ws.write(a, 4, venta.abono, estilo_moneda)
+                        ws.write(a, 5, venta.subtotalventa, estilo_moneda)
+                        ws.write(a, 6, venta.descuento, estilo_moneda)
+                        ws.write(a, 7, venta.totalventa, estilo_moneda)
+                        ws.write(a, 8, venta.get_estado_display(), estilo_totales2)
 
+                    a += 1
+
+                    sumaabono = ventas.aggregate(total=Sum('abono'))
+                    sumasubtotal = ventas.aggregate(total=Sum('subtotalventa'))
+                    descuento = ventas.aggregate(total=Sum('descuento'))
+                    totalventa = ventas.aggregate(total=Sum('totalventa'))
+
+                    ws.write(a, 4, sumaabono['total'], estilo_totales)
+                    ws.write(a, 5, sumasubtotal['total'], estilo_totales)
+                    ws.write(a, 6, descuento['total'], estilo_totales)
+                    ws.write(a, 7, totalventa['total'], estilo_totales)
+
+                    # GASTO NO OPERATIVO -------------------------------------------------------------------------------
+                    a += 3
+
+                    ws.write_merge(a, a, 0, 4,'TABLA DE INFORMACIÓN DE GASTOS NO OPERATIVOS',estilo_cabecera2)
+
+                    a += 1
+
+                    ws.write(a, 0, 'ID', estilo_cabecera)
+                    ws.write(a, 1, 'TITULO', estilo_cabecera)
+                    ws.write(a, 2, 'FECHA', estilo_cabecera)
+                    ws.write(a, 3, 'DETALLE', estilo_cabecera)
+                    ws.write(a, 4, 'VALOR', estilo_cabecera)
+
+                    # gastonooperativo = GastoNoOperativo.objects.filter(status=True, fecha_creacion__date=hoy)
+                    gastonooperativo = GastoNoOperativo.objects.filter(status=True)
+
+                    for gasto in gastonooperativo:
+                        a += 1
+                        ws.write(a, 0, gasto.id, estilo_general)
+                        ws.write(a, 1, gasto.titulo, estilo_general)
+                        ws.write(a, 2, gasto.fecha_creacion.strftime('%Y-%m-%d'), formato_fecha)
+                        ws.write(a, 3, gasto.detalle, estilo_general)
+                        ws.write(a, 4, gasto.valor,estilo_moneda)
+                    a += 1
+
+                    sumavalor = gastonooperativo.aggregate(total=Sum('valor'))
+                    ws.write(a, 4, sumavalor['total'], estilo_totales)
+
+                    # REPUESTOS ----------------------------------------------------------------------------------------
+                    a += 3
+
+                    ws.write_merge(a, a, 0, 5, 'TABLA DE INFORMACIÓN DE REPUESTOS COMPRADOS', estilo_cabecera2)
+
+                    a += 1
+
+                    ws.write(a, 0, 'ID', estilo_cabecera)
+                    ws.write(a, 1, 'PRODUCTO', estilo_cabecera)
+                    ws.write(a, 2, 'FECHA COMPRA', estilo_cabecera)
+                    ws.write(a, 3, 'CANTIDAD', estilo_cabecera)
+                    ws.write(a, 4, 'PRECIO UNITARIO', estilo_cabecera)
+                    ws.write(a, 5, 'PRECIO TOTAL', estilo_cabecera)
+
+                    # gastonooperativo = GastoNoOperativo.objects.filter(status=True, tipo_movimiento=1, fecha_creacion__date=hoy)
+                    kardex = KardexProducto.objects.filter(status=True, tipo_movimiento=1)
+
+                    for l in kardex:
+                        a += 1
+                        ws.write(a, 0, l.id, estilo_general)
+                        ws.write(a, 1, l.producto.nombre, estilo_general)
+                        ws.write(a, 2, l.fecha_movimiento.strftime('%Y-%m-%d'), formato_fecha)
+                        ws.write(a, 3, l.cantidad, estilo_general)
+                        ws.write(a, 4, l.costo_unitario, estilo_moneda)
+                        ws.write(a, 5, l.costo_total, estilo_moneda)
+                    a += 1
+
+                    lcantidad = kardex.aggregate(total=Sum('cantidad'))
+                    lcostounitario = kardex.aggregate(total=Sum('costo_unitario'))
+                    lcostototal = kardex.aggregate(total=Sum('costo_total'))
+
+                    ws.write(a, 3, lcantidad['total'], estilo_totales2)
+                    ws.write(a, 4, lcostounitario['total'], estilo_totales)
+                    ws.write(a, 5, lcostototal['total'], estilo_totales)
                     wb.save(response)
                     return response
                 except Exception as ex:
@@ -90,11 +186,14 @@ def view(request):
                 totaldetalles = calcular_total_detalles(hoy)
                 totaldescuentos = calcular_total_descuentos(hoy)
                 totalegresos = calcular_total_egreso(hoy)
+                totalabonos = calcular_total_abonos(hoy)
 
-                balancegeneral = (totalservicios + totalrepuestos + totaldetalles) - (totalegresos + totaldescuentos)
+                totalventas = totalservicios + totalrepuestos + totaldetalles
 
-                data['totalservicios'] = f'{totalservicios}'
-                data['totalrepuestos'] = f'{totalrepuestos}'
+                balancegeneral = totalabonos - totalegresos
+
+                data['totalventas'] = f'{totalventas}'
+                data['totalabonos'] = f'{totalabonos}'
 
                 data['balancegeneral'] = f'{balancegeneral}'
                 data['totalegresos'] = f'{totalegresos}'
@@ -132,6 +231,13 @@ def calcular_total_detalles(hoy):
 def calcular_total_descuentos(hoy):
     try:
         resultado = vVenta.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('descuento'))
+        return resultado['total'] or 0
+    except Exception as e:
+        return 0
+
+def calcular_total_abonos(hoy):
+    try:
+        resultado = vVenta.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('abono'))
         return resultado['total'] or 0
     except Exception as e:
         return 0

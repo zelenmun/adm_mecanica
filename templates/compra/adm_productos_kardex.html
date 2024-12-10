@@ -35,7 +35,7 @@
                         {% for l in list %}
                             <tr style="text-align: center;background-color: {% if l.tipo_movimiento == 1 %}rgba(239,192,228,0.13){% else %}rgba(190,255,132,0.15){% endif %}">
                                 <td>{{ l.id }}</td>
-                                <td>{{ l.fecha_creacion }}</td>
+                                <td>{{ l.fecha_movimiento }}</td>
 {#                                <td>{{ l.get_tipo_movimiento_display }}</td>#}
                                 <td>{{ l.cantidad }}</td>
                                 <td>{{ l.saldo_cantidad }}</td>

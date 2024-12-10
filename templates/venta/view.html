@@ -18,11 +18,11 @@
                     <span class="text">Registrar Venta</span>
                 </a>
 
-                <div style="width: 400px">
+                <div style="width: 40%">
                     <form method="GET" action="{% url 'adm_venta' %}"
                           style="display: flex; flex-direction: row; gap: 10px">
-                        <a href="{% url 'adm_venta' %}" class="btn btn-info btn-icon-split" style="width: 100px">
-                            <span class="icon text-white-50"><i class="fas fa-sync"></i></span>
+                        <a href="{% url 'adm_venta' %}" class="btn btn-success btn-icon-split" style="width: 100px">
+                            <span style="width: 100%" class="icon text-white-50"><i class="fas fa-file-excel"></i></span>
                         </a>
                         <input type="date" name="fechafiltro" value="{{ fechafiltro }}" class="form-control" onchange="this.form.submit()">
                         <select name="estado" id="id_estado" onchange="this.form.submit()">
