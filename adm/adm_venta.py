@@ -8,7 +8,7 @@ from django.core.serializers import serialize
 from core.funciones import normalizarTexto
 from adm.models import vVenta, Cliente, ESTADO_VENTA
 # IMPORTACIONES DE FORMULARIOS
-from adm.forms import DecimalForm
+from adm.forms import DecimalForm, VentaServicioForm, VentaAdicionalForm, VentaProductoForm, ClienteForm, PagoClienteForm
 from core.forms import PersonaForm
 from weasyprint import HTML, CSS
 import os
@@ -105,6 +105,37 @@ def view(request):
                     return response
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': 'Ha ocurrido un error generando la factura.', 'detalle': str(ex)})
+
+            if action == 'edit':
+                try:
+                    data['title'] = u'Ventas'
+                    data['subtitle'] = u'Registro de ventas de productos'
+
+                    form = VentaProductoForm()
+                    form2 = VentaServicioForm()
+                    form3 = VentaAdicionalForm()
+                    form4 = ClienteForm()
+                    form5 = PagoClienteForm()
+
+                    form.fields['precioproducto'].widget.attrs['readonly'] = True
+                    form2.fields['precioservicio'].widget.attrs['readonly'] = True
+
+                    data['form'] = form
+                    data['form2'] = form2
+                    data['form3'] = form3
+                    data['form4'] = form4
+                    data['form5'] = form5
+                    data['activo'] = 2
+
+                    list1 = vVenta.objects.get(id=request.GET['id'])
+
+                    data['list1'] = list1
+                    data['list2'] = list1.detalleproducto.filter(status=True)
+                    data['list3'] = list1.detalleservicio.filter(status=True)
+                    data['list4'] = list1.detalleadicional.filter(status=True)
+                    return render(request, 'venta/registroventa.html', data)
+                except Exception as ex:
+                    return HttpResponse(request.path)
 
         else:
             try:

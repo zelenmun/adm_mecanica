@@ -83,13 +83,14 @@
                                              aria-labelledby="dropdownMenuLink">
                                             <div class="dropdown-header">Acciones:</div>
                                             <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="{{ request.path }}?action=edit&id={{ l.id }}" style="display: flex; align-items: center;">
+                                                <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-edit"></i></span>
+                                                <span class="text" style="flex-grow: 1;">Editar</span>
+                                            </a>
                                             <a class="dropdown-item" href="javascript:void(0);"
                                                onclick="eliminarajax('{{ l.id }}', '{{ l }}', 'del')"
                                                style="display: flex; align-items: center;">
-                                                <span class="icon text-gray-600"
-                                                      style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-trash"></i>
-                                                </span>
+                                                <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-trash"></i></span>
                                                 <span class="text" style="flex-grow: 1;">Eliminar</span>
                                             </a>
                                             <a class="dropdown-item id_generarfactura" href="javascript:void(0);"
@@ -102,12 +103,8 @@
                                                 <span class="text" style="flex-grow: 1;">Abonar</span>
                                             </a>
                                             <a class="dropdown-item id_generarfactura"
-                                               href="{{ request.path }}?action=generarfacturapdf&id={{ l.id }}"
-                                               style="display: flex; align-items: center;">
-                                                <span class="icon text-gray-600"
-                                                      style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                </span>
+                                               href="{{ request.path }}?action=generarfacturapdf&id={{ l.id }}" style="display: flex; align-items: center;">
+                                                <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-file-pdf"></i></span>
                                                 <span class="text" style="flex-grow: 1;">PDF</span>
                                             </a>
                                         </div>

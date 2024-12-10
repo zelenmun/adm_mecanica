@@ -192,12 +192,12 @@ def view(request):
 
                 balancegeneral = totalabonos - totalegresos
 
-                data['totalventas'] = f'{totalventas}'
-                data['totalabonos'] = f'{totalabonos}'
+                data['totalventas'] = f'{totalventas:.2f}'
+                data['totalabonos'] = f'{totalabonos:.2f}'
 
-                data['balancegeneral'] = f'{balancegeneral}'
-                data['totalegresos'] = f'{totalegresos}'
-                data['totaldescuentos'] = f'{totaldescuentos}'
+                data['balancegeneral'] = f'{balancegeneral:.2f}'
+                data['totalegresos'] = f'{totalegresos:.2f}'
+                data['totaldescuentos'] = f'{totaldescuentos:.2f}'
                 data['dashboardatras'] = True
 
                 ventasdia = vVenta.objects.filter(status=True, fecha_venta__date=hoy)

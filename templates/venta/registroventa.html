@@ -666,7 +666,7 @@
                 }
             }
 
-            function evitarDecimales(){
+            function evitarDecimales() {
                 var valor = $(this).val();
                 if (valor % 1 !== 0) {
                     $(this).val(0);
@@ -869,7 +869,108 @@
                             </tr>
                             </thead>
                             <tbody>
+                            {% for l in list2 %}
+                                <tr>
+                                    <td>{{ l.id }}</td>
+                                    <td>PRODUCTO</td>
+                                    <td>{{ l.producto }}</td>
+                                    <td>${{ l.preciounitario }}</td>
+                                    <td>{{ l.cantidad }}</td>
+                                    <td>${{ l.total }}</td>
+                                    <td>
+                                        <div class="dropdown no-arrow" style="display: flex; justify-content: center">
+                                            <a class="dropdown-toggle" href="#" role="button"
+                                               id="dropdownMenuLink"
+                                               data-toggle="dropdown" aria-haspopup="true"
+                                               aria-expanded="false">
+                                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                                 aria-labelledby="dropdownMenuLink">
+                                                <div class="dropdown-header">Acciones:</div>
+                                                <div class="dropdown-divider"></div>
 
+                                                <a class="dropdown-item btn_eliminarfila" href="javascript:void(0);"
+                                                   style="display: flex; align-items: center;">
+                                        <span class="icon text-gray-600"
+                                              style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-trash"></i>
+                                        </span>
+                                                    <span class="text" style="flex-grow: 1;">Eliminar</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            {% for l in list3 %}
+                                <tr>
+                                    <td>{{ l.id }}</td>
+                                    <td>SERVICIO</td>
+                                    <td>{{ l.servicio }}</td>
+                                    <td>${{ l.servicio.precio }}</td>
+                                    <td>{{ l.cantidad }}</td>
+                                    <td>${{ l.total }}</td>
+                                    <td>
+                                        <div class="dropdown no-arrow" style="display: flex; justify-content: center">
+                                            <a class="dropdown-toggle" href="#" role="button"
+                                               id="dropdownMenuLink"
+                                               data-toggle="dropdown" aria-haspopup="true"
+                                               aria-expanded="false">
+                                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                                 aria-labelledby="dropdownMenuLink">
+                                                <div class="dropdown-header">Acciones:</div>
+                                                <div class="dropdown-divider"></div>
+
+                                                <a class="dropdown-item btn_eliminarfila" href="javascript:void(0);"
+                                                   style="display: flex; align-items: center;">
+                                        <span class="icon text-gray-600"
+                                              style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-trash"></i>
+                                        </span>
+                                                    <span class="text" style="flex-grow: 1;">Eliminar</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            {% for l in list4 %}
+                                <tr>
+                                    <td>{{ l.id }}</td>
+                                    <td>ADICIONAL</td>
+                                    <td>{{ l.detalle }}</td>
+                                    <td>${{ l.precio }}</td>
+                                    <td>-</td>
+                                    <td>${{ l.precio }}</td>
+                                    <td>
+                                        <div class="dropdown no-arrow" style="display: flex; justify-content: center">
+                                            <a class="dropdown-toggle" href="#" role="button"
+                                               id="dropdownMenuLink"
+                                               data-toggle="dropdown" aria-haspopup="true"
+                                               aria-expanded="false">
+                                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                                 aria-labelledby="dropdownMenuLink">
+                                                <div class="dropdown-header">Acciones:</div>
+                                                <div class="dropdown-divider"></div>
+
+                                                <a class="dropdown-item btn_eliminarfila" href="javascript:void(0);"
+                                                   style="display: flex; align-items: center;">
+                                        <span class="icon text-gray-600"
+                                              style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-trash"></i>
+                                        </span>
+                                                    <span class="text" style="flex-grow: 1;">Eliminar</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
                             </tbody>
                         </table>
                     </div>
