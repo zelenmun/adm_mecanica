@@ -19,7 +19,6 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            min-height: 100vh; /* Esto asegura que la página tiene al menos el tamaño de una hoja A4 */
         }
 
         h3 {
@@ -93,25 +92,16 @@
             background-color: #f9f9f9;
         }
 
-        /* Para el footer */
         @page {
-            margin: 0;
-        }
-
-        body {
-            margin-bottom: 50px; /* Asegura espacio suficiente para el footer en la última página */
-        }
-
-        footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            text-align: center;
-            padding: 10px 0;
-            font-size: 12px;
-            color: #6c757d;
-            background-color: #f8f9fa; /* Para hacer que el footer sea visible en cada página */
-            border-top: 1px solid #dee2e6;
+            size: A4;
+            margin: 2cm;
+            @bottom-center {
+                content: "© 2024 Taller mecánico ""Super Moto"" - Desarrollado por Zelen - zelendevelopment@gmail.com";
+                font-size: 11px;
+                color: #6c757d;
+                padding-top: 5px;
+                font-family: Consolas, sans-serif;
+            }
         }
     </style>
 </head>
@@ -119,14 +109,14 @@
 <div class="container my-5">
     <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <span style="color: #212121"><b>Taller mecánico "Super Moto"</b></span> <br> <br>
-        <span style="color: #888888; font-size: 10px">Nota de Venta sin valor tributario</span>
+        <span style="color: #212121"><b>TALLER DE SERVICIO MECÁNICO "SUPER MOTO"</b></span> <br> <br>
+        <span style="color: #888888; font-size: 10px">NOTA DE VENTA SIN VALOR TRIBUTARIO</span>
         <p class="text-right text-muted" style="font-size: 12px">{{ fechaactual }}<span id="factura-fecha"></span></p>
     </div>
 
     <!-- Texto modificable -->
     <div class="mb-4">
-        <h5 class="text-primary">Información de la venta.</h5>
+        <h5 class="text-primary">INFORMACIÓN DE LA VENTA.</h5>
         <p id="factura-texto" style="font-size: 12px">Este documento corresponde a una Nota de Venta emitida a
             <b>{{ persona }}</b>{% if persona != 'CONSUMIDOR FINAL' %} con cédula <b>{{ persona.cedula }}</b>
             {% endif %}, quien recibió atención el día {{ fecha }}
@@ -205,12 +195,6 @@
             </table>
         </div>
     </div>
-
-    <footer>
-        <p>Desarrollado por Zelen - 0984576094</p>
-    </footer>
 </div>
-
-
 </body>
 </html>
