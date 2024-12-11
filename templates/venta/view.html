@@ -21,7 +21,7 @@
                 <div style="width: 40%">
                     <form method="GET" action="{% url 'adm_venta' %}"
                           style="display: flex; flex-direction: row; gap: 10px">
-                        <a href="{% url 'adm_venta' %}" class="btn btn-success btn-icon-split" style="width: 100px">
+                        <a href="{{ request.path }}?action=excelfechaestado&fecha={{ fechafiltro }}&estado={{ estadofiltro }}" class="btn btn-success btn-icon-split" style="width: 100px">
                             <span style="width: 100%" class="icon text-white-50"><i class="fas fa-file-excel"></i></span>
                         </a>
                         <input type="date" name="fechafiltro" value="{{ fechafiltro }}" class="form-control" onchange="this.form.submit()">
@@ -93,7 +93,8 @@
                                                 <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-trash"></i></span>
                                                 <span class="text" style="flex-grow: 1;">Eliminar</span>
                                             </a>
-                                            <a class="dropdown-item id_generarfactura" href="javascript:void(0);"
+                                            {% if l.estado == 1 %}
+                                                <a class="dropdown-item id_generarfactura" href="javascript:void(0);"
                                                style="display: flex; align-items: center;"
                                                onclick="formModal('{{ l.id }}', 'PENDIENTE: {{ l.obtener_deuda }}', 'abonardeuda', true, '')">
                                                 <span class="icon text-gray-600"
@@ -102,10 +103,11 @@
                                                 </span>
                                                 <span class="text" style="flex-grow: 1;">Abonar</span>
                                             </a>
+                                            {% endif %}
                                             <a class="dropdown-item id_generarfactura"
                                                href="{{ request.path }}?action=generarfacturapdf&id={{ l.id }}" style="display: flex; align-items: center;">
                                                 <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-file-pdf"></i></span>
-                                                <span class="text" style="flex-grow: 1;">PDF</span>
+                                                <span class="text" style="flex-grow: 1;">Nota Venta</span>
                                             </a>
                                         </div>
                                     </div>

@@ -12,30 +12,15 @@ class Cliente(ModeloBase):
     def __str__(self):
         return f'<li>{self.persona}</li> <li>DEBE: <b style="color: salmon">${self.deuda_pendiente}</b></li>'
 
-class Vehiculo(ModeloBase):
-    propietario = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name=u'Persona', related_name='vehiculo', blank=True, null=True)
-    descripcion = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Descripción del vehículo')
-    placa = models.CharField(max_length=10, blank=True, null=True, verbose_name=u'Placa del vehículo', unique=True)
-    modelo = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'Modelo del vehículo')
-    marca = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'Marca del vehículo')
-
-    def __str__(self):
-        return f'{self.modelo} - {self.placa}'
-
 class Trabajador(ModeloBase):
     nombre = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'Nombre del Trabajador')
     sueldo = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Sueldo del trabajador')
-
-class Proveedor(ModeloBase):
-    nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre del Proveedor')
-
 
 class Categoria(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre de la Categoría')
 
     def __str__(self):
         return self.nombre
-
 
 class Subcategoria(ModeloBase):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='subcategoria', verbose_name=u'Nombre de la Categoría')
@@ -51,13 +36,10 @@ class Vitrina(ModeloBase):
     def __str__(self):
         return f'{self.codigo}'
 
-
 class Producto(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre del Producto')
     subcategoria = models.ForeignKey(Subcategoria, on_delete=models.CASCADE, related_name='productos', blank=True, null=True)
     vitrina = models.ForeignKey(Vitrina, on_delete=models.CASCADE, blank=True, null=True, related_name='producto_vitrina', verbose_name=u'Vitrina')
-    # precioventa = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio de Venta')
-    # preciocompra = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio de Compra')
     descripcion = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Descripción del producto')
 
     def __str__(self):
@@ -156,7 +138,6 @@ class Venta(ModeloBase):
         detalles = self.detalleventa.all()
         return sum(detalle.preciot for detalle in detalles)
 
-
 class VentaDetalle(ModeloBase):
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalleventa', verbose_name=u'Venta')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, blank=True, null=True, related_name='venta', verbose_name=u'Producto')
@@ -212,7 +193,6 @@ ESTADO_VENTA = (
 class vVenta(ModeloBase):
     fecha_venta = models.DateTimeField(blank=True, null=True, verbose_name=u'Fecha de Venta')
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Cliente', related_name='trabajos')
-    #trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Trabajador', related_name='trabajos')
     descuento = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Descuento')
     totalventa = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio Total')
     subtotalventa = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Subtotal')
