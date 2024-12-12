@@ -3,17 +3,43 @@
 {% block extrahead %}
     <script>
         $(function () {
+            var idventa = '{{ id }}'
             var existcliente = false;
             var cedulacliente = '';
             var maxproductos = 0;
             var precioproducto = 0;
             var precioservicio = 0;
-
+            var actionpy = '{{ actionpy }}'
             var $pcantidad = $('#id_pcantidad')
+            var table = $('#dataTable').DataTable();
 
             let typingTimer;
+
             const typingDelay = 300;
-            var table = $('#dataTable').DataTable();
+
+            var actions = `
+                <div class="dropdown no-arrow" style="display: flex; justify-content: center">
+                    <a class="dropdown-toggle" href="#" role="button"
+                       id="dropdownMenuLink"
+                       data-toggle="dropdown" aria-haspopup="true"
+                       aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                         aria-labelledby="dropdownMenuLink">
+                        <div class="dropdown-header">Acciones:</div>
+                        <div class="dropdown-divider"></div>
+
+                        <a class="dropdown-item btn_eliminarfila" href="javascript:void(0);"
+                            style="display: flex; align-items: center;">
+                            <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-trash"></i>
+                            </span>
+                            <span class="text" style="flex-grow: 1;">Eliminar</span>
+                        </a>
+                    </div>
+                </div>
+            `;
 
             $('#id_producto').select2();
 
@@ -236,10 +262,6 @@
                 }
             });
 
-            $pcantidad.on('keyup click', evitarDecimales);
-
-            $pcantidad.on('keyup click', manejarCambioCantidad);
-
             $('#id_scantidad').on('keyup click', evitarDecimales);
 
             $('#id_descuento').on('keyup click', manejarCambioDescuento);
@@ -262,29 +284,6 @@
                             text: 'No puedes agregar un mismo registro dos veces.'
                         })
                     } else {
-                        const actions = `
-                            <div class="dropdown no-arrow" style="display: flex; justify-content: center">
-                                <a class="dropdown-toggle" href="#" role="button"
-                                   id="dropdownMenuLink"
-                                   data-toggle="dropdown" aria-haspopup="true"
-                                   aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                     aria-labelledby="dropdownMenuLink">
-                                    <div class="dropdown-header">Acciones:</div>
-                                    <div class="dropdown-divider"></div>
-
-                                    <a class="dropdown-item btn_eliminarfila" href="javascript:void(0);"
-                                        style="display: flex; align-items: center;">
-                                        <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
-                                            <i class="fas fa-trash"></i>
-                                        </span>
-                                        <span class="text" style="flex-grow: 1;">Eliminar</span>
-                                    </a>
-                                </div>
-                            </div>
-                        `;
                         const tablaDetalle = $('#dataTable').DataTable();
                         const total = precioproducto * cantidad
 
@@ -328,29 +327,6 @@
                             text: 'No puedes agregar un mismo registro dos veces.'
                         })
                     } else {
-                        const actions = `
-                            <div class="dropdown no-arrow" style="display: flex; justify-content: center">
-                                <a class="dropdown-toggle" href="#" role="button"
-                                   id="dropdownMenuLink"
-                                   data-toggle="dropdown" aria-haspopup="true"
-                                   aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                     aria-labelledby="dropdownMenuLink">
-                                    <div class="dropdown-header">Acciones:</div>
-                                    <div class="dropdown-divider"></div>
-
-                                    <a class="dropdown-item btn_eliminarfila" href="javascript:void(0);"
-                                        style="display: flex; align-items: center;">
-                                        <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
-                                            <i class="fas fa-trash"></i>
-                                        </span>
-                                        <span class="text" style="flex-grow: 1;">Eliminar</span>
-                                    </a>
-                                </div>
-                            </div>
-                        `;
                         const tablaDetalle = $('#dataTable').DataTable();
 
                         const total = precioservicio * cantidad
@@ -393,29 +369,6 @@
                             text: 'No puedes agregar un mismo registro dos veces.'
                         })
                     } else {
-                        const actions = `
-                            <div class="dropdown no-arrow" style="display: flex; justify-content: center">
-                                <a class="dropdown-toggle" href="#" role="button"
-                                   id="dropdownMenuLink"
-                                   data-toggle="dropdown" aria-haspopup="true"
-                                   aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                     aria-labelledby="dropdownMenuLink">
-                                    <div class="dropdown-header">Acciones:</div>
-                                    <div class="dropdown-divider"></div>
-
-                                    <a class="dropdown-item btn_eliminarfila" href="javascript:void(0);"
-                                        style="display: flex; align-items: center;">
-                                        <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
-                                            <i class="fas fa-trash"></i>
-                                        </span>
-                                        <span class="text" style="flex-grow: 1;">Eliminar</span>
-                                    </a>
-                                </div>
-                            </div>
-                        `;
                         const tablaDetalle = $('#dataTable').DataTable();
 
                         tablaDetalle.row.add([
@@ -462,6 +415,8 @@
                             timer: 1000
                         })
 
+                        $('#id_abono').trigger('click')
+
                         calcularTotales();
                     }
                 });
@@ -479,7 +434,7 @@
                     Swal.fire({
                         icon: "warning",
                         title: "¡Confirma la venta!",
-                        html: `<p>Las ventas no se pueden modificar, verifica los detalles antes de proceder</p><hr><span style="font-size: 12px">Tendrán que llamar a Zelen si la cagan.</span>`,
+                        html: `<p>Se recomienda verificar los detalles antes de registrar la venta.</p><hr><span style="font-size: 12px">Lo único que se registrará será lo que se encuentre en la tabla.</span>`,
                         showCancelButton: true,
                         confirmButtonText: "Confirmar"
                     }).then((result) => {
@@ -497,13 +452,14 @@
                                     total: rowData[5]
                                 });
                             });
-                            console.log(dataToSend)
+                            {#console.log(dataToSend)#}
                             var formData = new FormData()
                             formData.append('tabla', JSON.stringify(dataToSend))
                             formData.append('descuento', $('#id_descuento').val())
                             formData.append('abono', $('#id_abono').val())
-                            formData.append('action', 'add')
+                            formData.append('action', actionpy)
                             formData.append('cedula', cedulacliente)
+                            formData.append('id', idventa)
                             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
                             $.ajax({
                                 type: 'POST',
@@ -550,6 +506,10 @@
                     })
                 }
             });
+
+            $pcantidad.on('keyup click', evitarDecimales);
+
+            $pcantidad.on('keyup click', manejarCambioCantidad);
 
             function eliminarClienteModal() {
                 $('#id_nombre').val('').removeAttr('readonly', true)
@@ -672,6 +632,8 @@
                     $(this).val(0);
                 }
             }
+
+            calcularTotales()
         })
     </script>
     <style>
@@ -871,7 +833,7 @@
                             <tbody>
                             {% for l in list2 %}
                                 <tr>
-                                    <td>{{ l.id }}</td>
+                                    <td>{{ l.lote.id }}</td>
                                     <td>PRODUCTO</td>
                                     <td>{{ l.producto }}</td>
                                     <td>${{ l.preciounitario }}</td>
@@ -905,7 +867,7 @@
                             {% endfor %}
                             {% for l in list3 %}
                                 <tr>
-                                    <td>{{ l.id }}</td>
+                                    <td>{{ l.servicio.id }}</td>
                                     <td>SERVICIO</td>
                                     <td>{{ l.servicio }}</td>
                                     <td>${{ l.servicio.precio }}</td>
@@ -939,11 +901,11 @@
                             {% endfor %}
                             {% for l in list4 %}
                                 <tr>
-                                    <td>{{ l.id }}</td>
+                                    <td>0</td>
                                     <td>ADICIONAL</td>
                                     <td>{{ l.detalle }}</td>
                                     <td>${{ l.precio }}</td>
-                                    <td>-</td>
+                                    <td>0</td>
                                     <td>${{ l.precio }}</td>
                                     <td>
                                         <div class="dropdown no-arrow" style="display: flex; justify-content: center">

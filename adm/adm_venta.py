@@ -58,104 +58,114 @@ def view(request):
                 try:
                     fechafiltro = request.GET['fecha']
                     estado = request.GET['estado']
+                    filtro = Q(status=True)
+                    fecha_formateada = u'todos_los_registros'
 
-                    if fechafiltro != 'None':
+                    if estado != 'None' and estado != '0':
+                        filtro &= Q(estado=estado)
+                        if estado == '1':
+                            estado = u'pendientes'
+                        else:
+                            estado = u'pagados'
+                    else:
+                        estado = u'todos_los_estados'
+
+                    if fechafiltro != 'None' and fechafiltro != '':
                         fechafiltro = datetime.strptime(request.GET['fecha'], "%Y-%m-%d")
                         fecha_formateada = fechafiltro.strftime("%Y_%m_%d")
-                        response = HttpResponse(content_type="application/ms-excel")
-                        response['Content-Disposition'] = f'attachment; filename=excel_{fecha_formateada}.xls'
-                        wb = xlwt.Workbook()
-                        ws = wb.add_sheet('Sheetname')
+                        filtro &= Q(fecha_creacion__date=fechafiltro)
 
-                        wb.set_colour_RGB(0x21, 180, 198, 231)
+                    response = HttpResponse(content_type="application/ms-excel")
+                    response['Content-Disposition'] = f'attachment; filename=excel_{fecha_formateada}_{estado}.xls'
+                    wb = xlwt.Workbook()
+                    ws = wb.add_sheet('Sheetname')
 
-                        estilo = xlwt.easyxf('font: height 300, name Calibri, colour_index black, bold on; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color 0x21;')
-                        estilo_general = xlwt.easyxf('font: height 220, name Calibri; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
-                        formato_fecha = xlwt.easyxf('font: height 220, name Calibri; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin;', num_format_str='yyyy/mm/dd')
-                        formato_fecha2 = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color 0x21;', num_format_str='yyyy/mm/dd')
-                        # estilo_cabecera = xlwt.easyxf('font: height 220, name Arial; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color gray25;')
-                        # estilo_cabecera = xlwt.easyxf('font: height 220, name Arial; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color ice_blue;')
-                        estilo_cabecera = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color 0x21;')
-                        estilo_cabecera2 = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color 0x21;')
-                        estilo_totales = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
-                        estilo_totales2 = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
-                        estilo_moneda = xlwt.easyxf('font: height 220, name Calibri; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
+                    wb.set_colour_RGB(0x21, 180, 198, 231)
 
-                        estilo_moneda.num_format_str = '$#,##0.00'
-                        estilo_totales.num_format_str = '$#,##0.00'
+                    estilo = xlwt.easyxf('font: height 300, name Calibri, colour_index black, bold on; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color 0x21;')
+                    estilo_general = xlwt.easyxf('font: height 220, name Calibri; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
+                    formato_fecha = xlwt.easyxf('font: height 220, name Calibri; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin;',num_format_str='yyyy/mm/dd')
+                    formato_fecha2 = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color 0x21;',num_format_str='yyyy/mm/dd')
+                    # estilo_cabecera = xlwt.easyxf('font: height 220, name Arial; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color gray25;')
+                    # estilo_cabecera = xlwt.easyxf('font: height 220, name Arial; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color ice_blue;')
+                    estilo_cabecera = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color 0x21;')
+                    estilo_cabecera2 = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz center; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color 0x21;')
+                    estilo_totales = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
+                    estilo_totales2 = xlwt.easyxf('font: height 220, name Calibri, bold on; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
+                    estilo_moneda = xlwt.easyxf('font: height 220, name Calibri; align: wrap on, vert centre, horiz left; borders: left thin, right thin, top thin, bottom thin; pattern: pattern solid, fore_color white;')
 
-                        a = 1
+                    estilo_moneda.num_format_str = '$#,##0.00'
+                    estilo_totales.num_format_str = '$#,##0.00'
 
-                        ws.write_merge(a, a, 0, 8,'TALLER DE SERVICIO MECÁNICO Y VENTA DE REPUESTOS DE MOTOS LINEALES SUPER MOTO',estilo)
+                    a = 1
 
-                        a += 2
+                    ws.write_merge(a, a, 0, 8, 'TALLER DE SERVICIO MECÁNICO Y VENTA DE REPUESTOS DE MOTOS LINEALES SUPER MOTO', estilo)
 
-                        ws.write(a, 0, 'FECHA', formato_fecha2)
-                        ws.write(a, 1, fechafiltro, formato_fecha2)
+                    a += 2
 
-                        a += 2
+                    ws.write(a, 0, 'FECHA', formato_fecha2)
+                    ws.write(a, 1, fechafiltro, formato_fecha2)
 
-                        ws.write_merge(a, a, 0, 8,'TABLA DE INFORMACIÓN DE VENTAS',estilo_cabecera2)
+                    a += 2
 
+                    ws.write_merge(a, a, 0, 8, 'TABLA DE INFORMACIÓN DE VENTAS', estilo_cabecera2)
+
+                    a += 1
+
+                    ws.row(1).height = 1000
+                    ws.col(0).width = 4000
+                    ws.col(1).width = 14000
+                    ws.col(2).width = 6000
+                    ws.col(3).width = 8000
+                    ws.col(4).width = 4000
+                    ws.col(5).width = 4000
+                    ws.col(6).width = 4000
+                    ws.col(7).width = 4000
+                    ws.col(8).width = 4000
+
+                    ws.write(a, 0, 'ID', estilo_cabecera)
+                    ws.write(a, 1, 'DETALLE', estilo_cabecera)
+                    ws.write(a, 2, 'FECHA', estilo_cabecera)
+                    ws.write(a, 3, 'CLIENTE', estilo_cabecera)
+                    ws.write(a, 4, 'ABONO', estilo_cabecera)
+                    ws.write(a, 5, 'SUBTOTAL', estilo_cabecera)
+                    ws.write(a, 6, 'DESCUENTO', estilo_cabecera)
+                    ws.write(a, 7, 'TOTAL', estilo_cabecera)
+                    ws.write(a, 8, 'ESTADO', estilo_cabecera)
+
+                    date_format = xlwt.XFStyle()
+                    date_format.num_format_str = 'yyyy/mm/dd'
+
+                    ventas = vVenta.objects.filter(filtro)
+
+                    for venta in ventas:
                         a += 1
+                        ws.write(a, 0, venta.id, estilo_general)
+                        ws.write(a, 1, venta.obtener_detalles_excel(), estilo_general)
+                        ws.write(a, 2, venta.fecha_venta.strftime('%Y-%m-%d'), formato_fecha)
+                        ws.write(a, 3, str(venta.cliente.persona if venta.cliente else "CONSUMIDOR FINAL"),
+                                 estilo_general)  # Cliente
+                        ws.write(a, 4, venta.abono, estilo_moneda)
+                        ws.write(a, 5, venta.subtotalventa, estilo_moneda)
+                        ws.write(a, 6, venta.descuento, estilo_moneda)
+                        ws.write(a, 7, venta.totalventa, estilo_moneda)
+                        ws.write(a, 8, venta.get_estado_display(), estilo_totales2)
 
-                        ws.row(1).height = 1000
-                        ws.col(0).width = 4000
-                        ws.col(1).width = 14000
-                        ws.col(2).width = 6000
-                        ws.col(3).width = 8000
-                        ws.col(4).width = 4000
-                        ws.col(5).width = 4000
-                        ws.col(6).width = 4000
-                        ws.col(7).width = 4000
-                        ws.col(8).width = 4000
+                    a += 1
 
-                        ws.write(a, 0, 'ID', estilo_cabecera)
-                        ws.write(a, 1, 'DETALLE', estilo_cabecera)
-                        ws.write(a, 2, 'FECHA', estilo_cabecera)
-                        ws.write(a, 3, 'CLIENTE', estilo_cabecera)
-                        ws.write(a, 4, 'ABONO', estilo_cabecera)
-                        ws.write(a, 5, 'SUBTOTAL', estilo_cabecera)
-                        ws.write(a, 6, 'DESCUENTO', estilo_cabecera)
-                        ws.write(a, 7, 'TOTAL', estilo_cabecera)
-                        ws.write(a, 8, 'ESTADO', estilo_cabecera)
+                    sumaabono = ventas.aggregate(total=Sum('abono'))
+                    sumasubtotal = ventas.aggregate(total=Sum('subtotalventa'))
+                    descuento = ventas.aggregate(total=Sum('descuento'))
+                    totalventa = ventas.aggregate(total=Sum('totalventa'))
 
-                        date_format = xlwt.XFStyle()
-                        date_format.num_format_str = 'yyyy/mm/dd'
-
-                        filtro = Q(status=True, fecha_creacion__date=fechafiltro)
-
-                        if estado != 'None' and estado != '0':
-                            filtro &= Q(estado=estado)
-
-                        ventas = vVenta.objects.filter(filtro)
-
-                        for venta in ventas:
-                            a += 1
-                            ws.write(a, 0, venta.id, estilo_general)
-                            ws.write(a, 1, venta.obtener_detalles_excel(), estilo_general)
-                            ws.write(a, 2, venta.fecha_venta.strftime('%Y-%m-%d'), formato_fecha)
-                            ws.write(a, 3, str(venta.cliente.persona if venta.cliente else "CONSUMIDOR FINAL"), estilo_general)  # Cliente
-                            ws.write(a, 4, venta.abono, estilo_moneda)
-                            ws.write(a, 5, venta.subtotalventa, estilo_moneda)
-                            ws.write(a, 6, venta.descuento, estilo_moneda)
-                            ws.write(a, 7, venta.totalventa, estilo_moneda)
-                            ws.write(a, 8, venta.get_estado_display(), estilo_totales2)
-
-                        a += 1
-
-                        sumaabono = ventas.aggregate(total=Sum('abono'))
-                        sumasubtotal = ventas.aggregate(total=Sum('subtotalventa'))
-                        descuento = ventas.aggregate(total=Sum('descuento'))
-                        totalventa = ventas.aggregate(total=Sum('totalventa'))
-
-                        ws.write(a, 4, sumaabono['total'], estilo_totales)
-                        ws.write(a, 5, sumasubtotal['total'], estilo_totales)
-                        ws.write(a, 6, descuento['total'], estilo_totales)
-                        ws.write(a, 7, totalventa['total'], estilo_totales)
-                        wb.save(response)
-                        return response
+                    ws.write(a, 4, sumaabono['total'], estilo_totales)
+                    ws.write(a, 5, sumasubtotal['total'], estilo_totales)
+                    ws.write(a, 6, descuento['total'], estilo_totales)
+                    ws.write(a, 7, totalventa['total'], estilo_totales)
+                    wb.save(response)
+                    return response
                 except Exception as ex:
+                    data['exception'] = str(ex)
                     pass
 
             if action == 'abonardeuda':
@@ -213,37 +223,7 @@ def view(request):
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': 'Ha ocurrido un error generando la factura.', 'detalle': str(ex)})
 
-            if action == 'edit':
-                try:
-                    data['title'] = u'Ventas'
-                    data['subtitle'] = u'Registro de ventas de productos'
-
-                    form = VentaProductoForm()
-                    form2 = VentaServicioForm()
-                    form3 = VentaAdicionalForm()
-                    form4 = ClienteForm()
-                    form5 = PagoClienteForm()
-
-                    form.fields['precioproducto'].widget.attrs['readonly'] = True
-                    form2.fields['precioservicio'].widget.attrs['readonly'] = True
-
-                    data['form'] = form
-                    data['form2'] = form2
-                    data['form3'] = form3
-                    data['form4'] = form4
-                    data['form5'] = form5
-                    data['activo'] = 2
-
-                    list1 = vVenta.objects.get(id=request.GET['id'])
-
-                    data['list1'] = list1
-                    data['list2'] = list1.detalleproducto.filter(status=True)
-                    data['list3'] = list1.detalleservicio.filter(status=True)
-                    data['list4'] = list1.detalleadicional.filter(status=True)
-                    return render(request, 'venta/registroventa.html', data)
-                except Exception as ex:
-                    return HttpResponse(request.path)
-
+            return render(request, 'exceptions/5XX.html', data)
         else:
             try:
                 data['title'] = u'Ventas'
@@ -265,4 +245,8 @@ def view(request):
                 data['opciones'] = ESTADO_VENTA
                 return render(request, 'venta/view.html', data)
             except Exception as ex:
-                return HttpResponse(f"Método no soportado{str(ex)}")
+                data['title'] = u'Error en: Ventas'
+                data['subtitle'] = u''
+                data['exception'] = str(ex)
+                data['dashboardatras'] = True
+                return render(request, 'exceptions/5XX.html', data)

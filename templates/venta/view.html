@@ -83,7 +83,7 @@
                                              aria-labelledby="dropdownMenuLink">
                                             <div class="dropdown-header">Acciones:</div>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="{{ request.path }}?action=edit&id={{ l.id }}" style="display: flex; align-items: center;">
+                                            <a class="dropdown-item" href="{% url 'registroventa' %}?action=edit&id={{ l.id }}" style="display: flex; align-items: center;">
                                                 <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-edit"></i></span>
                                                 <span class="text" style="flex-grow: 1;">Editar</span>
                                             </a>
