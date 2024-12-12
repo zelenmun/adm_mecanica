@@ -7,7 +7,7 @@ from decimal import Decimal
 import xlwt
 from django.core.serializers import serialize
 from core.funciones import normalizarTexto
-from adm.models import vVenta, Cliente, ESTADO_VENTA
+from adm.models import Venta, Cliente, ESTADO_VENTA
 # IMPORTACIONES DE FORMULARIOS
 from adm.forms import DecimalForm, VentaServicioForm, VentaAdicionalForm, VentaProductoForm, ClienteForm, PagoClienteForm
 from core.forms import PersonaForm
@@ -28,7 +28,7 @@ def view(request):
             try:
                 with transaction.atomic():
                     abono = Decimal(request.POST['decimal'])
-                    venta = vVenta.objects.get(id=request.POST['id'])
+                    venta = Venta.objects.get(id=request.POST['id'])
 
                     if abono > (venta.totalventa - venta.abono):
                         return JsonResponse({'result': False, 'mensaje': 'Has ingresado una cantidad mayor a la deuda.', 'detalle':u'Ingresa una cantidad válida.'})
@@ -136,7 +136,7 @@ def view(request):
                     date_format = xlwt.XFStyle()
                     date_format.num_format_str = 'yyyy/mm/dd'
 
-                    ventas = vVenta.objects.filter(filtro)
+                    ventas = Venta.objects.filter(filtro)
 
                     for venta in ventas:
                         a += 1
@@ -181,7 +181,7 @@ def view(request):
                     fecha = str(datetime.now().timestamp()).replace('.', '')
                     fechaactual = datetime.now()
                     fecha_formateada = fechaactual.strftime("%A, %d de %B de %Y, %H:%M")
-                    venta = vVenta.objects.get(id=request.GET['id'])
+                    venta = Venta.objects.get(id=request.GET['id'])
 
                     # Obtener detalles de la venta
                     detalleprodcto = venta.detalleproducto.filter(status=True)
@@ -231,7 +231,7 @@ def view(request):
 
                 data['estadofiltro'] = estado = request.GET.get('estado', None)
                 data['fechafiltro'] = fechafiltro = request.GET.get('fechafiltro', None)
-                ventas = vVenta.objects.filter(status=True)
+                ventas = Venta.objects.filter(status=True)
 
                 if estado is not None:
                     estado = int(estado)

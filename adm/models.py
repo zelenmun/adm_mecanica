@@ -120,31 +120,6 @@ class KardexProducto(ModeloBase):
         # Guardar el registro actualizado
         super(KardexProducto, self).save(*args, **kwargs)
 
-
-
-class Venta(ModeloBase):
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True, related_name='venta', verbose_name=u'Nombre del Cliente')
-    trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, blank=True, null=True, related_name='ventatrabajador', verbose_name=u'Trabajador')
-    fecha_venta = models.DateTimeField(blank=True, null=True, verbose_name=u'Fecha de Venta')
-    descuento = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Descuento')
-    preciov = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio de la venta')
-    detalle = models.CharField(max_length=2000, blank=True, null=True, verbose_name=u'Detalle')
-
-    def productos_vendidos(self):
-        detalles = self.detalleventa.all()
-        return "<br>".join([f"{detalle.producto.nombre.upper()} x <b>{detalle.cantidad}</b> x ${detalle.preciou}" for detalle in detalles])
-
-    def subtotal(self):
-        detalles = self.detalleventa.all()
-        return sum(detalle.preciot for detalle in detalles)
-
-class VentaDetalle(ModeloBase):
-    venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalleventa', verbose_name=u'Venta')
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, blank=True, null=True, related_name='venta', verbose_name=u'Producto')
-    cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad')
-    preciou = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del producto')
-    preciot = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio Total')
-
 class Trabajo(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre de Trabajo')
     precio = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del Trabajo')
@@ -152,32 +127,6 @@ class Trabajo(ModeloBase):
 
     def __str__(self):
         return f'{self.nombre}'
-
-class TrabajoDia(ModeloBase):
-    trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Trabajador', related_name='trabajos_dia')
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Cliente', related_name='mantenimientos')
-    detalle = models.CharField(max_length=5000, blank=True, null=True, verbose_name=u'Detalle del Trabajo')
-    descuento = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Descuento')
-    preciot = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio Total')
-    fecha_servicio = models.DateTimeField(blank=True, null=True, verbose_name=u'Fecha del Servicio')
-
-    def __str__(self):
-        return f'${self.preciot}'
-
-    def trabajos_realizados(self):
-        detalles = self.trabajodiadetalle.all()
-        return "<br>".join([f"{detalle.trabajo} x <b>{detalle.cantidad}</b> x ${detalle.preciou}" for detalle in detalles])
-
-    def subtotal(self):
-        detalles = self.trabajodiadetalle.all()
-        return sum(detalle.preciot for detalle in detalles)
-
-class TrabajoDiaDetalle(ModeloBase):
-    trabajodia = models.ForeignKey(TrabajoDia, on_delete=models.CASCADE, verbose_name=u'TrabajoDia', related_name='trabajodiadetalle')
-    trabajo = models.ForeignKey(Trabajo, on_delete=models.CASCADE, verbose_name='Trabajo', related_name='trabajodetalle')
-    cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'')
-    preciou = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio del producto')
-    preciot = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio Total')
 
 class GastoNoOperativo(ModeloBase):
     titulo = models.CharField(blank=True, null=True, max_length=500, verbose_name=u'Titulo del Gasto')
@@ -190,7 +139,7 @@ ESTADO_VENTA = (
     (2, u'PAGADO')
 )
 
-class vVenta(ModeloBase):
+class Venta(ModeloBase):
     fecha_venta = models.DateTimeField(blank=True, null=True, verbose_name=u'Fecha de Venta')
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Nombre del Cliente', related_name='trabajos')
     descuento = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Descuento')
@@ -238,7 +187,7 @@ class vVenta(ModeloBase):
         return f'<b style="color: salmon">${self.totalventa - self.abono}</b>'
 
 class VentaProductoDetalle(ModeloBase):
-    venta = models.ForeignKey(vVenta, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Venta', related_name='detalleproducto')
+    venta = models.ForeignKey(Venta, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Venta', related_name='detalleproducto')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, verbose_name=u'Producto', related_name='productoventa')
     lote = models.ForeignKey(LoteProducto, on_delete=models.CASCADE, verbose_name=u'Lote', related_name='detalleventa')
     preciounitario = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio Unitario')
@@ -246,13 +195,13 @@ class VentaProductoDetalle(ModeloBase):
     total = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Total')
 
 class VentaServicioDetalle(ModeloBase):
-    venta = models.ForeignKey(vVenta, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Venta', related_name='detalleservicio')
+    venta = models.ForeignKey(Venta, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Venta', related_name='detalleservicio')
     servicio = models.ForeignKey(Trabajo, on_delete=models.CASCADE, verbose_name=u'servicio', related_name='servicioventa')
     cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad')
     total = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Total')
 
 class VentaAdicionalDetalle(ModeloBase):
-    venta = models.ForeignKey(vVenta, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Venta', related_name='detalleadicional')
+    venta = models.ForeignKey(Venta, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Venta', related_name='detalleadicional')
     detalle = models.CharField(max_length=5000, blank=True, null=True, verbose_name=u'Detalle del Trabajo')
     # cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad')
     precio = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio')

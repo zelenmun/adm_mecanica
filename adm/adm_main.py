@@ -3,7 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from django.db.models import Sum
 import xlwt
 from xlwt import XFStyle, easyxf
-from adm.models import (KardexProducto, vVenta, VentaProductoDetalle, VentaAdicionalDetalle, VentaServicioDetalle,
+from adm.models import (KardexProducto, Venta, VentaProductoDetalle, VentaAdicionalDetalle, VentaServicioDetalle,
                         GastoNoOperativo, Producto, LoteProducto)
 from datetime import datetime, timedelta, date
 def view(request):
@@ -81,8 +81,8 @@ def view(request):
                     date_format = xlwt.XFStyle()
                     date_format.num_format_str = 'yyyy/mm/dd'
 
-                    # ventas = vVenta.objects.filter(status=True, fecha_creacion__date=hoy)
-                    ventas = vVenta.objects.filter(status=True)
+                    # ventas = Venta.objects.filter(status=True, fecha_creacion__date=hoy)
+                    ventas = Venta.objects.filter(status=True)
 
                     for venta in ventas:
                         a += 1
@@ -200,7 +200,7 @@ def view(request):
                 data['totaldescuentos'] = f'{totaldescuentos:.2f}'
                 data['dashboardatras'] = True
 
-                ventasdia = vVenta.objects.filter(status=True, fecha_venta__date=hoy)
+                ventasdia = Venta.objects.filter(status=True, fecha_venta__date=hoy)
                 data['list'] = ventasdia
 
                 return render(request, 'dashboard/view.html', data)
@@ -230,14 +230,14 @@ def calcular_total_detalles(hoy):
 
 def calcular_total_descuentos(hoy):
     try:
-        resultado = vVenta.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('descuento'))
+        resultado = Venta.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('descuento'))
         return resultado['total'] or 0
     except Exception as e:
         return 0
 
 def calcular_total_abonos(hoy):
     try:
-        resultado = vVenta.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('abono'))
+        resultado = Venta.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('abono'))
         return resultado['total'] or 0
     except Exception as e:
         return 0

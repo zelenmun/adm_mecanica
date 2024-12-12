@@ -9,7 +9,7 @@ from django.db import transaction
 
 from core.funciones import normalizarTexto
 
-from adm.models import Producto, VentaProductoDetalle, vVenta, Cliente, Trabajo, KardexProducto, LoteProducto, \
+from adm.models import Producto, VentaProductoDetalle, Venta, Cliente, Trabajo, KardexProducto, LoteProducto, \
     VentaServicioDetalle, VentaAdicionalDetalle
 from core.models import Persona
 
@@ -55,7 +55,7 @@ def view(request):
                         estado = 2
 
 
-                    venta = vVenta(
+                    venta = Venta(
                         cliente=cliente,
                         fecha_venta=datetime.datetime.now(),
                         descuento=descuento,
@@ -157,7 +157,7 @@ def view(request):
                     if abono >= total:
                         estado = 2
 
-                    venta = vVenta.objects.get(pk=id)
+                    venta = Venta.objects.get(pk=id)
 
                     if cliente is not None and venta.cliente is None:
                         venta.cliente = cliente
@@ -305,7 +305,7 @@ def view(request):
 
                     data['id'] = id = request.GET['id']
 
-                    list1 = vVenta.objects.get(id=id)
+                    list1 = Venta.objects.get(id=id)
 
                     data['list1'] = list1
                     data['list2'] = list1.detalleproducto.filter(status=True)
