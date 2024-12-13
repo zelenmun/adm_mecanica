@@ -71,6 +71,7 @@ def view(request):
                             if not celular.isdigit() or len(celular) != 10:
                                 return JsonResponse({'result': False, 'mensaje': u'Ingrese un numero de celular válido.', 'detalle': ''})
 
+                        persona.cedula = cedula
                         persona.nombre = normalizarTexto(form.cleaned_data['nombre'])
                         persona.apellido1 = normalizarTexto(form.cleaned_data['apellido1'])
                         persona.apellido2 = normalizarTexto(form.cleaned_data.get('apellido2'))
@@ -78,6 +79,7 @@ def view(request):
                         persona.celular = celular
                         persona.correo = form.cleaned_data.get('correo')
                         persona.save()
+                        cliente.save()
                         return JsonResponse({'result': True, 'mensaje':u'Se modificado los datos del cliente excitosamente.'})
                     else:
                         return JsonResponse({'result': False, 'mensaje': u'Ingrese una cédula válida.','detalle': ''})
@@ -108,6 +110,19 @@ def view(request):
                 return JsonResponse({'result': True, 'mensaje': 'Deuda Saldada!'})
             except Exception as ex:
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
+
+        if action == 'del':
+            try:
+                cliente = Cliente.objects.get(pk=request.POST['id'])
+                persona = Persona.objects.get(id=cliente.persona_id)
+                persona.status = False
+                persona.save()
+                cliente.status = False
+                cliente.save()
+                return JsonResponse({'result': True, 'mensaje': 'Se ha eliminado el cliente excitosamente'})
+            except Exception as ex:
+                return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
+
 
     else:
         if 'action' in request.GET:

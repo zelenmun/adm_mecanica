@@ -13,8 +13,11 @@ class Cliente(ModeloBase):
         return f'<li>{self.persona}</li> <li>DEBE: <b style="color: salmon">${self.deuda_pendiente}</b></li>'
 
 class Trabajador(ModeloBase):
-    nombre = models.CharField(max_length=200, blank=True, null=True, verbose_name=u'Nombre del Trabajador')
+    persona = models.ForeignKey(Persona, on_delete=models.CASCADE,verbose_name=u'Persona', related_name='trabajador')
     sueldo = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Sueldo del trabajador')
+
+    def __str__(self):
+        return f'{self.persona} - ${self.sueldo}'
 
 class Categoria(ModeloBase):
     nombre = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Nombre de la Categoría')

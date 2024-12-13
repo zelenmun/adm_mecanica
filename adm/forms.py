@@ -51,6 +51,17 @@ class TrabajoForm(FormModeloBase):
     precio = forms.DecimalField(label=u'Precio', max_digits=10, decimal_places=2, required=True, widget=forms.NumberInput(attrs={'decimal': '2', 'col':'6', 'placeholder': 'Precio del Trabajo'}))
     detalle = forms.CharField(label=u'Detalle', required=False, widget=forms.Textarea(attrs={'rows': '3', 'placeholder': 'Detalle del Trabajo', 'class': 'form-control'}))
 
+class TrabajadorForm(FormModeloBase):
+    cedula = forms.CharField(label=u'Cédula', max_length=10, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Cédula de Identidad'}))
+    nombre = forms.CharField(label=u'Nombres', max_length=200, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Nombres'}))
+    apellido1 = forms.CharField(label=u'Primer Apellido', max_length=200, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Apellido Paterno'}))
+    apellido2 = forms.CharField(label=u'Segundo Apellido', max_length=200, required=False, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Apellido Materno'}))
+    sueldo = forms.DecimalField(label=u'Sueldo', max_digits=10, decimal_places=2, required=True, widget=forms.NumberInput(attrs={'decimal': '2', 'col': '6', 'placeholder': 'Sueldo del trabajador'}))
+    celular = forms.CharField(label=u'Teléfono ', max_length=10, required=False, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Número de Teléfono'}))
+    direccion = forms.CharField(label=u'Dirección', max_length=200, required=False, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Dirección de domicilio'}))
+    correo = forms.CharField(label=u'Correo Electrónico', max_length=200, required=False, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Email'}))
+
+
 class ClienteForm(FormModeloBase):
     cedula = forms.CharField(label=u'Cédula', max_length=10, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Cédula de Identidad'}))
     nombre = forms.CharField(label=u'Nombres', max_length=200, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Nombres'}))
