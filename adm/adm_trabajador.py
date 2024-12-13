@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from adm.forms import TrabajadorForm
-from core.funciones import normalizarTexto
+from core.funciones import normalizarTexto, obtenerPersonaCedula
 from core.models import Persona
 from adm.models import Trabajador
 from django.template.loader import get_template
@@ -17,16 +17,22 @@ def view(request):
             try:
                 form = TrabajadorForm(request.POST)
                 if form.is_valid():
+                    existe = False
+                    persona = None
                     cedula = form.cleaned_data['cedula']
-                    if cedula.isdigit() and len(cedula) == 10:
 
+                    if cedula.isdigit() and len(cedula) == 10:
                         if Persona.objects.filter(cedula=cedula, status=True).exists():
+                            existe = True
+                            persona = Persona.objects.get(cedula=cedula, status=True)
+
+                        if Trabajador.objects.filter(persona__cedula=cedula, persona__status=True, status=True).exists():
                             return JsonResponse({'result': False, 'mensaje': u'Ya se encuentra registrado este trabajador.', 'detalle':''})
 
                         celular = form.cleaned_data['celular']
                         if celular:
                             if not celular.isdigit() or len(celular) != 10:
-                                return JsonResponse({'result': False, 'mensaje': u'Ingrese un numero de celular válido.', 'detalle': ''})
+                                return JsonResponse({'result': False, 'mensaje': u'Ha ocurrido un error al ingresar el número de TELÉFONO.', 'detalle': 'Asegúrese que sean 10 dígitos.'})
 
                         nombre = normalizarTexto(form.cleaned_data['nombre'])
                         apellido1 = normalizarTexto(form.cleaned_data['apellido1'])
@@ -35,20 +41,22 @@ def view(request):
                         correo = form.cleaned_data['correo']
                         sueldo = form.cleaned_data['sueldo']
 
-                        persona = Persona(
-                            cedula=cedula,
-                            nombre=nombre,
-                            apellido1=apellido1,
-                            apellido2=apellido2,
-                            direccion=direccion,
-                            celular=celular,
-                            correo=correo,
-                        )
+                        if not existe:
+                            persona = Persona(
+                                cedula=cedula,
+                                nombre=nombre,
+                                apellido1=apellido1,
+                                apellido2=apellido2,
+                                direccion=direccion,
+                                celular=celular,
+                                correo=correo,
+                            )
+                            persona.save()
+
                         trabajador = Trabajador(
                             persona=persona,
                             sueldo=sueldo,
                         )
-                        persona.save()
                         trabajador.save()
                         return JsonResponse({'result': True, 'mensaje':u'El trabajador ha sido registrado en el sistema excitosamente.'})
                     else:
@@ -57,30 +65,60 @@ def view(request):
                     return JsonResponse({'result': False, 'mensaje': u'No se ha llenado correctamente el formulario.','detalle': ''})
             except Exception as ex:
                 return JsonResponse({'result': False, 'mensaje':u'Parece que ha ocurrido un error con el registro del trabajador.', 'detalle': str(ex)})
+
         if action == 'edit':
             try:
                 form = TrabajadorForm(request.POST)
                 if form.is_valid():
+                    trabajador = Trabajador.objects.get(id=request.POST['id'])
                     cedula = form.cleaned_data['cedula']
                     if cedula.isdigit() and len(cedula) == 10:
-                        trabajador = Trabajador.objects.get(id=request.POST['id'])
-                        persona = Persona.objects.get(id=trabajador.persona_id)
+                        nombre = normalizarTexto(form.cleaned_data['nombre'])
+                        apellido1 = normalizarTexto(form.cleaned_data['apellido1'])
+                        apellido2 = normalizarTexto(form.cleaned_data['apellido2'])
+                        direccion = normalizarTexto(form.cleaned_data['direccion'])
+                        sueldo = form.cleaned_data['sueldo']
+                        correo = form.cleaned_data['correo']
+                        celular = form.cleaned_data.get('celular')
 
-                        if Persona.objects.filter(cedula=cedula, status=True).exclude(cedula=persona.cedula).exists():
+                        existe = False
+                        persona = None
+
+                        if Persona.objects.filter(cedula=cedula, status=True).exists():
+                            existe = True
+                            persona = Persona.objects.get(cedula=cedula, status=True)
+
+                        if Trabajador.objects.filter(persona__cedula=cedula, persona__status=True, status=True).exclude(persona__cedula=trabajador.persona.cedula).exists():
                             return JsonResponse({'result': False, 'mensaje': u'Ya se encuentra registrado un trabajador con esta cédula.', 'detalle':''})
 
-                        celular = form.cleaned_data.get('celular')
                         if celular:
                             if not celular.isdigit() or len(celular) != 10:
-                                return JsonResponse({'result': False, 'mensaje': u'Ingrese un numero de celular válido.', 'detalle': ''})
+                                return JsonResponse({'result': False, 'mensaje': u'Ha ocurrido un error al ingresar el número de TELÉFONO.', 'detalle': 'Asegúrese que sean 10 dígitos.'})
+
+                        if not existe:
+                            persona = Persona(
+                                cedula=cedula,
+                                nombre=nombre,
+                                apellido1=apellido1,
+                                apellido2=apellido2,
+                                direccion=direccion,
+                                celular=celular,
+                                correo=correo,
+                            )
+                            persona.save()
+                            trabajador.persona = persona
+                            trabajador.sueldo = sueldo
+                            trabajador.save()
+                            return JsonResponse({'result': True, 'mensaje': u'Se modificado los datos del cliente excitosamente.'})
+
                         persona.cedula = cedula
-                        persona.nombre = normalizarTexto(form.cleaned_data['nombre'])
-                        persona.apellido1 = normalizarTexto(form.cleaned_data['apellido1'])
-                        persona.apellido2 = normalizarTexto(form.cleaned_data['apellido2'])
-                        persona.direccion = normalizarTexto(form.cleaned_data['direccion'])
+                        persona.nombre = nombre
+                        persona.apellido1 = apellido1
+                        persona.apellido2 = apellido2
+                        persona.direccion = direccion
                         persona.celular = celular
-                        persona.correo = form.cleaned_data['correo']
-                        trabajador.sueldo = form.cleaned_data['sueldo']
+                        persona.correo = correo
+                        trabajador.sueldo = sueldo
                         persona.save()
                         trabajador.save()
                         return JsonResponse({'result': True, 'mensaje':u'Se modificado los datos del trabajador excitosamente.'})
@@ -96,8 +134,11 @@ def view(request):
             try:
                 trabajador = Trabajador.objects.get(pk=request.POST['id'])
                 persona = Persona.objects.get(id=trabajador.persona_id)
-                persona.status = False
-                persona.save()
+
+                if not persona.personacliente.filter(status=True).exists():
+                    persona.status = False
+                    persona.save()
+
                 trabajador.status = False
                 trabajador.save()
                 return JsonResponse({'result': True, 'mensaje': 'Se ha eliminado el trabajador excitosamente'})
@@ -111,20 +152,27 @@ def view(request):
             if action == 'add':
                 try:
                     form = TrabajadorForm()
-                    template = get_template('modals/form.html')
+                    template = get_template('modals/form_persona.html')
                     return JsonResponse({'result': True, 'data': template.render({'form': form})})
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.','detalle': str(ex)})
+
             if action == 'edit':
                 try:
                     trabajador = Trabajador.objects.get(pk=request.GET['id'])
                     form = TrabajadorForm(initial={'nombre': trabajador.persona.nombre, 'apellido1': trabajador.persona.apellido1, 'apellido2': trabajador.persona.apellido2,
                                                 'cedula': trabajador.persona.cedula, 'correo': trabajador.persona.correo, 'direccion': trabajador.persona.direccion,
                                                 'celular': trabajador.persona.celular, 'sueldo': trabajador.sueldo})
-                    template = get_template('modals/form.html')
+                    template = get_template('modals/form_persona.html')
                     return JsonResponse({'result': True, 'data': template.render({'form': form})})
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.','detalle': str(ex)})
+
+            if action == 'obtenercliente':
+                try:
+                    return obtenerPersonaCedula(request.GET['cedula'], data)
+                except Exception as ex:
+                    return JsonResponse({'result': False})
 
         else:
             try:
@@ -132,7 +180,7 @@ def view(request):
                 data['subtitle'] = u'Administre sus trabajadores'
                 data['administracion'] = True
                 data['adm_activo'] = 2
-                data['list'] = Trabajador.objects.filter(status=True)
+                data['list'] = Trabajador.objects.filter(persona__status=True, status=True)
 
                 return render(request, 'administracion/adm_trabajadores.html', data)
             except Exception as ex:

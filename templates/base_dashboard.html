@@ -83,25 +83,6 @@
         <div class="sidebar-heading">
             Módulos
         </div>
-        {##}
-        {#        <!-- Nav Item - Pages Collapse Menu -->#}
-        {#        <li class="nav-item {% if activo == 1 %}activom{% endif %}">#}
-        {#            <a class="nav-link collapsed" href="{% url 'adm_servicio' %}" data-toggle="collapse"#}
-        {#               data-target="#collapseTwo"#}
-        {#               aria-expanded="true" aria-controls="collapseTwo">#}
-        {#                <i class="fas fa-fw fa-wrench"></i>#}
-        {#                <span>Servicios</span>#}
-        {#            </a>#}
-        {#        </li>#}
-        {##}
-        {##}
-        {#        <li class="nav-item {% if activo == 2 %}activom{% endif %}">#}
-        {#            <a class="nav-link collapsed" href="{% url 'adm_venta' %}" data-toggle="collapse" data-target="#collapseTwo"#}
-        {#               aria-expanded="true" aria-controls="collapseTwo">#}
-        {#                <i class="fa fa-store"></i>#}
-        {#                <span>Ventas</span>#}
-        {#            </a>#}
-        {#        </li>#}
         <li class="nav-item {% if activo == 2 %}activom{% endif %}">
             <a class="nav-link collapsed" href="{% url 'adm_venta' %}" data-toggle="collapse" data-target="#collapseTwo"
                aria-expanded="true" aria-controls="collapseTwo">
@@ -406,7 +387,7 @@
 
     function eliminarajax(pk, nombre, action, titulo = '¡Cuidado! Estás por eliminar:') {
         Swal.fire({
-            html: `${titulo} <b>${nombre}</b>`,
+            html: `${titulo} <br><b>${nombre}</b>`,
             text: "Esta acción es irreversible",
             type: 'warning',
             icon: 'warning',

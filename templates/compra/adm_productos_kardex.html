@@ -28,7 +28,7 @@
                             <th style="width: 1%">Saldo Costo</th>
                             <th style="width: 1%">Saldo Ganancia</th>
                             <th style="width: 2%">Lote</th>
-                            <th style="width: 1%">Observación</th>
+                            <th style="width: 1%">Tipo</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -45,7 +45,7 @@
                                 <td>${{ l.saldo_costo }}</td>
                                 <td>${{ l.saldo_ganancia }}</td>
                                 <td>{{ l.lote }}</td>
-                                <td>{{ l.observacion|default:"" }}</td>
+                                <td>{{ l.get_tipo_movimiento_display }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>

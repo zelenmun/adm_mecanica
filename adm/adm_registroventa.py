@@ -159,7 +159,7 @@ def view(request):
 
                     venta = Venta.objects.get(pk=id)
 
-                    if cliente is not None and venta.cliente is None:
+                    if cliente is not None:
                         venta.cliente = cliente
 
                     venta.fecha_venta = datetime.datetime.now()
@@ -179,7 +179,7 @@ def view(request):
                             producto=lote.producto,
                             tipo_movimiento=1,
                             cantidad=p.cantidad,
-                            costo_unitario=lote.preciocompra,
+                            costo_unitario=0,
                             precio_unitario=lote.precioventa,
                             lote=lote,
                         )
@@ -285,8 +285,8 @@ def view(request):
 
             if action == 'obtenercliente':
                 try:
-                    persona = Persona.objects.get(cedula=request.GET['cedula'])
-                    if persona.cliente.exists():
+                    persona = Persona.objects.get(cedula=request.GET['cedula'], status=True)
+                    if persona.personacliente.exists():
                         data['nombres'] = persona.nombre
                         data['nombre'] = persona.nombre
                         data['apellido1'] = persona.apellido1
@@ -295,6 +295,8 @@ def view(request):
                         data['celular'] = persona.celular
                         data['direccion'] = persona.direccion
                         return JsonResponse({'result': True, 'data': data})
+                    else:
+                        return JsonResponse({'result': False})
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
 

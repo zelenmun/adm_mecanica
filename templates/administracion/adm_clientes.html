@@ -111,7 +111,7 @@
                                             <div class="dropdown-header">Acciones:</div>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" href="javascript:void(0);"
-                                               onclick="formModal('{{ l.id }}', 'Editar {{ l }}', 'edit', true, '')"
+                                               onclick="formModal('{{ l.id }}', 'Editar: {{ l.persona.nombre }} {{ l.persona.apellido1 }}', 'edit', true, '')"
                                                style="display: flex; align-items: center;">
                                                 <span class="icon text-gray-600"
                                                       style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
@@ -121,7 +121,7 @@
                                             </a>
 
                                             <a class="dropdown-item" href="javascript:void(0);"
-                                               onclick="eliminarajax('{{ l.id }}', '{{ l }}', 'del')"
+                                               onclick="eliminarajax('{{ l.id }}', 'Cliente: {{ l.persona.nombre }} {{ l.persona.apellido1 }} {{ l.persona.apellido2 }}', 'del')"
                                                style="display: flex; align-items: center;">
                                                 <span class="icon text-gray-600"
                                                       style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">

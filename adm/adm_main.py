@@ -177,8 +177,8 @@ def view(request):
 
         else:
             try:
-                data['buscador'] = True
-                data['title'] = f'Dashboard Mecánica | {hoy}'
+                data['title'] = f'Dashboard Mecánica'
+                data['subtitle'] = f'{hoy}'
                 data['lunes'] = lunes
 
                 totalservicios = calcular_total_servicios(hoy)

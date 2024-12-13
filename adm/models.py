@@ -6,14 +6,14 @@ from core.models import ModeloBase, Persona
 
 # Create your models here.
 class Cliente(ModeloBase):
-    persona = models.ForeignKey(Persona, on_delete=models.CASCADE, verbose_name=u'Persona', related_name='cliente')
+    persona = models.ForeignKey(Persona, on_delete=models.CASCADE, verbose_name=u'Persona', related_name='personacliente')
     deuda_pendiente = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=u'Deuda del cliente')
 
     def __str__(self):
         return f'<li>{self.persona}</li> <li>DEBE: <b style="color: salmon">${self.deuda_pendiente}</b></li>'
 
 class Trabajador(ModeloBase):
-    persona = models.ForeignKey(Persona, on_delete=models.CASCADE,verbose_name=u'Persona', related_name='trabajador')
+    persona = models.ForeignKey(Persona, on_delete=models.CASCADE,verbose_name=u'Persona', related_name='personatrabajador', blank=True, null=True)
     sueldo = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Sueldo del trabajador')
 
     def __str__(self):
@@ -136,6 +136,9 @@ class GastoNoOperativo(ModeloBase):
     detalle = models.CharField(blank=True, null=True, verbose_name=u'Titulo del Gasto', max_length=2000)
     valor = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Valor del Gasto')
 
+    def __str__(self):
+        return f'{self.titulo} - ${self.valor}'
+
 ESTADO_VENTA = (
     (0, u'TODO'),
     (1, u'PENDIENTE'),
@@ -151,6 +154,9 @@ class Venta(ModeloBase):
     detalle = models.CharField(max_length=5000, blank=True, null=True, verbose_name=u'Detalle del Trabajo')
     abono = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Abono')
     estado = models.IntegerField(default=1, choices=ESTADO_VENTA, blank=True, null=True, verbose_name=u'Estado de la Venta')
+
+    def __str__(self):
+        return f'#{self.id} - {self.get_estado_display()} - ${self.totalventa}'
 
     def obtener_detalles(self):
         detalles = []

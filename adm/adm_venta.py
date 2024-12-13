@@ -7,10 +7,9 @@ from decimal import Decimal
 import xlwt
 from django.core.serializers import serialize
 from core.funciones import normalizarTexto
-from adm.models import Venta, Cliente, ESTADO_VENTA
+from adm.models import Venta, Cliente, ESTADO_VENTA, LoteProducto, KardexProducto
 # IMPORTACIONES DE FORMULARIOS
-from adm.forms import DecimalForm, VentaServicioForm, VentaAdicionalForm, VentaProductoForm, ClienteForm, PagoClienteForm
-from core.forms import PersonaForm
+from adm.forms import DecimalForm
 from weasyprint import HTML, CSS
 import os
 from django.db import transaction
@@ -49,6 +48,34 @@ def view(request):
             except Exception as ex:
                 transaction.set_rollback(True)
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al abonar a la venta.', 'detalle': str(ex)})
+
+        if action == 'del':
+            try:
+                venta = Venta.objects.get(pk=request.POST['id'])
+                venta.status = False
+                venta.save()
+
+                prod = venta.detalleproducto.filter(status=True)
+                for p in prod:
+                    lote = LoteProducto.objects.get(pk=p.lote_id)
+                    kardex = KardexProducto(
+                        producto=lote.producto,
+                        tipo_movimiento=1,
+                        cantidad=p.cantidad,
+                        costo_unitario=0,
+                        precio_unitario=0,
+                        lote=lote,
+                    )
+                    kardex.save()
+
+                    lote.cantidad += p.cantidad
+                    lote.save()
+
+                    p.status = False
+                    p.save()
+                return JsonResponse({'result': True})
+            except Exception as ex:
+                return JsonResponse({'result': False, 'mensaje': u'Parece que ha ocurrido un error al eliminar el registro.', 'detalle': str(ex)})
 
     else:
         if 'action' in request.GET:

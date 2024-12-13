@@ -101,6 +101,16 @@ def view(request):
                 producto = Producto.objects.get(id=request.POST['id'])
                 producto.status = False
                 producto.save()
+
+                kardex = producto.kardex_producto.filter(status=True)
+                for k in kardex:
+                    k.status = False
+                    k.save()
+
+                lotes = producto.loteproducto.filter(status=True)
+                for lote in lotes:
+                    lote.status = False
+                    lote.save()
                 return JsonResponse({'result': True, 'mensaje': 'Se ha eliminado el producto excitosamente'})
             except Exception as ex:
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al eliminar el producto.', 'detalle': str(ex)})

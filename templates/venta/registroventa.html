@@ -110,6 +110,8 @@
                                 $('#id_correo').val(data.data.correo).attr('readonly', true)
                                 existcliente = true;
                                 cedulacliente = cedula
+                            } else {
+                                eliminarClienteModal()
                             }
                         }
                     })
@@ -173,9 +175,8 @@
                                     Swal.fire({
                                         position: "center",
                                         icon: "error",
-                                        title: "No se pudo registrar el cliente!",
-                                        showConfirmButton: false,
-                                        timer: 1000
+                                        title: "Oops!...",
+                                        html: `<p><b>${data.mensaje}</b></p><hr>${data.detalle}`
                                     })
                                 }
                                 $("#itemspanel2").modal('hide')
