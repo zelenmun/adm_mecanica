@@ -90,7 +90,7 @@ def view(request):
                     producto.subcategoria = subcategoria
                     producto.descripcion = descripcion
                     producto.save()
-                    return JsonResponse({'result': True, 'mensaje': 'Se ha editado la categoría excitosamente'})
+                    return JsonResponse({'result': True, 'mensaje': 'Se ha editado el producto excitosamente'})
                 else:
                     return JsonResponse({"result": False, 'mensaje': u'El formulario no es válido.', 'detalle': ''})
             except Exception as ex:
@@ -171,11 +171,16 @@ def view(request):
             if action == 'edit':
                 try:
                     producto = Producto.objects.get(pk=request.GET['id'])
+                    lote = LoteProducto.objects.filter(status=True, producto=producto).order_by('-id').first()
                     form = ProductoForm(initial={
                         'nombre':producto.nombre,
                         'vitrina':producto.vitrina,
                         'subcategoria':producto.subcategoria,
-                        'descripcion':producto.descripcion})
+                        'descripcion':producto.descripcion,
+                        'cantidad': lote.cantidad,
+                        'preciocompra': lote.preciocompra,
+                        'precioventa': lote.precioventa
+                    })
                     form.fields['cantidad'].widget.attrs['readonly'] = True
                     form.fields['preciocompra'].widget.attrs['readonly'] = True
                     form.fields['precioventa'].widget.attrs['readonly'] = True
@@ -196,9 +201,19 @@ def view(request):
                 try:
                     producto = Producto.objects.get(pk=request.GET['id'])
                     data['title'] = f'Kardex del producto: {producto.nombre}'
-                    data['subtitle'] = f'Visualice los movimientos de su producto: {producto.nombre}'
+                    data['subtitle'] = f'Visualice los movimientos de su producto'
                     data['list'] = KardexProducto.objects.filter(status=True, producto=producto)
                     return render(request, 'compra/adm_productos_kardex.html', data)
+                except Exception as ex:
+                    return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
+
+            if action == 'lotes':
+                try:
+                    producto = Producto.objects.get(pk=request.GET['id'])
+                    data['title'] = f'Lotes del producto: {producto.nombre}'
+                    data['subtitle'] = f'Visualice los Lotes de su producto'
+                    data['list'] = LoteProducto.objects.filter(status=True, producto=producto)
+                    return render(request, 'compra/adm_productos_lote.html', data)
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
 

@@ -1,0 +1,47 @@
+{% extends 'base_dashboard.html' %}
+
+{% block extrahead %}
+    <script>
+        $(function () {
+            var table = $('#dataTable').DataTable();
+            table.order([0, 'desc']).draw();
+        })
+    </script>
+{% endblock %}
+{% block atras %}{% url 'productos' %}{% endblock %}
+{% block dashboard %}
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="font-size: 13px">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th style="width: .2%">ID</th>
+                            <th style="width: 1%">Producto</th>
+                            <th style="width: 1%">Cantidad</th>
+                            <th style="width: 1%">Precio Compra</th>
+                            <th style="width: 1%">Precio Venta</th>
+                            <th style="width: 1%">Fecha</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for l in list %}
+                            <tr style="text-align: center;">
+                                <td>{{ l.id }}</td>
+                                <td>{{ l.producto.nombre }}</td>
+                                <td>{{ l.cantidad }}</td>
+                                <td>${{ l.preciocompra }}</td>
+                                <td>${{ l.precioventa }}</td>
+                                <td>{{ l.fecha_adquisicion }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

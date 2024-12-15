@@ -85,43 +85,26 @@ class KardexProducto(ModeloBase):
     precio_unitario = models.DecimalField(blank=True, null=True, max_digits=10, decimal_places=2, verbose_name=u'Precio Unitario')
     costo_total = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2, verbose_name=u'Costo Total')
     saldo_cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Saldo Cantidad')
-    saldo_costo = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2, verbose_name=u'Saldo Costo')
-    saldo_ganancia = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2, verbose_name=u'Saldo Ganancia')
-    observacion = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Observación')
+    # saldo_costo = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2, verbose_name=u'Saldo Costo')
+    # saldo_ganancia = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2, verbose_name=u'Saldo Ganancia')
+    # observacion = models.CharField(max_length=500, blank=True, null=True, verbose_name=u'Observación')
     lote = models.ForeignKey(LoteProducto, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Lote')
 
     def __str__(self):
         return f'KARDEX DE {self.producto.nombre} - {self.fecha_movimiento}'
 
     def save(self, *args, **kwargs):
-        # Cálculo del costo total del movimiento
-        self.costo_total = self.cantidad * self.costo_unitario
-
-        # Si hay precio de venta, calculamos la ganancia
-        if self.precio_unitario:
-            ganancia_total = (self.precio_unitario - self.costo_unitario) * self.cantidad
-        else:
-            ganancia_total = 0
-
-
-        # Obtener el último registro del kardex
         ultimo_kardex = KardexProducto.objects.filter(producto=self.producto).order_by('-id').first()
 
-        # Saldo inicial (si no hay registros previos)
         saldo_cantidad_anterior = ultimo_kardex.saldo_cantidad if ultimo_kardex else 0
-        saldo_costo_anterior = ultimo_kardex.saldo_costo if ultimo_kardex else 0
 
-        # Ajustar los saldos según el tipo de movimiento
-        if self.tipo_movimiento == 1 or self.tipo_movimiento == 3:  # Ingreso / Compra
+        self.costo_total = self.cantidad * self.costo_unitario
+
+        if self.tipo_movimiento == 1 or self.tipo_movimiento == 3:
             self.saldo_cantidad = saldo_cantidad_anterior + self.cantidad
-            self.saldo_costo = saldo_costo_anterior + self.costo_total
-            self.saldo_ganancia = 0
-        elif self.tipo_movimiento == 2:  # Egreso / Venta
+        elif self.tipo_movimiento == 2:
             self.saldo_cantidad = saldo_cantidad_anterior - self.cantidad
-            self.saldo_costo = saldo_costo_anterior - self.costo_total
-            self.saldo_ganancia = ganancia_total
 
-        # Guardar el registro actualizado
         super(KardexProducto, self).save(*args, **kwargs)
 
 class Trabajo(ModeloBase):

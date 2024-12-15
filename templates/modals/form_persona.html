@@ -33,9 +33,6 @@
     $(function () {
         $("select").select2({width: '100%'});
 
-        let typingTimer;
-        const typingDelay = 300;
-
         $('#id_cedula').keyup(function () {
             var cedula = $(this).val()
             if (cedula.length === 10) {

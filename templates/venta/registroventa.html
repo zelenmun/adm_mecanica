@@ -5,7 +5,7 @@
         $(function () {
             var idventa = '{{ id }}'
             var existcliente = false;
-            var cedulacliente = '';
+            var cedulacliente = '{{ cedulacliente }}';
             var maxproductos = 0;
             var precioproducto = 0;
             var precioservicio = 0;
@@ -479,7 +479,8 @@
                                             showConfirmButton: false,
                                             timer: 1500
                                         }).then(() => {
-                                            window.location.href = '{% url 'adm_venta' %}';
+                                            window.location.href = '/';
+                                            {#location.reload();#}
                                         });
 
                                     } else {

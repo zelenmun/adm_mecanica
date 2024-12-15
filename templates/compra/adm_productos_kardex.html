@@ -25,8 +25,8 @@
                             <th style="width: 1%">Precio Unitario</th>
                             <th style="width: 1%">Costo Unitario</th>
                             <th style="width: 1%">Costo Total</th>
-                            <th style="width: 1%">Saldo Costo</th>
-                            <th style="width: 1%">Saldo Ganancia</th>
+{#                            <th style="width: 1%">Saldo Costo</th>#}
+{#                            <th style="width: 1%">Saldo Ganancia</th>#}
                             <th style="width: 2%">Lote</th>
                             <th style="width: 1%">Tipo</th>
                         </tr>
@@ -36,14 +36,14 @@
                             <tr style="text-align: center;">
                                 <td>{{ l.id }}</td>
                                 <td>{{ l.fecha_movimiento }}</td>
-{#                                <td>{{ l.get_tipo_movimiento_display }}</td>#}
-                                <td>{{ l.cantidad }}</td>
+{#                                <td >{{ l.cantidad }}</td>#}
+                                <td><b><span style="color: {% if l.tipo_movimiento == 1 %} rgb(154,55,91){% elif l.tipo_movimiento == 2 %} rgb(77,124,30){% else %} rgb(157,145,31){% endif %}; border-radius: 15px; padding:4px 9px;background-color: {% if l.tipo_movimiento == 1 %} rgba(236,90,151,0.71){% elif l.tipo_movimiento == 2 %} rgba(138,245,49,0.69){% else %} rgba(255,239,132,0.73){% endif %}">{% if l.tipo_movimiento == 2 or l.tipo_movimiento == 3 %}-{% else %}+{% endif %}{{ l.cantidad }}</span></b></td>
                                 <td>{{ l.saldo_cantidad }}</td>
                                 <td>${{ l.precio_unitario }}</td>
                                 <td>${{ l.costo_unitario }}</td>
                                 <td>${{ l.costo_total }}</td>
-                                <td>${{ l.saldo_costo }}</td>
-                                <td>${{ l.saldo_ganancia }}</td>
+{#                                <td>${{ l.saldo_costo }}</td>#}
+{#                                <td>${{ l.saldo_ganancia }}</td>#}
                                 <td>{{ l.lote }}</td>
                                 <td><b><span style="color: {% if l.tipo_movimiento == 1 %} rgb(154,55,91){% elif l.tipo_movimiento == 2 %} rgb(77,124,30){% else %} rgb(157,145,31){% endif %}; border-radius: 15px; padding:4px 9px;background-color: {% if l.tipo_movimiento == 1 %} rgba(236,90,151,0.71){% elif l.tipo_movimiento == 2 %} rgba(138,245,49,0.69){% else %} rgba(255,239,132,0.73){% endif %}">{{ l.get_tipo_movimiento_display }}</span></b></td>
                             </tr>

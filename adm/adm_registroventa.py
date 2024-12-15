@@ -162,7 +162,6 @@ def view(request):
                     if cliente is not None:
                         venta.cliente = cliente
 
-                    venta.fecha_venta = datetime.datetime.now()
                     venta.descuento = descuento
                     venta.totalventa = total
                     venta.subtotalventa = subtotal
@@ -308,6 +307,9 @@ def view(request):
                     data['id'] = id = request.GET['id']
 
                     list1 = Venta.objects.get(id=id)
+
+                    if list1.cliente:
+                        data['cedulacliente'] = list1.cliente.persona.cedula
 
                     data['list1'] = list1
                     data['list2'] = list1.detalleproducto.filter(status=True)

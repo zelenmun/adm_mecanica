@@ -7,7 +7,8 @@ from decimal import Decimal
 import xlwt
 from django.core.serializers import serialize
 from core.funciones import normalizarTexto
-from adm.models import Venta, Cliente, ESTADO_VENTA, LoteProducto, KardexProducto
+from adm.models import Venta, Cliente, ESTADO_VENTA, LoteProducto, KardexProducto, VentaServicioDetalle, \
+    VentaAdicionalDetalle
 # IMPORTACIONES DE FORMULARIOS
 from adm.forms import DecimalForm
 from weasyprint import HTML, CSS
@@ -49,12 +50,13 @@ def view(request):
                 transaction.set_rollback(True)
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al abonar a la venta.', 'detalle': str(ex)})
 
-        if action == 'del':
+        if action == 'cancelarventa':
             try:
                 venta = Venta.objects.get(pk=request.POST['id'])
                 venta.status = False
                 venta.save()
 
+                # DETALLE PRODUCTO
                 prod = venta.detalleproducto.filter(status=True)
                 for p in prod:
                     lote = LoteProducto.objects.get(pk=p.lote_id)
@@ -73,10 +75,23 @@ def view(request):
 
                     p.status = False
                     p.save()
+
+                # DETALLE SERVICIO
+                servicios = VentaServicioDetalle.objects.filter(status=True, venta=venta)
+                for servicio in servicios:
+                    servicio.status = False
+                    servicio.save()
+
+                # DETALLE ADICIONAL
+                adicionales = VentaAdicionalDetalle.objects.filter(status=True, venta=venta)
+                for adicional in adicionales:
+                    adicional.status = False
+                    adicional.save()
                 return JsonResponse({'result': True})
             except Exception as ex:
                 return JsonResponse({'result': False, 'mensaje': u'Parece que ha ocurrido un error al eliminar el registro.', 'detalle': str(ex)})
 
+        return render(request, 'exceptions/5XX.html', data)
     else:
         if 'action' in request.GET:
             data['action'] = action = request.GET['action']
