@@ -151,7 +151,7 @@ def view(request):
                     ws.write(a, 5, 'PRECIO TOTAL', estilo_cabecera)
 
                     # gastonooperativo = GastoNoOperativo.objects.filter(status=True, tipo_movimiento=1, fecha_creacion__date=hoy)
-                    kardex = KardexProducto.objects.filter(status=True, tipo_movimiento=1)
+                    kardex = KardexProducto.objects.filter(status=True, producto__status=True, lote__status=True, tipo_movimiento=1)
 
                     for l in kardex:
                         a += 1

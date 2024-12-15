@@ -56,7 +56,7 @@ class TrabajadorForm(FormModeloBase):
     nombre = forms.CharField(label=u'Nombres', max_length=200, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Nombres'}))
     apellido1 = forms.CharField(label=u'Primer Apellido', max_length=200, required=True, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Apellido Paterno'}))
     apellido2 = forms.CharField(label=u'Segundo Apellido', max_length=200, required=False, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Apellido Materno'}))
-    sueldo = forms.DecimalField(label=u'Sueldo', max_digits=10, decimal_places=2, required=True, widget=forms.NumberInput(attrs={'decimal': '2', 'col': '6', 'placeholder': 'Sueldo del trabajador'}))
+    sueldo = forms.DecimalField(label=u'Sueldo', max_digits=10, decimal_places=2, min_value=0,required=True, widget=forms.NumberInput(attrs={'decimal': '2', 'col': '6', 'placeholder': 'Sueldo del trabajador'}))
     celular = forms.CharField(label=u'Teléfono ', max_length=10, required=False, widget=forms.TextInput(attrs={'col': '6', 'class': 'form-control', 'placeholder': 'Número de Teléfono'}))
     direccion = forms.CharField(label=u'Dirección', max_length=200, required=False, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Dirección de domicilio'}))
     correo = forms.CharField(label=u'Correo Electrónico', max_length=200, required=False, widget=forms.TextInput(attrs={'col': '12', 'class': 'form-control', 'placeholder': 'Email'}))

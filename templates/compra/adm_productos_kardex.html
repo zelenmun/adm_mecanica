@@ -33,7 +33,7 @@
                         </thead>
                         <tbody>
                         {% for l in list %}
-                            <tr style="text-align: center;background-color: {% if l.tipo_movimiento == 1 %}rgba(239,192,228,0.13){% else %}rgba(190,255,132,0.15){% endif %}">
+                            <tr style="text-align: center;">
                                 <td>{{ l.id }}</td>
                                 <td>{{ l.fecha_movimiento }}</td>
 {#                                <td>{{ l.get_tipo_movimiento_display }}</td>#}
@@ -45,7 +45,7 @@
                                 <td>${{ l.saldo_costo }}</td>
                                 <td>${{ l.saldo_ganancia }}</td>
                                 <td>{{ l.lote }}</td>
-                                <td>{{ l.get_tipo_movimiento_display }}</td>
+                                <td><b><span style="color: {% if l.tipo_movimiento == 1 %} rgb(154,55,91){% elif l.tipo_movimiento == 2 %} rgb(77,124,30){% else %} rgb(157,145,31){% endif %}; border-radius: 15px; padding:4px 9px;background-color: {% if l.tipo_movimiento == 1 %} rgba(236,90,151,0.71){% elif l.tipo_movimiento == 2 %} rgba(138,245,49,0.69){% else %} rgba(255,239,132,0.73){% endif %}">{{ l.get_tipo_movimiento_display }}</span></b></td>
                             </tr>
                         {% endfor %}
                         </tbody>

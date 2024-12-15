@@ -177,10 +177,10 @@ def view(request):
                         lote = LoteProducto.objects.get(pk=p.lote_id)
                         kardex = KardexProducto(
                             producto=lote.producto,
-                            tipo_movimiento=1,
+                            tipo_movimiento=3,
                             cantidad=p.cantidad,
                             costo_unitario=0,
-                            precio_unitario=lote.precioventa,
+                            precio_unitario=0,
                             lote=lote,
                         )
                         kardex.save()

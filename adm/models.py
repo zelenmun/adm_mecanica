@@ -71,8 +71,9 @@ class LoteProducto(ModeloBase):
         return f"LOTE {self.id} - {self.producto.nombre} - ${self.preciocompra}"
 
 TIPO_MOVIMIENTO = (
-    (1, u'ENTRADA'),
-    (2, u'SALIDA')
+    (1, u'COMPRA'),
+    (2, u'VENTA'),
+    (3, u'CANCELADO')
 )
 
 class KardexProducto(ModeloBase):
@@ -111,7 +112,7 @@ class KardexProducto(ModeloBase):
         saldo_costo_anterior = ultimo_kardex.saldo_costo if ultimo_kardex else 0
 
         # Ajustar los saldos según el tipo de movimiento
-        if self.tipo_movimiento == 1:  # Ingreso / Compra
+        if self.tipo_movimiento == 1 or self.tipo_movimiento == 3:  # Ingreso / Compra
             self.saldo_cantidad = saldo_cantidad_anterior + self.cantidad
             self.saldo_costo = saldo_costo_anterior + self.costo_total
             self.saldo_ganancia = 0
