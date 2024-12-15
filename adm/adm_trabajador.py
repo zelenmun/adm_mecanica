@@ -34,12 +34,16 @@ def view(request):
                             if not celular.isdigit() or len(celular) != 10:
                                 return JsonResponse({'result': False, 'mensaje': u'Ha ocurrido un error al ingresar el número de TELÉFONO.', 'detalle': 'Asegúrese que sean 10 dígitos.'})
 
+                        sueldo = form.cleaned_data['sueldo']
+                        if sueldo<0:
+                             return JsonResponse({'result': False, 'mensaje': u'Ha ocurrido un error al ingresar el de sueldo del trabajador.', 'detalle': 'No puede ingresar un valor menor a 0'})
+
                         nombre = normalizarTexto(form.cleaned_data['nombre'])
                         apellido1 = normalizarTexto(form.cleaned_data['apellido1'])
                         apellido2 = normalizarTexto(form.cleaned_data['apellido2'])
                         direccion = normalizarTexto(form.cleaned_data['direccion'])
                         correo = form.cleaned_data['correo']
-                        sueldo = form.cleaned_data['sueldo']
+
 
                         if not existe:
                             persona = Persona(
