@@ -2,10 +2,15 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Sum
 import xlwt
+from decimal import Decimal
 from xlwt import XFStyle, easyxf
 from adm.models import (KardexProducto, Venta, VentaProductoDetalle, VentaAdicionalDetalle, VentaServicioDetalle,
-                        GastoNoOperativo, Producto, LoteProducto)
+                        GastoNoOperativo, Producto, LoteProducto, Cliente)
+from adm.forms import DecimalForm
+from django.template.loader import get_template
 from datetime import datetime, timedelta, date
+from core.funciones import generarnotaventa
+from django.db import transaction
 def view(request):
     data = {}
     hoy = datetime.now().date()  # Obtiene solo la fecha (sin hora)
@@ -13,9 +18,84 @@ def view(request):
     lunes = obtener_rango_semana_actual()
     if request.method == 'POST':
         action = request.POST['action']
+
+        if action == 'abonardeuda':
+            try:
+                with transaction.atomic():
+                    abono = Decimal(request.POST['decimal'])
+                    venta = Venta.objects.get(id=request.POST['id'])
+
+                    if abono > (venta.totalventa - venta.abono):
+                        return JsonResponse({'result': False, 'mensaje': 'Has ingresado una cantidad mayor a la deuda.', 'detalle':u'Ingresa una cantidad válida.'})
+
+                    venta.abono += abono
+
+                    if venta.abono == venta.totalventa:
+                        venta.estado = 2
+
+                    venta.save()
+
+                    if venta.cliente:
+                        cliente = Cliente.objects.get(id=venta.cliente_id)
+                        if cliente.deuda_pendiente >= abono:
+                            cliente.deuda_pendiente -= abono
+                            cliente.save()
+                    return JsonResponse({'result': True, 'mensaje': 'Se ha abonado a la deuda excitosamente'})
+            except Exception as ex:
+                transaction.set_rollback(True)
+                return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al abonar a la venta.', 'detalle': str(ex)})
+
+        if action == 'cancelarventa':
+            try:
+                venta = Venta.objects.get(pk=request.POST['id'])
+                venta.status = False
+                venta.save()
+
+                # DETALLE PRODUCTO
+                prod = venta.detalleproducto.filter(status=True)
+                for p in prod:
+                    lote = LoteProducto.objects.get(pk=p.lote_id)
+                    kardex = KardexProducto(
+                        producto=lote.producto,
+                        tipo_movimiento=3,
+                        cantidad=p.cantidad,
+                        costo_unitario=0,
+                        precio_unitario=0,
+                        lote=lote,
+                    )
+                    kardex.save()
+
+                    lote.cantidad += p.cantidad
+                    lote.save()
+
+                    p.status = False
+                    p.save()
+
+                # DETALLE SERVICIO
+                servicios = VentaServicioDetalle.objects.filter(status=True, venta=venta)
+                for servicio in servicios:
+                    servicio.status = False
+                    servicio.save()
+
+                # DETALLE ADICIONAL
+                adicionales = VentaAdicionalDetalle.objects.filter(status=True, venta=venta)
+                for adicional in adicionales:
+                    adicional.status = False
+                    adicional.save()
+                return JsonResponse({'result': True})
+            except Exception as ex:
+                return JsonResponse({'result': False, 'mensaje': u'Parece que ha ocurrido un error al eliminar el registro.', 'detalle': str(ex)})
     else:
         if 'action' in request.GET:
             action = request.GET['action']
+
+            if action == 'abonardeuda':
+                try:
+                    form = DecimalForm()
+                    template = get_template('modals/form.html')
+                    return JsonResponse({'result': True, 'data': template.render({'form': form})})
+                except Exception as ex:
+                    return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
 
             if action == 'generarcuentasdia':
                 try:
@@ -175,6 +255,7 @@ def view(request):
                 except Exception as ex:
                     pass
 
+            return render(request, 'exceptions/5XX.html', data)
         else:
             try:
                 data['title'] = f'Dashboard Mecánica'

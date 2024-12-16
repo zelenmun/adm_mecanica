@@ -15,8 +15,9 @@
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <div>
                 <a href="{% url 'registroventa' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                    class="fas fa-plus fa-sm text-white-50"></i> Registrar Venta</a>
-                <a href="{{ request.path }}?action=generarcuentasdia" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i
+                        class="fas fa-plus fa-sm text-white-50"></i> Registrar Venta</a>
+                <a href="{{ request.path }}?action=generarcuentasdia"
+                   class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i
                         class="fas fa-file-excel fa-sm text-white-50"></i> Generar Dia</a>
             </div>
         </div>
@@ -129,6 +130,7 @@
                                     <th style="width: .1%">Descuento</th>
                                     <th style="width: .1%">Total</th>
                                     <th style="width: .1%;">Estado</th>
+                                    <th style="width: .1%;"></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -145,6 +147,57 @@
                                         <td style="color: salmon"><b>${{ l.totalventa }}</b></td>
                                         <td style="color:{% if l.estado == 1 %}salmon{% elif l.estado == 2 %}#1cc88a{% endif %}">
                                             <b>{{ l.get_estado_display }}</b></td>
+                                        <td style="text-align: center">
+                                            <div class="dropdown no-arrow">
+                                                <a class="dropdown-toggle" href="#" role="button"
+                                                   id="dropdownMenuLink"
+                                                   data-toggle="dropdown" aria-haspopup="true"
+                                                   aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                                     aria-labelledby="dropdownMenuLink">
+                                                    <div class="dropdown-header">Acciones:</div>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item"
+                                                       href="{% url 'registroventa' %}?action=edit&id={{ l.id }}"
+                                                       style="display: flex; align-items: center;">
+                                                        <span class="icon text-gray-600"
+                                                              style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;"><i
+                                                                class="fas fa-edit"></i></span>
+                                                        <span class="text" style="flex-grow: 1;">Editar</span>
+                                                    </a>
+                                                    <a class="dropdown-item" href="javascript:void(0);"
+                                                       onclick="eliminarajax('{{ l.id }}', '{{ l }}', 'cancelarventa')"
+                                                       style="display: flex; align-items: center;">
+                                                        <span class="icon text-gray-600"
+                                                              style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;"><i
+                                                                class="fas fa-ban"></i></span>
+                                                        <span class="text" style="flex-grow: 1;">Cancelar Venta</span>
+                                                    </a>
+                                                    {% if l.estado == 1 %}
+                                                        <a class="dropdown-item id_generarfactura"
+                                                           href="javascript:void(0);"
+                                                           style="display: flex; align-items: center;"
+                                                           onclick="formModal('{{ l.id }}', 'PENDIENTE: {{ l.obtener_deuda }}', 'abonardeuda', true, '')">
+                                                            <span class="icon text-gray-600"
+                                                                  style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                                <i class="fas fa-plus"></i>
+                                                            </span>
+                                                            <span class="text" style="flex-grow: 1;">Abonar</span>
+                                                        </a>
+                                                    {% endif %}
+                                                    <a class="dropdown-item id_generarfactura"
+                                                       href="{% url 'adm_venta' %}?action=generarfacturapdf&id={{ l.id }}"
+                                                       style="display: flex; align-items: center;">
+                                                        <span class="icon text-gray-600"
+                                                              style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;"><i
+                                                                class="fas fa-file-pdf"></i></span>
+                                                        <span class="text" style="flex-grow: 1;">Nota Venta</span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>
