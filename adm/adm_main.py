@@ -9,7 +9,6 @@ from adm.models import (KardexProducto, Venta, VentaProductoDetalle, VentaAdicio
 from adm.forms import DecimalForm
 from django.template.loader import get_template
 from datetime import datetime, timedelta, date
-from core.funciones import generarnotaventa
 from django.db import transaction
 def view(request):
     data = {}
