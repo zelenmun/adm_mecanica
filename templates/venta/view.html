@@ -94,18 +94,15 @@
                                                 <span class="text" style="flex-grow: 1;">Cancelar Venta</span>
                                             </a>
                                             {% if l.estado == 1 %}
-                                                <a class="dropdown-item id_generarfactura" href="javascript:void(0);"
-                                               style="display: flex; align-items: center;"
-                                               onclick="formModal('{{ l.id }}', 'PENDIENTE: {{ l.obtener_deuda }}', 'abonardeuda', true, '')">
-                                                <span class="icon text-gray-600"
-                                                      style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-plus"></i>
-                                                </span>
-                                                <span class="text" style="flex-grow: 1;">Abonar</span>
-                                            </a>
+                                                <a class="dropdown-item id_generarfactura" href="javascript:void(0);" style="display: flex; align-items: center;" onclick="formModal('{{ l.id }}', 'PENDIENTE: {{ l.obtener_deuda }}', 'abonardeuda', true, '')">
+                                                    <span class="icon text-gray-600"
+                                                          style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-plus"></i>
+                                                    </span>
+                                                    <span class="text" style="flex-grow: 1;">Abonar</span>
+                                                </a>
                                             {% endif %}
-                                            <a class="dropdown-item id_generarfactura"
-                                               href="{{ request.path }}?action=generarfacturapdf&id={{ l.id }}" style="display: flex; align-items: center;">
+                                            <a class="dropdown-item id_generarfactura" href="{{ request.path }}?action=generarfacturapdf&id={{ l.id }}" style="display: flex; align-items: center;">
                                                 <span class="icon text-gray-600" style="width: 15px; height: 15px; margin-right: 10px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-file-pdf"></i></span>
                                                 <span class="text" style="flex-grow: 1;">Nota Venta</span>
                                             </a>

@@ -185,8 +185,7 @@ def view(request):
                         ws.write(a, 0, venta.id, estilo_general)
                         ws.write(a, 1, venta.obtener_detalles_excel(), estilo_general)
                         ws.write(a, 2, venta.fecha_venta.strftime('%Y-%m-%d'), formato_fecha)
-                        ws.write(a, 3, str(venta.cliente.persona if venta.cliente else "CONSUMIDOR FINAL"),
-                                 estilo_general)  # Cliente
+                        ws.write(a, 3, str(venta.cliente.persona if venta.cliente else "CONSUMIDOR FINAL"), estilo_general)
                         ws.write(a, 4, venta.abono, estilo_moneda)
                         ws.write(a, 5, venta.subtotalventa, estilo_moneda)
                         ws.write(a, 6, venta.descuento, estilo_moneda)
