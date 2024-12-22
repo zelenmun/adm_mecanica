@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - "C:/Program Files (x86)/SuperMoto/db.sqlite3:/app/db.sqlite3"
+

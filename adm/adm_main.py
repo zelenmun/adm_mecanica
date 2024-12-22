@@ -3,7 +3,6 @@ from django.http import HttpResponse, JsonResponse
 from django.db.models import Sum
 import xlwt
 from decimal import Decimal
-from xlwt import XFStyle, easyxf
 from adm.models import (KardexProducto, Venta, VentaProductoDetalle, VentaAdicionalDetalle, VentaServicioDetalle,
                         GastoNoOperativo, Producto, LoteProducto, Cliente)
 from adm.forms import DecimalForm
@@ -261,24 +260,21 @@ def view(request):
                 data['subtitle'] = f'{hoy}'
                 data['lunes'] = lunes
 
-                totalservicios = calcular_total_servicios(hoy)
-                totalrepuestos = calcular_total_repuestos(hoy)
-                totaldetalles = calcular_total_detalles(hoy)
-                totaldescuentos = calcular_total_descuentos(hoy)
+                todosabonos = calcular_todos_abonos()
+                todosegresos = calcular_todos_egresos()
                 totalegresos = calcular_total_egreso(hoy)
                 totalabonos = calcular_total_abonos(hoy)
 
-                totalventas = totalservicios + totalrepuestos + totaldetalles
+                caja = todosabonos - todosegresos
 
                 balancegeneral = totalabonos - totalegresos
 
-                data['totalventas'] = f'{totalventas:.2f}'
                 data['totalabonos'] = f'{totalabonos:.2f}'
 
                 data['balancegeneral'] = f'{balancegeneral:.2f}'
                 data['totalegresos'] = f'{totalegresos:.2f}'
-                data['totaldescuentos'] = f'{totaldescuentos:.2f}'
                 data['dashboardatras'] = True
+                data['caja'] = f'{caja:.2f}'
 
                 ventasdia = Venta.objects.filter(status=True, fecha_venta__date=hoy)
                 data['list'] = ventasdia
@@ -287,31 +283,26 @@ def view(request):
             except Exception as ex:
                 return HttpResponse(f"Método no soportado {str(ex)}")
 
-def calcular_total_servicios(hoy):
+
+def calcular_todos_abonos():
     try:
-        resultado = VentaServicioDetalle.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('total'))
+        resultado = Venta.objects.filter(status=True).aggregate(total=Sum('abono'))
         return resultado['total'] or 0
     except Exception as e:
         return 0
 
-def calcular_total_repuestos(hoy):
+def calcular_todos_egresos():
     try:
-        resultado = VentaProductoDetalle.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('total'))
-        return resultado['total'] or 0
-    except Exception as e:
-        return 0
+        resultado = KardexProducto.objects.filter(status=True, tipo_movimiento=1).aggregate(total=Sum('costo_total'))
+        resultado2 = GastoNoOperativo.objects.filter(status=True).aggregate(total=Sum('valor'))
 
-def calcular_total_detalles(hoy):
-    try:
-        resultado = VentaAdicionalDetalle.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('precio'))
-        return resultado['total'] or 0
-    except Exception as e:
-        return 0
-
-def calcular_total_descuentos(hoy):
-    try:
-        resultado = Venta.objects.filter(status=True, fecha_creacion__date=hoy).aggregate(total=Sum('descuento'))
-        return resultado['total'] or 0
+        valor1 = 0
+        valor2 = 0
+        if resultado['total']:
+            valor1 = resultado['total']
+        if resultado2['total']:
+            valor2 = resultado2['total']
+        return valor1 + valor2
     except Exception as e:
         return 0
 

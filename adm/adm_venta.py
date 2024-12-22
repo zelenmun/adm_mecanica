@@ -14,13 +14,13 @@ from adm.forms import DecimalForm
 from weasyprint import HTML, CSS
 import os
 from django.db import transaction
-import locale
+# import locale
 
 def view(request):
     data = {}
     hoy = datetime.now().date()  # Obtiene solo la fecha (sin hora)
     data['hoy'] = hoy
-    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+    # locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
     if request.method == 'POST':
         data['action'] = action = request.POST['action']
 
@@ -221,7 +221,6 @@ def view(request):
                 try:
                     fecha = str(datetime.now().timestamp()).replace('.', '')
                     fechaactual = datetime.now()
-                    fecha_formateada = fechaactual.strftime("%A, %d de %B de %Y, %H:%M")
                     venta = Venta.objects.get(id=request.GET['id'])
 
                     # Obtener detalles de la venta
@@ -238,7 +237,7 @@ def view(request):
                     data['descuento'] = venta.descuento
                     data['venta'] = venta
                     data['pendiente'] = venta.totalventa - venta.abono
-                    data['fechaactual'] = fecha_formateada
+                    data['fechaactual'] = fechaactual
 
                     persona = 'CONSUMIDOR FINAL'
 
