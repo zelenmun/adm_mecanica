@@ -140,7 +140,7 @@ def view(request):
                     descuento = Decimal(descuento) if descuento else 0
 
                     for detalle in detalles:
-                        subtotal = subtotal + Decimal(detalle['total'][1:])
+                        subtotal = subtotal + Decimal(detalle['total'][1:].replace(',', '.'))
 
                     total = Decimal(subtotal - descuento)
 
@@ -191,8 +191,8 @@ def view(request):
 
                     for detalle in detalles:
                         cantidad = int(detalle['cantidad'])
-                        preciou = Decimal(detalle['preciou'][1:])
-                        total = Decimal(detalle['total'][1:])
+                        preciou = Decimal(detalle['preciou'][1:].replace(',', '.'))
+                        total = Decimal(detalle['total'][1:].replace(',', '.'))
 
                         if detalle['tipo'] == 'PRODUCTO':
                             lote = LoteProducto.objects.get(pk=detalle['id'])
