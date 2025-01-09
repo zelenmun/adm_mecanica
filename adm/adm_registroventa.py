@@ -68,8 +68,7 @@ def view(request):
 
                     for detalle in detalles:
                         cantidad = int(detalle['cantidad'])
-                        preciou = Decimal(detalle['preciou'][1:])
-                        total = Decimal(detalle['total'][1:])
+                        preciou = Decimal(detalle['preciou'][1:].replace(',', '.'))
 
                         if detalle['tipo'] == 'PRODUCTO':
                             lote = LoteProducto.objects.get(pk=detalle['id'])
@@ -113,10 +112,13 @@ def view(request):
                             ventadetalle.save()
 
                         if detalle['tipo'] == 'ADICIONAL':
+                            total = Decimal(cantidad * preciou)
                             ventadetalle = VentaAdicionalDetalle(
                                 venta=venta,
                                 detalle=normalizarTexto(detalle['detalle']),
-                                precio=total,
+                                cantidad=cantidad,
+                                precio=preciou,
+                                total=total,
                             )
                             ventadetalle.save()
                     return JsonResponse({"result": True, 'mensaje': u'Ha realizado la venta correctamente', 'detalle': ''})
@@ -192,7 +194,6 @@ def view(request):
                     for detalle in detalles:
                         cantidad = int(detalle['cantidad'])
                         preciou = Decimal(detalle['preciou'][1:].replace(',', '.'))
-                        total = Decimal(detalle['total'][1:].replace(',', '.'))
 
                         if detalle['tipo'] == 'PRODUCTO':
                             lote = LoteProducto.objects.get(pk=detalle['id'])
@@ -236,10 +237,13 @@ def view(request):
                             ventadetalle.save()
 
                         if detalle['tipo'] == 'ADICIONAL':
+                            total = Decimal(cantidad * preciou)
                             ventadetalle = VentaAdicionalDetalle(
                                 venta=venta,
                                 detalle=normalizarTexto(detalle['detalle']),
-                                precio=total,
+                                cantidad=cantidad,
+                                precio=preciou,
+                                total=total
                             )
                             ventadetalle.save()
                     return JsonResponse({"result": True, 'mensaje': u'Ha modificado la venta correctamente', 'detalle': ''})

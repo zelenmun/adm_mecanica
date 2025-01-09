@@ -196,6 +196,6 @@ class VentaServicioDetalle(ModeloBase):
 class VentaAdicionalDetalle(ModeloBase):
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE, blank=True, null=True, verbose_name=u'Venta', related_name='detalleadicional')
     detalle = models.CharField(max_length=5000, blank=True, null=True, verbose_name=u'Detalle del Trabajo')
-    # cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad')
+    cantidad = models.IntegerField(blank=True, null=True, verbose_name=u'Cantidad')
     precio = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Precio')
-
+    total = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=u'Total')

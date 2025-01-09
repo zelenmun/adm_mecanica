@@ -167,8 +167,8 @@
                 <tr>
                     <td>{{ l.detalle }}</td>
                     <td>${{ l.precio }}</td>
-                    <td>-</td>
-                    <td><b>${{ l.precio }}</b></td>
+                    <td>{{ l.cantidad }}</td>
+                    <td><b>${{ l.total }}</b></td>
                 </tr>
             {% endfor %}
             </tbody>

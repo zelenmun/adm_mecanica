@@ -355,11 +355,12 @@
 
             $('#btn_guardar_d').click(function () {
                 const detalle = $('#id_detalle').val().toUpperCase();
-                const ganancia = $('#id_ganancia').val();
-                if (detalle && ganancia) {
+                const precio = $('#id_preciodetalle').val();
+                const dcantidad = $('#id_dcantidad').val();
+                if (detalle && precio && dcantidad) {
                     const id = 0;
-                    const cantidad = 0;
                     const tipo = 'ADICIONAL';
+                    const total = dcantidad * precio
 
                     const detalleExistente = table.column(2).data().toArray();
                     if (detalleExistente.includes(detalle)) {
@@ -376,9 +377,9 @@
                             id,
                             tipo,
                             detalle,
-                            '$' + ganancia,
-                            cantidad,
-                            '$' + ganancia,
+                            '$' + precio,
+                            dcantidad,
+                            '$' + total,
                             actions
                         ]).draw();
                         calcularTotales()
@@ -388,7 +389,7 @@
                         type: 'warning',
                         icon: 'warning',
                         title: 'Espera!',
-                        text: 'Es necesario agregar un DETALLE y una GANANCIA'
+                        text: 'Es necesario agregar un DETALLE, un PRECIO y una CANTIDAD'
                     })
                 }
 
@@ -755,14 +756,14 @@
                             </div>
 
                             <!-- Columna 3: Botones adicionales -->
-                            {#                            <div style="margin-top: 15px; align-content: center; display: flex; flex-direction: row; align-items: center; gap: 5px">#}
-                            {#                                <a href="javascript:void(0);" id="btn_plus3" class="btn btn-success btn-icon-split">#}
-                            {#                                    <span class="icon text-white-50"><i class="fas fa-plus"></i></span>#}
-                            {#                                </a>#}
-                            {#                                <a href="javascript:void(0);" id="btn_minus3" class="btn btn-danger btn-icon-split">#}
-                            {#                                    <span class="icon text-white-50"><i class="fas fa-minus"></i></span>#}
-                            {#                                </a>#}
-                            {#                            </div>#}
+                            <div style="margin-top: 15px; align-content: center; display: flex; flex-direction: row; align-items: center; gap: 5px">
+                                <a href="javascript:void(0);" id="btn_plus3" class="btn btn-success btn-icon-split">
+                                    <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
+                                </a>
+                                <a href="javascript:void(0);" id="btn_minus3" class="btn btn-danger btn-icon-split">
+                                    <span class="icon text-white-50"><i class="fas fa-minus"></i></span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                     <div style="border-left: 2px solid #ccc;"></div>
@@ -907,8 +908,8 @@
                                     <td>ADICIONAL</td>
                                     <td>{{ l.detalle }}</td>
                                     <td>${{ l.precio }}</td>
-                                    <td>0</td>
-                                    <td>${{ l.precio }}</td>
+                                    <td>{{ l.cantidad }}</td>
+                                    <td>${{ l.total }}</td>
                                     <td>
                                         <div class="dropdown no-arrow" style="display: flex; justify-content: center">
                                             <a class="dropdown-toggle" href="#" role="button"
