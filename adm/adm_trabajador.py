@@ -150,6 +150,7 @@ def view(request):
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
 
 
+        return render(request, 'exceptions/5XX.html', data)
     else:
         if 'action' in request.GET:
             data['action'] = action = request.GET['action']
@@ -178,6 +179,7 @@ def view(request):
                 except Exception as ex:
                     return JsonResponse({'result': False})
 
+            return render(request, 'exceptions/5XX.html', data)
         else:
             try:
                 data['title'] = u'Administración de Trabajadores'
@@ -188,4 +190,8 @@ def view(request):
 
                 return render(request, 'administracion/adm_trabajadores.html', data)
             except Exception as ex:
-                return HttpResponse(f"Método no soportado, {str(ex)}")
+                data['title'] = u'Error en: Trabajador'
+                data['subtitle'] = u''
+                data['exception'] = str(ex)
+                data['dashboardatras'] = True
+                return render(request, 'exceptions/5XX.html', data)

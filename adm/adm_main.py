@@ -83,6 +83,8 @@ def view(request):
                 return JsonResponse({'result': True})
             except Exception as ex:
                 return JsonResponse({'result': False, 'mensaje': u'Parece que ha ocurrido un error al eliminar el registro.', 'detalle': str(ex)})
+
+        return render(request, 'exceptions/5XX.html', data)
     else:
         if 'action' in request.GET:
             action = request.GET['action']
@@ -281,7 +283,11 @@ def view(request):
 
                 return render(request, 'dashboard/view.html', data)
             except Exception as ex:
-                return HttpResponse(f"Método no soportado {str(ex)}")
+                data['title'] = u'Error en: Dashboard'
+                data['subtitle'] = u''
+                data['exception'] = str(ex)
+                data['dashboardatras'] = True
+                return render(request, 'exceptions/5XX.html', data)
 
 
 def calcular_todos_abonos():

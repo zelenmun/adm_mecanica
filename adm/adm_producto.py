@@ -156,6 +156,7 @@ def view(request):
             except Exception as ex:
                 transaction.set_rollback(True)
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar los datos.', 'detalle': str(ex)})
+        return render(request, 'exceptions/5XX.html', data)
     else:
         if 'action' in request.GET:
             data['action'] = action = request.GET['action']
@@ -217,6 +218,8 @@ def view(request):
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
 
+            return render(request, 'exceptions/5XX.html', data)
+
         else:
             try:
                 data['title'] = u'Administración de Productos'
@@ -225,4 +228,8 @@ def view(request):
                 data['activo'] = 3
                 return render(request, 'compra/adm_productos.html', data)
             except Exception as ex:
-                return HttpResponse(f"Método no soportado, {str(ex)}")
+                data['title'] = u'Error en: Productos'
+                data['subtitle'] = u''
+                data['exception'] = str(ex)
+                data['dashboardatras'] = True
+                return render(request, 'exceptions/5XX.html', data)

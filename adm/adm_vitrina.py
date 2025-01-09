@@ -55,6 +55,8 @@ def view(request):
                 return JsonResponse({'result': True, 'mensaje': u'Se ha eliminado correctamente la vitrina.', 'detalle':''})
             except Exception as ex:
                 return JsonResponse({'result': False, 'mensaje':u'Parece que ha ocurrido un error al eliminar la vitrina.', 'detalle': str(ex)})
+
+        return render(request, 'exceptions/5XX.html', data)
     else:
         if 'action' in request.GET:
             data['action'] = action = request.GET['action']
@@ -78,6 +80,8 @@ def view(request):
                     return JsonResponse({'result':True, 'data':template.render({'form':form})})
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
+
+            return render(request, 'exceptions/5XX.html', data)
         else:
             try:
                 data['title'] = u'Administración de Vitrinas'

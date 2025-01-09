@@ -251,6 +251,7 @@ def view(request):
                 transaction.set_rollback(True)
                 return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar', 'detalle': str(ex)})
 
+        return render(request, 'exceptions/5XX.html', data)
     else:
         if 'action' in request.GET:
             data['action'] = action = request.GET['action']
@@ -341,6 +342,7 @@ def view(request):
                 except Exception as ex:
                     return HttpResponse(request.path)
 
+            return render(request, 'exceptions/5XX.html', data)
         else:
             try:
                 data['title'] = u'Ventas'

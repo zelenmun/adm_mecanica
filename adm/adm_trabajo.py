@@ -57,8 +57,9 @@ def view(request):
                 trabajo.save()
                 return JsonResponse({"result": True, 'mensaje': u'Has eliminado el registro excitosamente.', 'detalle': ''})
             except Exception as ex:
-                return JsonResponse(
-                    {"result": False, 'mensaje': u'Ha ocurrido un error al guardar', 'detalle': str(ex)})
+                return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al guardar', 'detalle': str(ex)})
+
+        return render(request, 'exceptions/5XX.html', data)
     else:
         if 'action' in request.GET:
             action = request.GET['action']
@@ -79,6 +80,7 @@ def view(request):
                 except Exception as ex:
                     return JsonResponse({"result": False, 'mensaje': u'Ha ocurrido un error al obtener el formulario.', 'detalle': str(ex)})
 
+            return render(request, 'exceptions/5XX.html', data)
         else:
             try:
                 data['title'] = u'Administración de Trabajos'
@@ -89,4 +91,8 @@ def view(request):
                 data['adm_activo'] = 5
                 return render(request, 'administracion/adm_trabajos.html', data)
             except Exception as ex:
-                return HttpResponse(f"Método no soportado, {str(ex)}")
+                data['title'] = u'Error en: Trabajo'
+                data['subtitle'] = u''
+                data['exception'] = str(ex)
+                data['dashboardatras'] = True
+                return render(request, 'exceptions/5XX.html', data)
